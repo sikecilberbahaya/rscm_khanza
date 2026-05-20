@@ -58,7 +58,7 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
     private JsonNode root;
     private JsonNode response;
     private SatuSehatCekNIK cekViaSatuSehat=new SatuSehatCekNIK();  
-    private StringBuilder htmlContent;   
+    private StringBuilder htmlContent;    
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private volatile boolean ceksukses = false; 
     
@@ -75,7 +75,7 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
         tabMode=new DefaultTableModel(null,new String[]{
                 "P","Tanggal Registrasi","No.Rawat","No.RM","Nama Pasien","No.KTP Pasien","Kode Dokter","Nama Dokter",
                 "No.KTP Dokter","Kode Poli","Nama Poli/Unit","ID Lokasi Unit","Stts Rawat","Stts Lanjut",
-                "Tanggal Pulang","ID Encounter"
+                "Mulai Periksa","ID Encounter","Tanggal Pulang/Billing"
             }){
               @Override public boolean isCellEditable(int rowIndex, int colIndex){
                 boolean a = false;
@@ -88,7 +88,7 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
                  java.lang.Boolean.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, 
                  java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, 
                  java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, 
-                 java.lang.String.class
+                 java.lang.String.class, java.lang.String.class
              };
              @Override
              public Class getColumnClass(int columnIndex) {
@@ -135,6 +135,8 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
                 column.setPreferredWidth(150);
             }else if(i==15){
                 column.setPreferredWidth(215);
+            }else if(i==16){
+                column.setPreferredWidth(200);
             }
         }
         tbObat.setDefaultRenderer(Object.class, new WarnaTable());
@@ -179,6 +181,7 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
 
         jPopupMenu1 = new javax.swing.JPopupMenu();
         ppPilihSemua = new javax.swing.JMenuItem();
+        ppPilihBelumTerkirim = new javax.swing.JMenuItem();
         ppBersihkan = new javax.swing.JMenuItem();
         LoadHTML = new widget.editorpane();
         internalFrame1 = new widget.InternalFrame();
@@ -201,6 +204,8 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
         jLabel16 = new widget.Label();
         TCari = new widget.TextBox();
         BtnCari = new widget.Button();
+        BtnInProgress = new widget.Button();
+        BtnFinished = new widget.Button();
 
         jPopupMenu1.setName("jPopupMenu1"); // NOI18N
 
@@ -219,6 +224,22 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
             }
         });
         jPopupMenu1.add(ppPilihSemua);
+
+        ppPilihBelumTerkirim.setBackground(new java.awt.Color(255, 255, 254));
+        ppPilihBelumTerkirim.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
+        ppPilihBelumTerkirim.setForeground(new java.awt.Color(50, 50, 50));
+        ppPilihBelumTerkirim.setIcon(new javax.swing.ImageIcon(getClass().getResource("/picture/category.png"))); // NOI18N
+        ppPilihBelumTerkirim.setText("Pilih Belum Terkirim");
+        ppPilihBelumTerkirim.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        ppPilihBelumTerkirim.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        ppPilihBelumTerkirim.setName("ppPilihBelumTerkirim"); // NOI18N
+        ppPilihBelumTerkirim.setPreferredSize(new java.awt.Dimension(150, 26));
+        ppPilihBelumTerkirim.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ppPilihBelumTerkirimActionPerformed(evt);
+            }
+        });
+        jPopupMenu1.add(ppPilihBelumTerkirim);
 
         ppBersihkan.setBackground(new java.awt.Color(255, 255, 254));
         ppBersihkan.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
@@ -371,7 +392,7 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
         jLabel15.setPreferredSize(new java.awt.Dimension(85, 23));
         panelGlass9.add(jLabel15);
 
-        DTPCari1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "09-02-2026" }));
+        DTPCari1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "15-04-2026" }));
         DTPCari1.setDisplayFormat("dd-MM-yyyy");
         DTPCari1.setName("DTPCari1"); // NOI18N
         DTPCari1.setOpaque(false);
@@ -384,7 +405,7 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
         jLabel17.setPreferredSize(new java.awt.Dimension(24, 23));
         panelGlass9.add(jLabel17);
 
-        DTPCari2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "09-02-2026" }));
+        DTPCari2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "15-04-2026" }));
         DTPCari2.setDisplayFormat("dd-MM-yyyy");
         DTPCari2.setName("DTPCari2"); // NOI18N
         DTPCari2.setOpaque(false);
@@ -421,6 +442,42 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
             }
         });
         panelGlass9.add(BtnCari);
+
+        BtnInProgress.setIcon(new javax.swing.ImageIcon(getClass().getResource("/picture/34.png"))); // NOI18N
+        BtnInProgress.setMnemonic('M');
+        BtnInProgress.setText("PUT Inprogress");
+        BtnInProgress.setToolTipText("Alt+M");
+        BtnInProgress.setName("BtnInProgress"); // NOI18N
+        BtnInProgress.setPreferredSize(new java.awt.Dimension(140, 30));
+        BtnInProgress.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BtnInProgressActionPerformed(evt);
+            }
+        });
+        BtnInProgress.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                BtnInProgressKeyPressed(evt);
+            }
+        });
+        panelGlass9.add(BtnInProgress);
+
+        BtnFinished.setIcon(new javax.swing.ImageIcon(getClass().getResource("/picture/34.png"))); // NOI18N
+        BtnFinished.setMnemonic('M');
+        BtnFinished.setText("PUT Finished");
+        BtnFinished.setToolTipText("Alt+M");
+        BtnFinished.setName("BtnFinished"); // NOI18N
+        BtnFinished.setPreferredSize(new java.awt.Dimension(140, 30));
+        BtnFinished.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BtnFinishedActionPerformed(evt);
+            }
+        });
+        BtnFinished.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                BtnFinishedKeyPressed(evt);
+            }
+        });
+        panelGlass9.add(BtnFinished);
 
         jPanel3.add(panelGlass9, java.awt.BorderLayout.PAGE_START);
 
@@ -822,6 +879,144 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
     }//GEN-LAST:event_ppBersihkanActionPerformed
 
     private void BtnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnUpdateActionPerformed
+    for(i=0;i<tbObat.getRowCount();i++){
+        if(tbObat.getValueAt(i,0).toString().equals("true")&&(!tbObat.getValueAt(i,5).toString().equals(""))&&(!tbObat.getValueAt(i,8).toString().equals(""))&&(!tbObat.getValueAt(i,15).toString().equals(""))){
+            try {
+                iddokter=cekViaSatuSehat.tampilIDParktisi(tbObat.getValueAt(i,8).toString());
+                idpasien=cekViaSatuSehat.tampilIDPasien(tbObat.getValueAt(i,5).toString());
+                try{
+                    headers = new HttpHeaders();
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    headers.add("Authorization", "Bearer "+api.TokenSatuSehat());
+                    json = "{" +
+                                "\"resourceType\": \"Encounter\"," +
+                                "\"id\": \""+tbObat.getValueAt(i,15).toString()+"\"," +
+                                "\"identifier\": [" +
+                                    "{" +
+                                        "\"system\": \"http://sys-ids.kemkes.go.id/encounter/"+koneksiDB.IDSATUSEHAT()+"\"," +
+                                        "\"value\": \""+tbObat.getValueAt(i,2).toString()+"\"" +
+                                    "}" +
+                                "]," +
+                                    "\"status\": \"arrived\"," +
+                                "\"class\": {" +
+                                    "\"system\": \"http://terminology.hl7.org/CodeSystem/v3-ActCode\"," +
+                                    "\"code\": \""+(tbObat.getValueAt(i,11).toString().equals("Ralan")?"AMB":"IMP")+"\"," +
+                                    "\"display\": \""+(tbObat.getValueAt(i,11).toString().equals("Ralan")?"ambulatory":"inpatient encounter")+"\"" +
+                                "}," +
+                                "\"subject\": {" +
+                                    "\"reference\": \"Patient/"+idpasien+"\"," +
+                                    "\"display\": \""+tbObat.getValueAt(i,4).toString()+"\"" +
+                                "}," +
+                                "\"participant\": [" +
+                                    "{" +
+                                        "\"type\": [" +
+                                            "{" +
+                                                "\"coding\": [" +
+                                                    "{" +
+                                                        "\"system\": \"http://terminology.hl7.org/CodeSystem/v3-ParticipationType\"," +
+                                                        "\"code\": \"ATND\"," +
+                                                        "\"display\": \"attender\"" +
+                                                    "}" +
+                                                "]" +
+                                            "}" +
+                                        "]," +
+                                        "\"individual\": {" +
+                                            "\"reference\": \"Practitioner/"+iddokter+"\"," +
+                                            "\"display\": \""+tbObat.getValueAt(i,7).toString()+"\"" +
+                                        "}" +
+                                    "}" +
+                                "]," +
+                                "\"period\": {" +
+                                        "\"start\": \""+tbObat.getValueAt(i,1).toString()+"\"" +
+                                "}," +
+                                "\"location\": [" +
+                                    "{" +
+                                        "\"location\": {" +
+                                            "\"reference\": \"Location/"+tbObat.getValueAt(i,11).toString()+"\"," +
+                                            "\"display\": \""+tbObat.getValueAt(i,10).toString()+"\"" +
+                                        "}" +
+                                    "}" +
+                                "]," +
+                                "\"statusHistory\": [" +
+                                    "{" +
+                                        "\"status\": \"arrived\"," +
+                                        "\"period\": {" +
+                                            "\"start\": \""+tbObat.getValueAt(i,1).toString()+"\"," +
+                                            "\"end\": \""+tbObat.getValueAt(i,14).toString()+"\"" +
+                                        "}" +
+                                        "}" +
+                                "]," +
+                                "\"serviceProvider\": {" +
+                                    "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
+                                "}" +
+                            "}";
+                    System.out.println("URL : "+link+"/Encounter/"+tbObat.getValueAt(i,15).toString());
+                    System.out.println("Request JSON : "+json);
+                    requestEntity = new HttpEntity(json,headers);
+                    json=api.getRest().exchange(link+"/Encounter/"+tbObat.getValueAt(i,15).toString(), HttpMethod.PUT, requestEntity, String.class).getBody();
+                    System.out.println("Result JSON : "+json);
+                    tbObat.setValueAt(false,i,0);
+                }catch(Exception e){
+                    System.out.println("Notifikasi Bridging : "+e);
+                }
+            } catch (Exception e) {
+                System.out.println("Notifikasi : "+e);
+            }
+        }
+    }
+    }//GEN-LAST:event_BtnUpdateActionPerformed
+    
+    private void BtnAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnAllActionPerformed
+        TCari.setText("");
+        runBackground(() ->tampil());
+    }//GEN-LAST:event_BtnAllActionPerformed
+
+    private void BtnAllKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_BtnAllKeyPressed
+        if(evt.getKeyCode()==KeyEvent.VK_SPACE){
+            TCari.setText("");
+            runBackground(() ->tampil());
+        }else{
+            Valid.pindah(evt, BtnPrint, BtnKeluar);
+        }
+    }//GEN-LAST:event_BtnAllKeyPressed
+
+    private void ppPilihBelumTerkirimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ppPilihBelumTerkirimActionPerformed
+        for(int i = 0; i < tbObat.getRowCount(); i++) {
+            tbObat.setValueAt(
+                (tbObat.getValueAt(i, 15) == null || 
+                 tbObat.getValueAt(i, 15).toString().trim().equals("") || 
+                 tbObat.getValueAt(i, 15).toString().equals("-")), 
+                i, 0
+            );
+        }
+    }//GEN-LAST:event_ppPilihBelumTerkirimActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        if(koneksiDB.CARICEPAT().equals("aktif")){
+            TCari.getDocument().addDocumentListener(new javax.swing.event.DocumentListener(){
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    if(TCari.getText().length()>2){
+                        runBackground(() ->tampil());
+                    }
+                }
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    if(TCari.getText().length()>2){
+                        runBackground(() ->tampil());
+                    }
+                }
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                    if(TCari.getText().length()>2){
+                        runBackground(() ->tampil());
+                    }
+                }
+            });
+        } 
+    }//GEN-LAST:event_formWindowOpened
+
+    private void BtnInProgressActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnInProgressActionPerformed
         for(i=0;i<tbObat.getRowCount();i++){
             if(tbObat.getValueAt(i,0).toString().equals("true")&&(!tbObat.getValueAt(i,5).toString().equals(""))&&(!tbObat.getValueAt(i,8).toString().equals(""))&&(!tbObat.getValueAt(i,15).toString().equals(""))){
                 try {
@@ -840,7 +1035,7 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
                                             "\"value\": \""+tbObat.getValueAt(i,2).toString()+"\"" +
                                         "}" +
                                     "]," +
-                                    "\"status\": \"arrived\"," +
+                                    "\"status\": \"in-progress\"," +
                                     "\"class\": {" +
                                         "\"system\": \"http://terminology.hl7.org/CodeSystem/v3-ActCode\"," +
                                         "\"code\": \""+(tbObat.getValueAt(i,11).toString().equals("Ralan")?"AMB":"IMP")+"\"," +
@@ -887,6 +1082,167 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
                                                 "\"start\": \""+tbObat.getValueAt(i,1).toString()+"\"," +
                                                 "\"end\": \""+tbObat.getValueAt(i,14).toString()+"\"" +
                                             "}" +
+                                        "}," +
+                                        "{" +
+                                            "\"status\": \"in-progress\"," +
+                                            "\"period\": {" +
+                                                "\"start\": \""+tbObat.getValueAt(i,14).toString()+"\"," +
+                                                "\"end\": \""+tbObat.getValueAt(i,16).toString()+"\"" +
+                                            "}" +
+                                        "}" +
+                                    "]," +
+                                    "\"serviceProvider\": {" +
+                                        "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
+                                    "}" +
+                                "}";
+                        System.out.println("URL : "+link+"/Encounter/"+tbObat.getValueAt(i,15).toString());
+                        System.out.println("Request JSON : "+json);
+                        requestEntity = new HttpEntity(json,headers);
+                        json=api.getRest().exchange(link+"/Encounter/"+tbObat.getValueAt(i,15).toString(), HttpMethod.PUT, requestEntity, String.class).getBody();
+                        System.out.println("Result JSON : "+json);
+                        tbObat.setValueAt(false,i,0);
+                    }catch(Exception e){
+                        System.out.println("Notifikasi Bridging : "+e);
+                    }
+                } catch (Exception e) {
+                    System.out.println("Notifikasi : "+e);
+                }
+            }
+        }                                                                           
+    }//GEN-LAST:event_BtnInProgressActionPerformed
+
+    private void BtnInProgressKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_BtnInProgressKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BtnInProgressKeyPressed
+
+    private void BtnFinishedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnFinishedActionPerformed
+        for(i=0;i<tbObat.getRowCount();i++){
+            if(tbObat.getValueAt(i,0).toString().equals("true")&&(!tbObat.getValueAt(i,5).toString().equals(""))&&(!tbObat.getValueAt(i,8).toString().equals(""))&&(!tbObat.getValueAt(i,15).toString().equals(""))){
+                try {
+                    iddokter=cekViaSatuSehat.tampilIDParktisi(tbObat.getValueAt(i,8).toString());
+                    idpasien=cekViaSatuSehat.tampilIDPasien(tbObat.getValueAt(i,5).toString());
+
+                    StringBuilder diagnosisBuilder = new StringBuilder();
+                    diagnosisBuilder.append("\"diagnosis\": [");
+                    PreparedStatement psDiag = null;
+                    ResultSet rsDiag = null;
+                    try {
+                        String sqlDiag = "select satu_sehat_condition.id_condition, penyakit.nm_penyakit, diagnosa_pasien.prioritas " +
+                                         "from satu_sehat_condition inner join penyakit on satu_sehat_condition.kd_penyakit = penyakit.kd_penyakit " +
+                                         "inner join diagnosa_pasien on satu_sehat_condition.kd_penyakit = diagnosa_pasien.kd_penyakit " +
+                                         "where satu_sehat_condition.no_rawat = ? order by diagnosa_pasien.prioritas asc limit 1";
+                        psDiag = koneksi.prepareStatement(sqlDiag);
+                        psDiag.setString(1, tbObat.getValueAt(i,2).toString());
+                        rsDiag = psDiag.executeQuery();
+                        int rank = 1;
+                        boolean first = true;
+                        while(rsDiag.next()){
+                            if(!first){
+                                diagnosisBuilder.append(",");
+                            }
+                            first = false;
+                            String idCondition = rsDiag.getString("id_condition");
+                            String nmPenyakit = rsDiag.getString("nm_penyakit");
+                            diagnosisBuilder.append("{")
+                                .append("\"condition\": {")
+                                .append("\"reference\": \"Condition/").append(idCondition).append("\",")
+                                .append("\"display\": \"").append(nmPenyakit).append("\"")
+                                .append("},")
+                                .append("\"use\": {")
+                                .append("\"coding\": [{")
+                                .append("\"system\": \"http://terminology.hl7.org/CodeSystem/diagnosis-role\",")
+                                .append("\"code\": \"DD\",")
+                                .append("\"display\": \"Discharge diagnosis\"")
+                                .append("}]")
+                                .append("},")
+                                .append("\"rank\": ").append(rank)
+                                .append("}");
+                            rank++;
+                        }
+                    } catch(Exception e){
+                        System.out.println("Error ambil diagnosis: "+e);
+                    } finally {
+                        if(rsDiag!=null) rsDiag.close();
+                        if(psDiag!=null) psDiag.close();
+                    }
+                    diagnosisBuilder.append("]");
+
+                    try{
+                        headers = new HttpHeaders();
+                        headers.setContentType(MediaType.APPLICATION_JSON);
+                        headers.add("Authorization", "Bearer "+api.TokenSatuSehat());
+                        json = "{" +
+                                    "\"resourceType\": \"Encounter\"," +
+                                    "\"id\": \""+tbObat.getValueAt(i,15).toString()+"\"," +
+                                    "\"identifier\": [" +
+                                        "{" +
+                                            "\"system\": \"http://sys-ids.kemkes.go.id/encounter/"+koneksiDB.IDSATUSEHAT()+"\"," +
+                                            "\"value\": \""+tbObat.getValueAt(i,2).toString()+"\"" +
+                                        "}" +
+                                    "]," +
+                                    "\"status\": \"finished\"," +
+                                    "\"class\": {" +
+                                        "\"system\": \"http://terminology.hl7.org/CodeSystem/v3-ActCode\"," +
+                                        "\"code\": \""+(tbObat.getValueAt(i,13).toString().equals("Ralan")?"AMB":"IMP")+"\"," +
+                                        "\"display\": \""+(tbObat.getValueAt(i,13).toString().equals("Ralan")?"ambulatory":"inpatient encounter")+"\"" +
+                                    "}," +
+                                    "\"subject\": {" +
+                                        "\"reference\": \"Patient/"+idpasien+"\"," +
+                                        "\"display\": \""+tbObat.getValueAt(i,4).toString()+"\"" +
+                                    "}," +
+                                    "\"participant\": [" +
+                                        "{" +
+                                            "\"type\": [" +
+                                                "{" +
+                                                    "\"coding\": [" +
+                                                        "{" +
+                                                            "\"system\": \"http://terminology.hl7.org/CodeSystem/v3-ParticipationType\"," +
+                                                            "\"code\": \"ATND\"," +
+                                                            "\"display\": \"attender\"" +
+                                                        "}" +
+                                                    "]" +
+                                                "}" +
+                                            "]," +
+                                            "\"individual\": {" +
+                                                "\"reference\": \"Practitioner/"+iddokter+"\"," +
+                                                "\"display\": \""+tbObat.getValueAt(i,7).toString()+"\"" +
+                                            "}" +
+                                        "}" +
+                                    "]," +
+                                    "\"period\": {" +
+                                        "\"start\": \""+tbObat.getValueAt(i,1).toString()+"\"," +
+                                        "\"end\": \""+tbObat.getValueAt(i,16).toString()+"\"" +
+                                    "}," +
+                                    "\"location\": [" +
+                                        "{" +
+                                            "\"location\": {" +
+                                                "\"reference\": \"Location/"+tbObat.getValueAt(i,11).toString()+"\"," +
+                                                "\"display\": \""+tbObat.getValueAt(i,10).toString()+"\"" +
+                                            "}" +
+                                        "}" +
+                                    "]," +
+                                    diagnosisBuilder.toString() + "," +
+                                    "\"statusHistory\": [" +
+                                        "{" +
+                                            "\"status\": \"arrived\"," +
+                                            "\"period\": {" +
+                                                "\"start\": \""+tbObat.getValueAt(i,1).toString()+"\"," +
+                                                "\"end\": \""+tbObat.getValueAt(i,14).toString()+"\"" +
+                                            "}" +
+                                        "}," +
+                                        "{" +
+                                            "\"status\": \"in-progress\"," +
+                                            "\"period\": {" +
+                                                "\"start\": \""+tbObat.getValueAt(i,14).toString()+"\"," +
+                                                "\"end\": \""+tbObat.getValueAt(i,16).toString()+"\"" +
+                                            "}" +
+                                        "}," +
+                                        "{" +
+                                            "\"status\": \"finished\"," +
+                                            "\"period\": {" +
+                                                "\"start\": \""+tbObat.getValueAt(i,16).toString()+"\"," +
+                                                "\"end\": \""+tbObat.getValueAt(i,16).toString()+"\"" +
+                                            "}" +
                                         "}" +
                                     "]," +
                                     "\"serviceProvider\": {" +
@@ -907,46 +1263,11 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
                 }
             }
         }
-    }//GEN-LAST:event_BtnUpdateActionPerformed
+    }//GEN-LAST:event_BtnFinishedActionPerformed
 
-    private void BtnAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnAllActionPerformed
-        TCari.setText("");
-        runBackground(() ->tampil());
-    }//GEN-LAST:event_BtnAllActionPerformed
-
-    private void BtnAllKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_BtnAllKeyPressed
-        if(evt.getKeyCode()==KeyEvent.VK_SPACE){
-            TCari.setText("");
-            runBackground(() ->tampil());
-        }else{
-            Valid.pindah(evt, BtnPrint, BtnKeluar);
-        }
-    }//GEN-LAST:event_BtnAllKeyPressed
-
-    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        if(koneksiDB.CARICEPAT().equals("aktif")){
-            TCari.getDocument().addDocumentListener(new javax.swing.event.DocumentListener(){
-                @Override
-                public void insertUpdate(DocumentEvent e) {
-                    if(TCari.getText().length()>2){
-                        runBackground(() ->tampil());
-                    }
-                }
-                @Override
-                public void removeUpdate(DocumentEvent e) {
-                    if(TCari.getText().length()>2){
-                        runBackground(() ->tampil());
-                    }
-                }
-                @Override
-                public void changedUpdate(DocumentEvent e) {
-                    if(TCari.getText().length()>2){
-                        runBackground(() ->tampil());
-                    }
-                }
-            });
-        } 
-    }//GEN-LAST:event_formWindowOpened
+    private void BtnFinishedKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_BtnFinishedKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BtnFinishedKeyPressed
 
     /**
     * @param args the command line arguments
@@ -967,6 +1288,8 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private widget.Button BtnAll;
     private widget.Button BtnCari;
+    private widget.Button BtnFinished;
+    private widget.Button BtnInProgress;
     private widget.Button BtnKeluar;
     private widget.Button BtnKirim;
     private widget.Button BtnPrint;
@@ -987,6 +1310,7 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
     private widget.panelisi panelGlass8;
     private widget.panelisi panelGlass9;
     private javax.swing.JMenuItem ppBersihkan;
+    private javax.swing.JMenuItem ppPilihBelumTerkirim;
     private javax.swing.JMenuItem ppPilihSemua;
     private widget.Table tbObat;
     // End of variables declaration//GEN-END:variables
@@ -995,10 +1319,14 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
         try{
             ps=koneksi.prepareStatement(
                    "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pasien.nm_pasien,pasien.no_ktp,reg_periksa.no_rkm_medis,reg_periksa.kd_poli,reg_periksa.stts,"+
-                   "pegawai.nama,pegawai.no_ktp as ktpdokter,poliklinik.nm_poli,satu_sehat_mapping_lokasi_ralan.id_lokasi_satusehat,reg_periksa.kd_dokter,"+
-                   "reg_periksa.status_lanjut,concat(reg_periksa.tgl_registrasi,'T',reg_periksa.jam_reg,'+07:00') as pulang,ifnull(satu_sehat_encounter.id_encounter,'') as id_encounter "+
+                   "pegawai.nama,pegawai.no_ktp as ktpdokter,poliklinik.nm_poli,satu_sehat_mapping_lokasi_ralan.id_lokasi_satusehat,reg_periksa.kd_dokter,reg_periksa.status_lanjut,"+
+                   "concat(reg_periksa.tgl_registrasi,'T',reg_periksa.jam_reg,'+07:00') as pulang,ifnull(satu_sehat_encounter.id_encounter,'') as id_encounter,"+
+                   "case when reg_periksa.status_lanjut='Ralan' then concat(nota_jalan.tanggal,'T',nota_jalan.jam,'+07:00') "+
+                   "when reg_periksa.status_lanjut='Ranap' then concat(nota_inap.tanggal,'T',nota_inap.jam,'+07:00') else null end as billing "+
                    "from reg_periksa inner join pasien on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join pegawai on pegawai.nik=reg_periksa.kd_dokter "+
                    "inner join poliklinik on reg_periksa.kd_poli=poliklinik.kd_poli inner join satu_sehat_mapping_lokasi_ralan on satu_sehat_mapping_lokasi_ralan.kd_poli=poliklinik.kd_poli "+
+                   "left join nota_jalan on nota_jalan.no_rawat=reg_periksa.no_rawat "+
+                   "left join nota_inap on nota_inap.no_rawat=reg_periksa.no_rawat "+
                    "left join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat "+
                    "where reg_periksa.status_bayar='Sudah Bayar' and reg_periksa.tgl_registrasi between ? and ? "+
                    (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
@@ -1022,7 +1350,7 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
                     tabMode.addRow(new Object[]{
                         false,rs.getString("tgl_registrasi")+"T"+rs.getString("jam_reg")+"+07:00",rs.getString("no_rawat"),rs.getString("no_rkm_medis"),rs.getString("nm_pasien"),
                         rs.getString("no_ktp"),rs.getString("kd_dokter"),rs.getString("nama"),rs.getString("ktpdokter"),rs.getString("kd_poli"),rs.getString("nm_poli"),
-                        rs.getString("id_lokasi_satusehat"),rs.getString("stts"),rs.getString("status_lanjut"),rs.getString("pulang"),rs.getString("id_encounter")
+                        rs.getString("id_lokasi_satusehat"),rs.getString("stts"),rs.getString("status_lanjut"),rs.getString("pulang"),rs.getString("id_encounter"),rs.getString("billing")
                     });
                 }
             } catch (Exception e) {
@@ -1039,6 +1367,7 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
             System.out.println("Notifikasi : "+e);
         }
         LCount.setText(""+tabMode.getRowCount());
+
     }
 
     public void isCek(){
