@@ -17164,8 +17164,8 @@ private void MnLaporanRekapKunjunganBulananPoliActionPerformed(java.awt.event.Ac
             Sequel.cariIsi("select rujuk_masuk.perujuk from rujuk_masuk where rujuk_masuk.no_rawat=?", AsalRujukan,tbPetugas.getValueAt(tbPetugas.getSelectedRow(),2).toString());
             TNoRw.setText(tbPetugas.getValueAt(tbPetugas.getSelectedRow(),2).toString());
             TNoReg.setText(tbPetugas.getValueAt(tbPetugas.getSelectedRow(),1).toString()); 
-            CheckIn.setText(Sequel.cariIsi("select referensi_mobilejkn_bpjs.status from referensi_mobilejkn_bpjs where no_rawat=?",TNoRw.getText()));
-            Booking.setText(Sequel.cariIsi("select referensi_mobilejkn_bpjs.nobooking from referensi_mobilejkn_bpjs where no_rawat=?",TNoRw.getText()));
+            CheckIn.setText(Sequel.cariIsi("select referensi_mobilejkn_bpjs.status from referensi_mobilejkn_bpjs where no_rawat=?",tbPetugas.getValueAt(tbPetugas.getSelectedRow(),2).toString()));
+            Booking.setText(Sequel.cariIsi("select referensi_mobilejkn_bpjs.nobooking from referensi_mobilejkn_bpjs where no_rawat=?",tbPetugas.getValueAt(tbPetugas.getSelectedRow(),2).toString()));
         }
     }
 
