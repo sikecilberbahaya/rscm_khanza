@@ -11440,9 +11440,10 @@ private void MnDataPemberianObatActionPerformed(java.awt.event.ActionEvent evt) 
                         if(rskasir.next()){
                             this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                             BPJSSuratKontrol form=new BPJSSuratKontrol(null,false);
+                            form.setSize(this.getWidth(), this.getHeight());
+                            form.validate();
                             form.setNoRm(TNoRwCari.getText(),rskasir.getString("no_sep"),rskasir.getString("no_kartu"),TNoRMCari.getText(),TPasienCari.getText(),rskasir.getString("tanggal_lahir"),rskasir.getString("jkel"),rskasir.getString("nmdiagnosaawal"));
-                            form.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
-                            form.setLocationRelativeTo(internalFrame1);
+                            form.setLocationRelativeTo(this);
                             form.setVisible(true);
                             this.setCursor(Cursor.getDefaultCursor());
                         }else{

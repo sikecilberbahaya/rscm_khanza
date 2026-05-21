@@ -1490,20 +1490,28 @@ private void BtnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
                     if(sukses==true){
                         Sequel.queryu("delete from tampjurnal");    
                         if(ttljual>0){
-                            if(Sequel.menyimpantf2("tampjurnal","'"+akunobatralan.getSuspen_Piutang_Obat_Ralan()+"','Suspen Piutang Obat Ralan','"+ttljual+"','0'","Rekening")==false){
-                                sukses=false;
-                            }    
-                            if(Sequel.menyimpantf2("tampjurnal","'"+akunobatralan.getObat_Ralan()+"','Pendapatan Obat Rawat Jalan','0','"+ttljual+"'","Rekening")==false){
-                                sukses=false;
-                            }                              
+                            if(!akunobatralan.getSuspen_Piutang_Obat_Ralan().equals("")){
+                                if(Sequel.menyimpantf2("tampjurnal","'"+akunobatralan.getSuspen_Piutang_Obat_Ralan()+"','Suspen Piutang Obat Ralan','"+ttljual+"','0'","Rekening")==false){
+                                    sukses=false;
+                                }
+                            }
+                            if(!akunobatralan.getObat_Ralan().equals("")){
+                                if(Sequel.menyimpantf2("tampjurnal","'"+akunobatralan.getObat_Ralan()+"','Pendapatan Obat Rawat Jalan','0','"+ttljual+"'","Rekening")==false){
+                                    sukses=false;
+                                }
+                            }
                         }
                         if(ttlhpp>0){
-                            if(Sequel.menyimpantf2("tampjurnal","'"+akunobatralan.getHPP_Obat_Rawat_Jalan()+"','HPP Persediaan Obat Rawat Jalan','"+ttlhpp+"','0'","Rekening")==false){
-                                sukses=false;
-                            }    
-                            if(Sequel.menyimpantf2("tampjurnal","'"+akunobatralan.getPersediaan_Obat_Rawat_Jalan()+"','Persediaan Obat Rawat Jalan','0','"+ttlhpp+"'","Rekening")==false){
-                                sukses=false;
-                            }                              
+                            if(!akunobatralan.getHPP_Obat_Rawat_Jalan().equals("")){
+                                if(Sequel.menyimpantf2("tampjurnal","'"+akunobatralan.getHPP_Obat_Rawat_Jalan()+"','HPP Persediaan Obat Rawat Jalan','"+ttlhpp+"','0'","Rekening")==false){
+                                    sukses=false;
+                                }
+                            }
+                            if(!akunobatralan.getPersediaan_Obat_Rawat_Jalan().equals("")){
+                                if(Sequel.menyimpantf2("tampjurnal","'"+akunobatralan.getPersediaan_Obat_Rawat_Jalan()+"','Persediaan Obat Rawat Jalan','0','"+ttlhpp+"'","Rekening")==false){
+                                    sukses=false;
+                                }
+                            }
                         }
                         if(sukses==true){
                             if((ttljual>0)||(ttlhpp>0)){

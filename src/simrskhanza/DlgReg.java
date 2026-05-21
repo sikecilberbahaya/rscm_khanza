@@ -12245,9 +12245,10 @@ private void MnLaporanRekapKunjunganBulananPoliActionPerformed(java.awt.event.Ac
                         if(rs.next()){
                             this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                             BPJSSuratKontrol form=new BPJSSuratKontrol(null,false);
+                            form.setSize(this.getWidth(), this.getHeight());
+                            form.validate();
                             form.setNoRm(TNoRw.getText(),rs.getString("no_sep"),rs.getString("no_kartu"),TNoRM.getText(),TPasien.getText(),rs.getString("tanggal_lahir"),rs.getString("jkel"),rs.getString("nmdiagnosaawal"));
-                            form.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
-                            form.setLocationRelativeTo(internalFrame1);
+                            form.setLocationRelativeTo(this);
                             form.setVisible(true);
                             this.setCursor(Cursor.getDefaultCursor());
                         }else{
@@ -14728,9 +14729,10 @@ private void MnLaporanRekapKunjunganBulananPoliActionPerformed(java.awt.event.Ac
                         if(rs.next()){
                             this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                             BPJSSuratKontrol form=new BPJSSuratKontrol(null,false);
+                            form.setSize(this.getWidth(), this.getHeight());
+                            form.validate();
                             form.setNoRm(TNoRw.getText(),rs.getString("no_sep"),rs.getString("no_kartu"),TNoRM.getText(),TPasien.getText(),rs.getString("tanggal_lahir"),rs.getString("jkel"),rs.getString("nmdiagnosaawal"));
-                            form.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
-                            form.setLocationRelativeTo(internalFrame1);
+                            form.setLocationRelativeTo(this);
                             form.setVisible(true);
                             this.setCursor(Cursor.getDefaultCursor());
                         }else{

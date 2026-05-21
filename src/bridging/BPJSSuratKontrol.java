@@ -2510,6 +2510,8 @@ private void ChkInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             FormInput.setVisible(false);      
             ChkInput.setVisible(true);
         }
+        internalFrame1.revalidate();
+        internalFrame1.repaint();
     }
     
     public void isCek(){
