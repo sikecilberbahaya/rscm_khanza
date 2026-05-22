@@ -2,6 +2,7 @@ package simrskhanza;
 import bridging.ApiOrthanc;
 import bridging.OrthancDICOM;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import kepegawaian.DlgCariPetugas;
 import keuangan.Jurnal;
 import fungsi.WarnaTable;
@@ -19,9 +20,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -40,6 +45,12 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 import kepegawaian.DlgCariDokter;
 import laporan.DlgBerkasRawat;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import rekammedis.MasterCariTemplateHasilRadiologi;
 import rekammedis.RMRiwayatPerawatan;
 
@@ -64,6 +75,7 @@ public class DlgCariPeriksaRadiologi extends javax.swing.JDialog {
     private double ttl=0,item=0;
     private double ttljmdokter=0,ttljmpetugas=0,ttlkso=0,ttlpendapatan=0,ttlbhp=0,ttljasasarana=0,ttljmperujuk=0,ttlmenejemen=0;;
     private String kdpetugas="",kdpenjab="";
+    private ObjectMapper mapper= new ObjectMapper();
 
     /** Creates new form DlgProgramStudi
      * @param parent
@@ -251,6 +263,7 @@ public class DlgCariPeriksaRadiologi extends javax.swing.JDialog {
         Scroll5 = new widget.ScrollPane();
         tbListDicom = new widget.Table();
         panelGlass7 = new widget.panelisi();
+        btnUpload = new widget.Button();
         btnDicom = new widget.Button();
         btnDicomRouter = new widget.Button();
         PanelDataDicari = new widget.panelisi();
@@ -1021,12 +1034,25 @@ public class DlgCariPeriksaRadiologi extends javax.swing.JDialog {
         panelGlass7.setName("panelGlass7"); // NOI18N
         panelGlass7.setPreferredSize(new java.awt.Dimension(115, 40));
 
+        btnUpload.setIcon(new javax.swing.ImageIcon(getClass().getResource("/picture/plus_16.png"))); // NOI18N
+        btnUpload.setMnemonic('T');
+        btnUpload.setText("Upload");
+        btnUpload.setToolTipText("Alt+T");
+        btnUpload.setName("btnUpload"); // NOI18N
+        btnUpload.setPreferredSize(new java.awt.Dimension(100, 30));
+        btnUpload.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUploadActionPerformed(evt);
+            }
+        });
+        panelGlass7.add(btnUpload);
+
         btnDicom.setIcon(new javax.swing.ImageIcon(getClass().getResource("/picture/item.png"))); // NOI18N
         btnDicom.setMnemonic('T');
-        btnDicom.setText("Tampilkan DICOM");
+        btnDicom.setText("Tampilkan");
         btnDicom.setToolTipText("Alt+T");
         btnDicom.setName("btnDicom"); // NOI18N
-        btnDicom.setPreferredSize(new java.awt.Dimension(150, 30));
+        btnDicom.setPreferredSize(new java.awt.Dimension(100, 30));
         btnDicom.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDicomActionPerformed(evt);
@@ -1036,10 +1062,10 @@ public class DlgCariPeriksaRadiologi extends javax.swing.JDialog {
 
         btnDicomRouter.setIcon(new javax.swing.ImageIcon(getClass().getResource("/picture/save-16x16.png"))); // NOI18N
         btnDicomRouter.setMnemonic('T');
-        btnDicomRouter.setText("Ke DICOMROUTER");
+        btnDicomRouter.setText("Ke DCM");
         btnDicomRouter.setToolTipText("Alt+T");
         btnDicomRouter.setName("btnDicomRouter"); // NOI18N
-        btnDicomRouter.setPreferredSize(new java.awt.Dimension(160, 30));
+        btnDicomRouter.setPreferredSize(new java.awt.Dimension(100, 30));
         btnDicomRouter.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDicomRouterActionPerformed(evt);
@@ -2205,6 +2231,52 @@ private void tbDokterKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_
         }
     }//GEN-LAST:event_btnDicomRouterActionPerformed
 
+    private void btnUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUploadActionPerformed
+        if(tabModeDicom.getRowCount()==0){
+            JOptionPane.showMessageDialog(null, "Maaf data kosong!");
+            TCari.requestFocus();
+        }else {
+            if(tbListDicom.getSelectedRow()!= -1){                
+                this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                Sequel.queryu2("delete from gambar_radiologi where no_rawat=? and tgl_periksa=? and jam=?", 3, new String[]{NoRawatDicari.getText(), TglDicari.getText(), JamDicari.getText()});
+                ApiOrthanc orthanc=new ApiOrthanc();                
+                orthanc.AmbilJpg2(tbListDicom.getValueAt(tbListDicom.getSelectedRow(),2).toString());
+                try {
+                    CloseableHttpClient httpClient = HttpClients.createDefault();
+                    HttpPost post = new HttpPost("http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/radiologi/pages/upload/service.php");
+                    System.out.println("http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/radiologi/pages/upload/service.php");
+                    post.setHeader("Content-type", "application/json");
+                    post.addHeader("username", koneksiDB.USERHYBRIDWEB());
+                    post.addHeader("password", koneksiDB.PASHYBRIDWEB());
+                    File f = new File("./gambarradiologi/"+tbListDicom.getValueAt(tbListDicom.getSelectedRow(), 2).toString()+".jpg");
+                    byte[] fileContent = Files.readAllBytes(f.toPath());
+                    String json="{" +
+                            "\"file\":\""+Base64.getEncoder().encodeToString(fileContent)+"\","+
+                            "\"namafile\":\""+tbListDicom.getValueAt(tbListDicom.getSelectedRow(),2).toString()+".jpg\"," +
+                            "\"norawat\":\""+NoRawatDicari.getText()+"\"," +
+                            "\"tanggal\":\""+TglDicari.getText()+"\"," +
+                            "\"jam\":\""+JamDicari.getText()+"\""
+                            + "}";
+                    post.setEntity(new StringEntity(json));
+                    try (CloseableHttpResponse response = httpClient.execute(post)){
+                        json=EntityUtils.toString(response.getEntity());
+                        root = mapper.readTree(json);
+                        JOptionPane.showMessageDialog(null,root.path("metadata").path("message").asText());
+                    } catch (IOException a) {
+                        System.out.println("Notifikasi : " + a);
+                        JOptionPane.showMessageDialog(null,""+a);
+                    }
+                } catch (Exception e){
+                    System.out.println("Notifikasi : " + e);
+                    JOptionPane.showMessageDialog(null,""+e);
+                }
+                this.setCursor(Cursor.getDefaultCursor());
+            } else {
+                JOptionPane.showMessageDialog(null,"Maaf, Silahkan pilih data..!!");
+            }
+        }
+    }//GEN-LAST:event_btnUploadActionPerformed
+
     /**
     * @param args the command line arguments
     */
@@ -2281,6 +2353,7 @@ private void tbDokterKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_
     private widget.Button btnPasien;
     private widget.Button btnPetugas;
     private widget.Button btnPetugas1;
+    private widget.Button btnUpload;
     private widget.InternalFrame internalFrame1;
     private widget.InternalFrame internalFrame5;
     private widget.Label jLabel12;
