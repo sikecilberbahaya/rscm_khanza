@@ -649,12 +649,13 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                  "riwayat_barang_medis.stok_awal,riwayat_barang_medis.masuk,"+
                                  "riwayat_barang_medis.keluar,riwayat_barang_medis.stok_akhir,"+
                                  "riwayat_barang_medis.posisi,riwayat_barang_medis.tanggal,"+
-                                 "riwayat_barang_medis.jam,riwayat_barang_medis.petugas,"+
+                                 "riwayat_barang_medis.jam,petugas.nama as nama_petugas,"+
                                  "riwayat_barang_medis.kd_bangsal,bangsal.nm_bangsal,"+
                                  "riwayat_barang_medis.status,riwayat_barang_medis.no_batch,"+
                                  "riwayat_barang_medis.no_faktur,riwayat_barang_medis.keterangan "+
                                  "from riwayat_barang_medis inner join bangsal on riwayat_barang_medis.kd_bangsal=bangsal.kd_bangsal "+
                                  "inner join databarang on riwayat_barang_medis.kode_brng=databarang.kode_brng "+
+                                 "left join petugas on riwayat_barang_medis.petugas=petugas.nip "+
                                  "where riwayat_barang_medis.tanggal between ? and ? order by riwayat_barang_medis.tanggal,riwayat_barang_medis.jam ");
                         }else{
                             ps=koneksi.prepareStatement(
@@ -662,14 +663,15 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                  "riwayat_barang_medis.stok_awal,riwayat_barang_medis.masuk,"+
                                  "riwayat_barang_medis.keluar,riwayat_barang_medis.stok_akhir,"+
                                  "riwayat_barang_medis.posisi,riwayat_barang_medis.tanggal,"+
-                                 "riwayat_barang_medis.jam,riwayat_barang_medis.petugas,"+
+                                 "riwayat_barang_medis.jam,petugas.nama as nama_petugas,"+
                                  "riwayat_barang_medis.kd_bangsal,bangsal.nm_bangsal,"+
                                  "riwayat_barang_medis.status,riwayat_barang_medis.no_batch,"+
                                  "riwayat_barang_medis.no_faktur,riwayat_barang_medis.keterangan "+
                                  "from riwayat_barang_medis inner join bangsal on riwayat_barang_medis.kd_bangsal=bangsal.kd_bangsal "+
                                  "inner join databarang on riwayat_barang_medis.kode_brng=databarang.kode_brng "+
+                                 "left join petugas on riwayat_barang_medis.petugas=petugas.nip "+
                                  "where riwayat_barang_medis.tanggal between ? and ? and databarang.nama_brng like ? and bangsal.nm_bangsal like ? and "+
-                                 "(riwayat_barang_medis.kode_brng like ? or databarang.nama_brng like ? or riwayat_barang_medis.petugas like ? or "+
+                                 "(riwayat_barang_medis.kode_brng like ? or databarang.nama_brng like ? or petugas.nama like ? or "+
                                  "bangsal.nm_bangsal like ? or riwayat_barang_medis.no_batch like ? or riwayat_barang_medis.no_faktur like ? or "+
                                  "riwayat_barang_medis.kd_bangsal like ? or riwayat_barang_medis.status like ? or riwayat_barang_medis.keterangan like ? or "+
                                  "riwayat_barang_medis.posisi like ?) "+"order by riwayat_barang_medis.tanggal,riwayat_barang_medis.jam ");
@@ -704,7 +706,7 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                      rs.getString("stok_awal"),rs.getString("masuk"),
                                      rs.getString("keluar"),rs.getString("stok_akhir"),
                                      rs.getString("posisi"),rs.getString("tanggal"),
-                                     rs.getString("jam"),rs.getString("petugas"),
+                                     rs.getString("jam"),rs.getString("nama_petugas"),
                                      rs.getString("kd_bangsal")+" "+rs.getString("nm_bangsal"),
                                      rs.getString("status"),rs.getString("no_batch"),
                                      rs.getString("no_faktur"),rs.getString("keterangan")

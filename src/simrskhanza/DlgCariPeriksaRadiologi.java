@@ -2235,44 +2235,80 @@ private void tbDokterKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_
         if(tabModeDicom.getRowCount()==0){
             JOptionPane.showMessageDialog(null, "Maaf data kosong!");
             TCari.requestFocus();
-        }else {
-            if(tbListDicom.getSelectedRow()!= -1){                
+        } else {
+            int[] selectedRows = tbListDicom.getSelectedRows();
+            if(selectedRows.length == 0){
+                JOptionPane.showMessageDialog(null, "Maaf, Silahkan pilih data..!!");
+            } else {
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                Sequel.queryu2("delete from gambar_radiologi where no_rawat=? and tgl_periksa=? and jam=?", 3, new String[]{NoRawatDicari.getText(), TglDicari.getText(), JamDicari.getText()});
-                ApiOrthanc orthanc=new ApiOrthanc();                
-                orthanc.AmbilJpg2(tbListDicom.getValueAt(tbListDicom.getSelectedRow(),2).toString());
-                try {
-                    CloseableHttpClient httpClient = HttpClients.createDefault();
-                    HttpPost post = new HttpPost("http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/radiologi/pages/upload/service.php");
-                    System.out.println("http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/radiologi/pages/upload/service.php");
-                    post.setHeader("Content-type", "application/json");
-                    post.addHeader("username", koneksiDB.USERHYBRIDWEB());
-                    post.addHeader("password", koneksiDB.PASHYBRIDWEB());
-                    File f = new File("./gambarradiologi/"+tbListDicom.getValueAt(tbListDicom.getSelectedRow(), 2).toString()+".jpg");
-                    byte[] fileContent = Files.readAllBytes(f.toPath());
-                    String json="{" +
-                            "\"file\":\""+Base64.getEncoder().encodeToString(fileContent)+"\","+
-                            "\"namafile\":\""+tbListDicom.getValueAt(tbListDicom.getSelectedRow(),2).toString()+".jpg\"," +
-                            "\"norawat\":\""+NoRawatDicari.getText()+"\"," +
-                            "\"tanggal\":\""+TglDicari.getText()+"\"," +
-                            "\"jam\":\""+JamDicari.getText()+"\""
-                            + "}";
-                    post.setEntity(new StringEntity(json));
-                    try (CloseableHttpResponse response = httpClient.execute(post)){
-                        json=EntityUtils.toString(response.getEntity());
-                        root = mapper.readTree(json);
-                        JOptionPane.showMessageDialog(null,root.path("metadata").path("message").asText());
-                    } catch (IOException a) {
-                        System.out.println("Notifikasi : " + a);
-                        JOptionPane.showMessageDialog(null,""+a);
+                int berhasil = 0;
+                for(int row : selectedRows){
+                    String seriesId = tbListDicom.getValueAt(row, 2).toString();
+                    String namafileFinal = seriesId + ".jpg";
+                    String lokasiGambar = "pages/upload/" + namafileFinal;
+                    // Cek apakah series ini sudah pernah diupload
+                    try(PreparedStatement cekPs = koneksi.prepareStatement(
+                            "SELECT COUNT(*) FROM gambar_radiologi WHERE no_rawat=? AND tgl_periksa=? AND jam=? AND lokasi_gambar=?")){
+                        cekPs.setString(1, NoRawatDicari.getText());
+                        cekPs.setString(2, TglDicari.getText());
+                        cekPs.setString(3, JamDicari.getText());
+                        cekPs.setString(4, lokasiGambar);
+                        ResultSet rsCek = cekPs.executeQuery();
+                        if(rsCek.next() && rsCek.getInt(1) > 0){
+                            JOptionPane.showMessageDialog(null, "Gambar sudah pernah diupload\nSeries ID: " + seriesId);
+                            continue;
+                        }
+                    } catch(Exception ex){
+                        System.out.println("Notifikasi cek duplikat : " + ex);
                     }
-                } catch (Exception e){
-                    System.out.println("Notifikasi : " + e);
-                    JOptionPane.showMessageDialog(null,""+e);
+                    // Ambil gambar dari Orthanc
+                    ApiOrthanc orthanc = new ApiOrthanc();
+                    orthanc.AmbilJpg2(seriesId);
+                    // Upload ke web service
+                    try {
+                        CloseableHttpClient httpClient = HttpClients.createDefault();
+                        HttpPost post = new HttpPost("http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/radiologi/pages/upload/service.php");
+                        System.out.println("http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/radiologi/pages/upload/service.php");
+                        post.setHeader("Content-type", "application/json");
+                        post.addHeader("username", koneksiDB.USERHYBRIDWEB());
+                        post.addHeader("password", koneksiDB.PASHYBRIDWEB());
+                        File f = new File("./gambarradiologi/" + namafileFinal);
+                        byte[] fileContent = Files.readAllBytes(f.toPath());
+                        String json = "{" +
+                                "\"file\":\"" + Base64.getEncoder().encodeToString(fileContent) + "\"," +
+                                "\"namafile\":\"" + namafileFinal + "\"," +
+                                "\"norawat\":\"" + NoRawatDicari.getText() + "\"," +
+                                "\"tanggal\":\"" + TglDicari.getText() + "\"," +
+                                "\"jam\":\"" + JamDicari.getText() + "\"" +
+                                "}";
+                        post.setEntity(new StringEntity(json));
+                        try (CloseableHttpResponse response = httpClient.execute(post)){
+                            json = EntityUtils.toString(response.getEntity());
+                            root = mapper.readTree(json);
+                            int code = root.path("metadata").path("code").asInt();
+                            if(code == 200){
+                                berhasil++;
+                            } else {
+                                String msg = root.path("metadata").path("message").asText();
+                                if(msg.contains("sudah ada")){
+                                    JOptionPane.showMessageDialog(null, "Gambar sudah pernah diupload\nSeries ID: " + seriesId);
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Gagal upload Series ID " + seriesId + ":\n" + msg);
+                                }
+                            }
+                        } catch (IOException a) {
+                            System.out.println("Notifikasi : " + a);
+                            JOptionPane.showMessageDialog(null, ""+a);
+                        }
+                    } catch (Exception e){
+                        System.out.println("Notifikasi : " + e);
+                        JOptionPane.showMessageDialog(null, ""+e);
+                    }
                 }
                 this.setCursor(Cursor.getDefaultCursor());
-            } else {
-                JOptionPane.showMessageDialog(null,"Maaf, Silahkan pilih data..!!");
+                if(berhasil > 0){
+                    JOptionPane.showMessageDialog(null, berhasil + " gambar berhasil diupload.");
+                }
             }
         }
     }//GEN-LAST:event_btnUploadActionPerformed
