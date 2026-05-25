@@ -45,3 +45,32 @@ CREATE TABLE IF NOT EXISTS `tracking_bpjs_surat_kontrol` (
 
 ALTER TABLE `user` ADD COLUMN `bridging_tracking` enum('true','false') NOT NULL DEFAULT 'false';
 ALTER TABLE `user` ADD COLUMN `satu_sehat_kirim_episode_of_care` enum('true','false') NOT NULL DEFAULT 'false';
+
+-- ============================================================
+-- Fitur Panggil Pasien Kasir Rawat Jalan
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `antrian_display` (
+  `kd_display` varchar(10) NOT NULL,
+  `nm_display` varchar(100) NOT NULL,
+  PRIMARY KEY (`kd_display`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `antrian_poli_display` (
+  `kd_poli` varchar(10) NOT NULL,
+  `kd_display` varchar(10) NOT NULL,
+  PRIMARY KEY (`kd_poli`),
+  KEY `idx_kd_display` (`kd_display`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `antrian_panggil_ralan` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `no_rawat` varchar(20) NOT NULL,
+  `nm_pasien` varchar(100) NOT NULL,
+  `no_reg` varchar(20) NOT NULL,
+  `nm_poli` varchar(100) NOT NULL,
+  `kd_display` varchar(10) NOT NULL,
+  `waktu_panggil` datetime NOT NULL DEFAULT current_timestamp(),
+  `sudah_tampil` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_kd_display_sudah` (`kd_display`,`sudah_tampil`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;

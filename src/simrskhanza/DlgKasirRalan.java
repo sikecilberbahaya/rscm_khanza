@@ -7800,6 +7800,7 @@ private void MnDataRalanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                         formrawatjalan.addWindowListener(new WindowAdapter() {
                             @Override
                             public void windowClosed(WindowEvent e) {
+                                formrawatjalan.snapshotGlobalState();
                                 formrawatjalan=null;
                                 tampilkasir();
                             }
@@ -16058,6 +16059,8 @@ private void MnDataPemberianObatActionPerformed(java.awt.event.ActionEvent evt) 
                                   MnSkriningInstrumenMentalEmosional,MnCheckListKriteriaMasukNICU,MnCheckListKriteriaMasukPICU,MnSkriningInstrumenAMT,MnSkriningPneumoniaSeverityIndex,MnPenilaianAwalMedisRalanJantung,MnPenilaianAwalMedisRalanUrologi,
                                   MnHasilPemeriksaanTreadmill,MnHasilPemeriksaanECHOPediatrik,MnSkriningInstrumenESAT,MnSkriningCURB65,MnSkriningGiziKehamilan,MnSerahTerimaBarangAnggotaTubuh,MnPermintaanKonsultasiPerawat;
     private javax.swing.JMenu MnHasilUSG,MnHasilEndoskopi,MnRMSkrining,MnEdukasi,MnRehabMedik,MnRMSkriningRisikoKanker,MnRMSkriningKesehatanGigiMulut,MnSuratPersetujuan,MnSkriningInstrumen,MnSkriningParu;
+    private widget.Button BtnPanggilPasien;
+    private javax.swing.JMenuItem mnPanggilPasien;
     
     private void tampilkasir() { 
         if(ceksukses==false){
@@ -17284,6 +17287,62 @@ private void MnDataPemberianObatActionPerformed(java.awt.event.ActionEvent evt) 
         }
     }
     
+    private void BtnPanggilPasienActionPerformed(java.awt.event.ActionEvent evt) {
+        if (tbKasirRalan.getSelectedRow() == -1) {
+            javax.swing.JOptionPane.showMessageDialog(null, "Pilih pasien terlebih dahulu.");
+            return;
+        }
+        int row = tbKasirRalan.getSelectedRow();
+        String noRawat = tabModekasir.getValueAt(row, 11).toString();
+        String noReg   = tabModekasir.getValueAt(row, 14).toString();
+        String nmPoli  = tabModekasir.getValueAt(row, 4).toString();
+        String kdPoli  = tabModekasir.getValueAt(row, 18).toString();
+        try {
+            java.sql.PreparedStatement psNama = koneksi.prepareStatement(
+                "SELECT pasien.nm_pasien FROM pasien " +
+                "INNER JOIN reg_periksa ON pasien.no_rkm_medis = reg_periksa.no_rkm_medis " +
+                "WHERE reg_periksa.no_rawat = ? LIMIT 1");
+            psNama.setString(1, noRawat);
+            java.sql.ResultSet rsNama = psNama.executeQuery();
+            String nmPasien = "";
+            if (rsNama.next()) nmPasien = rsNama.getString("nm_pasien");
+            rsNama.close(); psNama.close();
+
+            java.sql.PreparedStatement psDisp = koneksi.prepareStatement(
+                "SELECT kd_display FROM antrian_poli_display WHERE kd_poli = ? LIMIT 1");
+            psDisp.setString(1, kdPoli);
+            java.sql.ResultSet rsDisp = psDisp.executeQuery();
+            String kdDisplay = "";
+            if (rsDisp.next()) kdDisplay = rsDisp.getString("kd_display");
+            rsDisp.close(); psDisp.close();
+
+            if (kdDisplay.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(null,
+                    "Poli ini belum dikonfigurasi ke display manapun.\nSilahkan atur di mapping.php terlebih dahulu.",
+                    "Konfigurasi Display", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            java.sql.PreparedStatement psInsert = koneksi.prepareStatement(
+                "INSERT INTO antrian_panggil_ralan (no_rawat, nm_pasien, no_reg, nm_poli, kd_display) " +
+                "VALUES (?, ?, ?, ?, ?)");
+            psInsert.setString(1, noRawat);
+            psInsert.setString(2, nmPasien);
+            psInsert.setString(3, noReg);
+            psInsert.setString(4, nmPoli);
+            psInsert.setString(5, kdDisplay);
+            psInsert.executeUpdate();
+            psInsert.close();
+
+            javax.swing.JOptionPane.showMessageDialog(null,
+                "Pasien " + nmPasien + " berhasil dipanggil ke display " + kdDisplay,
+                "Panggil Pasien", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            System.out.println("Notifikasi panggil pasien: " + e);
+            javax.swing.JOptionPane.showMessageDialog(null, "Gagal memanggil pasien: " + e.getMessage());
+        }
+    }
+
     private void initKasirRalan() {
         MnPenilaianPreInduksi = new javax.swing.JMenuItem();
         MnPenilaianPreInduksi.setBackground(new java.awt.Color(255, 255, 254));
@@ -18498,5 +18557,30 @@ private void MnDataPemberianObatActionPerformed(java.awt.event.ActionEvent evt) 
         MnSuratPersetujuan.add(MnPersetujuanPemeriksaanHIV);
         MnSuratPersetujuan.add(MnPernyataanMemilihDPJP);
         MnSuratPersetujuan.add(MnSerahTerimaBarangAnggotaTubuh);
+
+        // Tombol Panggil Pasien di toolbar
+        BtnPanggilPasien = new widget.Button();
+        BtnPanggilPasien.setIcon(new javax.swing.ImageIcon(getClass().getResource("/picture/Stethoscope.png")));
+        BtnPanggilPasien.setText("Panggil");
+        BtnPanggilPasien.setToolTipText("Panggil Pasien ke Display");
+        BtnPanggilPasien.setName("BtnPanggilPasien");
+        BtnPanggilPasien.setPreferredSize(new java.awt.Dimension(100, 30));
+        BtnPanggilPasien.addActionListener(e -> BtnPanggilPasienActionPerformed(e));
+        panelGlass6.add(BtnPanggilPasien, panelGlass6.getComponentCount() - 1);
+
+        // Menu item Panggil Pasien di popup klik kanan
+        mnPanggilPasien = new javax.swing.JMenuItem();
+        mnPanggilPasien.setBackground(new java.awt.Color(255, 255, 254));
+        mnPanggilPasien.setFont(new java.awt.Font("Tahoma", 0, 11));
+        mnPanggilPasien.setForeground(new java.awt.Color(50, 50, 50));
+        mnPanggilPasien.setIcon(new javax.swing.ImageIcon(getClass().getResource("/picture/Stethoscope.png")));
+        mnPanggilPasien.setText("Panggil Pasien");
+        mnPanggilPasien.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        mnPanggilPasien.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        mnPanggilPasien.setName("mnPanggilPasien");
+        mnPanggilPasien.setPreferredSize(new java.awt.Dimension(200, 26));
+        mnPanggilPasien.addActionListener(e -> BtnPanggilPasienActionPerformed(e));
+        jPopupMenu1.insert(mnPanggilPasien, 0);
+        jPopupMenu1.insert(new javax.swing.JPopupMenu.Separator(), 1);
     }
 }

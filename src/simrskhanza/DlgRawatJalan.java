@@ -37,7 +37,9 @@ import java.sql.ResultSet;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -235,6 +237,9 @@ public final class DlgRawatJalan extends javax.swing.JDialog {
     private Jurnal jur=new Jurnal();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private volatile boolean ceksukses = false;
+    static Set<String> globalCheckDr   = new HashSet<>();
+    static Set<String> globalCheckPr   = new HashSet<>();
+    static Set<String> globalCheckDrPr = new HashSet<>();
     private DlgPeresepanDokter resepobat;
 
     /** Creates new form DlgPerawatan
@@ -12338,7 +12343,7 @@ private void BtnEditKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                 
                 while(rstindakan.next()){
                     TabModeTindakan.addRow(new Object[] {
-                        false,rstindakan.getString(1),rstindakan.getString(2),rstindakan.getString(3),
+                        globalCheckDr.contains(rstindakan.getString(1)),rstindakan.getString(1),rstindakan.getString(2),rstindakan.getString(3),
                         rstindakan.getDouble("total_byrdr"),rstindakan.getDouble("material"),
                         rstindakan.getDouble("bhp"),rstindakan.getDouble("tarif_tindakandr"),
                         rstindakan.getDouble("tarif_tindakanpr"),rstindakan.getDouble("kso"),
@@ -12467,7 +12472,7 @@ private void BtnEditKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                 
                 while(rstindakan.next()){
                     TabModeTindakan2.addRow(new Object[] {
-                        false,rstindakan.getString(1),rstindakan.getString(2),rstindakan.getString(3),
+                        globalCheckPr.contains(rstindakan.getString(1)),rstindakan.getString(1),rstindakan.getString(2),rstindakan.getString(3),
                         rstindakan.getDouble("total_byrpr"),rstindakan.getDouble("material"),
                         rstindakan.getDouble("bhp"),rstindakan.getDouble("tarif_tindakandr"),
                         rstindakan.getDouble("tarif_tindakanpr"),rstindakan.getDouble("kso"),
@@ -12596,7 +12601,7 @@ private void BtnEditKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                 
                 while(rstindakan.next()){
                     TabModeTindakan3.addRow(new Object[] {
-                        false,rstindakan.getString(1),rstindakan.getString(2),rstindakan.getString(3),
+                        globalCheckDrPr.contains(rstindakan.getString(1)),rstindakan.getString(1),rstindakan.getString(2),rstindakan.getString(3),
                         rstindakan.getDouble("total_byrdrpr"),rstindakan.getDouble("material"),
                         rstindakan.getDouble("bhp"),rstindakan.getDouble("tarif_tindakandr"),
                         rstindakan.getDouble("tarif_tindakanpr"),rstindakan.getDouble("kso"),
@@ -12617,6 +12622,27 @@ private void BtnEditKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
             System.out.println("Notifikasi : "+e);
         }
         LCount.setText(""+TabModeTindakan3.getRowCount());
+    }
+
+    public void snapshotGlobalState() {
+        globalCheckDr.clear();
+        for (int r = 0; r < TabModeTindakan.getRowCount(); r++) {
+            if (Boolean.TRUE.equals(TabModeTindakan.getValueAt(r, 0))) {
+                globalCheckDr.add(TabModeTindakan.getValueAt(r, 1).toString());
+            }
+        }
+        globalCheckPr.clear();
+        for (int r = 0; r < TabModeTindakan2.getRowCount(); r++) {
+            if (Boolean.TRUE.equals(TabModeTindakan2.getValueAt(r, 0))) {
+                globalCheckPr.add(TabModeTindakan2.getValueAt(r, 1).toString());
+            }
+        }
+        globalCheckDrPr.clear();
+        for (int r = 0; r < TabModeTindakan3.getRowCount(); r++) {
+            if (Boolean.TRUE.equals(TabModeTindakan3.getValueAt(r, 0))) {
+                globalCheckDrPr.add(TabModeTindakan3.getValueAt(r, 1).toString());
+            }
+        }
     }
     
     private void TampilkanData(){
