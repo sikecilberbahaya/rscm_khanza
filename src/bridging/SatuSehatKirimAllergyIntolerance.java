@@ -545,6 +545,14 @@ public final class SatuSehatKirimAllergyIntolerance extends javax.swing.JDialog 
             Valid.pindah(evt,TCari,BtnPrint);
         }
     }//GEN-LAST:event_BtnCariKeyPressed
+private boolean isNoKnownAllergy(String dicari) {
+    String d = dicari.trim().toLowerCase();
+    return d.isEmpty() || d.equals("-") || d.equals("--")
+        || d.equals("tidak ada") || d.equals("tidak ada alergi")
+        || d.equals("no known allergy") || d.equals("none")
+        || d.equals("nihil") || d.equals("nka");
+}
+
 private void simpanMappingBaru(String keyword) {
     File file = new File("./cache/alergisatusehat.iyem");
     ObjectMapper mapper = new ObjectMapper();
@@ -559,6 +567,7 @@ private void simpanMappingBaru(String keyword) {
                          .toLowerCase();
 
         if(keyword.equals("")) return;
+        if(isNoKnownAllergy(keyword)) return; // jangan simpan variant "tidak ada alergi" ke cache
 
         // Jika file ada
         if(file.exists()){
@@ -650,28 +659,24 @@ private void simpanMappingBaru(String keyword) {
             }
 
             // =========================
-            // ❗ JIKA TIDAK ADA MAPPING
+            // ❗ JIKA TIDAK ADA MAPPING / KODE INVALID
             // =========================
-            if(category.equals("")){
-                System.out.println("⚠ Mapping tidak ditemukan: "+dicari);
+            if(category.equals("") || coding_code.equals("unknown")){
+                System.out.println("⚠ Mapping tidak ditemukan / kode invalid: "+dicari);
 
-                // Simpan ke file otomatis
-                simpanMappingBaru(dicari);
-
-                if(dicari.equals("")){
-                    // Tidak ada alergi
+                if(isNoKnownAllergy(dicari)){
+                    // Tidak ada alergi atau variant "tidak ada"
                     category = "environment";
                     coding_system = "http://snomed.info/sct";
                     coding_code = "716186003";
                     coding_display = "No known allergy";
                     text = "No known allergy";
                 } else {
-                    // Ada isi tapi belum ada mapping
-                    category = "medication";
-                    coding_system = "http://snomed.info/sct";
-                    coding_code = "unknown";
-                    coding_display = dicari;
-                    text = dicari;
+                    // Ada isi tapi belum ada mapping SNOMED yang valid
+                    // Simpan ke file agar operator bisa melengkapi mapping
+                    simpanMappingBaru(dicari);
+                    System.out.println("⚠ Skip kirim: tambahkan mapping SNOMED untuk: "+dicari);
+                    continue;
                 }
             }
 
@@ -789,22 +794,19 @@ private void simpanMappingBaru(String keyword) {
                             }
                         }
                     }
-                    //kirim sebagai "No Known Allergy"
-                    if(category.equals("")){
-                        if(dicari.equals("")){
-                            // tidak ada alergi
+                    //kirim sebagai "No Known Allergy" atau skip jika belum ada mapping valid
+                    if(category.equals("") || coding_code.equals("unknown")){
+                        if(isNoKnownAllergy(dicari)){
+                            // tidak ada alergi atau variant "tidak ada"
                             category = "environment";
                             coding_system = "http://snomed.info/sct";
                             coding_code = "716186003";
                             coding_display = "No known allergy";
                             text = "No known allergy";
                         }else{
-                            // ada isi tapi tidak ada mapping
-                            category = "medication";
-                            coding_system = "http://snomed.info/sct";
-                            coding_code = "unknown";
-                            coding_display = dicari;
-                            text = dicari;
+                            // ada isi tapi tidak ada mapping SNOMED valid → skip update
+                            System.out.println("⚠ Skip update: tambahkan mapping SNOMED untuk: "+dicari);
+                            continue;
                         }
                     }
                     if(!category.equals("")){

@@ -289,6 +289,23 @@ public class ApiOrthanc {
         }
     }
     
+    public String AmbilModalitas(String seriesId){
+        System.out.println("Mengambil Modality Series : "+seriesId);
+        try{
+            headers = new HttpHeaders();
+            headers.add("Authorization", "Basic "+authEncrypt);
+            requestEntity = new HttpEntity(headers);
+            requestJson=getRest().exchange(koneksiDB.URLORTHANC()+":"+koneksiDB.PORTORTHANC()+"/series/"+seriesId, HttpMethod.GET, requestEntity, String.class).getBody();
+            JsonNode seriesNode = mapper.readTree(requestJson);
+            String modality = seriesNode.path("MainDicomTags").path("Modality").asText();
+            System.out.println("Modality : "+modality);
+            return modality;
+        }catch(Exception e){
+            System.out.println("Notifikasi AmbilModalitas : "+e);
+            return "";
+        }
+    }
+    
     public RestTemplate getRest() throws NoSuchAlgorithmException, KeyManagementException {
         sslContext = SSLContext.getInstance("SSL");
         TrustManager[] trustManagers= {

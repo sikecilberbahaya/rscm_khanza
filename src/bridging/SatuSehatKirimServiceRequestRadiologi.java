@@ -1,7 +1,3 @@
-/*
-  by Mas Elkhanza
- */
-
 package bridging;
 
 import com.fasterxml.jackson.databind.JsonNode;

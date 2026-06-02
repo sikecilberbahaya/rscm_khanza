@@ -46,7 +46,8 @@ public class frmUtama extends javax.swing.JFrame {
     private String[] arrSplit;
     private SimpleDateFormat tanggalFormat = new SimpleDateFormat("yyyy-MM-dd");
     private Date date = new Date();  
-    private SatuSehatCekNIK cekViaSatuSehat=new SatuSehatCekNIK();  
+    private SatuSehatCekNIK cekViaSatuSehat=new SatuSehatCekNIK();
+    private ApiOrthanc orthanc = new ApiOrthanc();
 
     /**
      * Creates new form frmUtama
@@ -5197,6 +5198,37 @@ public class frmUtama extends javax.swing.JFrame {
                         try {
                             idpraktisi=cekViaSatuSehat.tampilIDParktisi(rs.getString("ktpdokter"));
                             idpasien=cekViaSatuSehat.tampilIDPasien(rs.getString("no_ktp"));
+                            String imagingStudyId = "";
+                            try {
+                                String tglOrthanc = rs.getString("tgl_hasil").replaceAll("-","");
+                                JsonNode orthancResult = orthanc.AmbilSeries(rs.getString("no_rawat"), tglOrthanc, tglOrthanc);
+                                if (orthancResult != null && orthancResult.size() > 0) {
+                                    String studyInstanceUID = orthancResult.get(0).path("MainDicomTags").path("StudyInstanceUID").asText();
+                                    if (!studyInstanceUID.isEmpty()) {
+                                        headers = new HttpHeaders();
+                                        headers.setContentType(MediaType.APPLICATION_JSON);
+                                        headers.add("Authorization", "Bearer "+api.TokenSatuSehat());
+                                        String isJson = "{" +
+                                            "\"resourceType\": \"ImagingStudy\"," +
+                                            "\"identifier\": [{\"system\": \"urn:dicom:uid\",\"value\": \"urn:oid:"+studyInstanceUID+"\"}]," +
+                                            "\"status\": \"available\"," +
+                                            "\"subject\": {\"reference\": \"Patient/"+idpasien+"\"}," +
+                                            "\"encounter\": {\"reference\": \"Encounter/"+rs.getString("id_encounter")+"\"}," +
+                                            "\"started\": \""+rs.getString("tgl_hasil")+"T"+rs.getString("jam_hasil")+"+07:00\"," +
+                                            "\"basedOn\": [{\"reference\": \"ServiceRequest/"+rs.getString("id_servicerequest")+"\"}]" +
+                                        "}";
+                                        TeksArea.append("URL : "+link+"/ImagingStudy");
+                                        TeksArea.append("Request JSON : "+isJson);
+                                        requestEntity = new HttpEntity(isJson, headers);
+                                        String isResponse = api.getRest().exchange(link+"/ImagingStudy", HttpMethod.POST, requestEntity, String.class).getBody();
+                                        TeksArea.append("Result JSON : "+isResponse);
+                                        JsonNode isRoot = mapper.readTree(isResponse);
+                                        imagingStudyId = isRoot.path("id").asText();
+                                    }
+                                }
+                            } catch(Exception eis) {
+                                TeksArea.append("Notifikasi ImagingStudy : "+eis);
+                            }
                             try{
                                 headers = new HttpHeaders();
                                 headers.setContentType(MediaType.APPLICATION_JSON);
@@ -5257,6 +5289,7 @@ public class frmUtama extends javax.swing.JFrame {
                                                     "\"reference\": \"ServiceRequest/"+rs.getString("id_servicerequest")+"\"" +
                                                 "}" +
                                             "]," +
+                                            (!imagingStudyId.isEmpty() ? "\"imagingStudy\": [{\"reference\": \"ImagingStudy/"+imagingStudyId+"\"}]," : "") +
                                             "\"conclusion\": \""+rs.getString("hasil").replaceAll("(\r\n|\r|\n|\n\r)","<br>").replaceAll("\t", " ")+"\"" +
                                         "}";
                                 TeksArea.append("URL : "+link+"/DiagnosticReport");
@@ -5328,6 +5361,37 @@ public class frmUtama extends javax.swing.JFrame {
                         try {
                             idpraktisi=cekViaSatuSehat.tampilIDParktisi(rs.getString("ktpdokter"));
                             idpasien=cekViaSatuSehat.tampilIDPasien(rs.getString("no_ktp"));
+                            String imagingStudyId = "";
+                            try {
+                                String tglOrthanc = rs.getString("tgl_hasil").replaceAll("-","");
+                                JsonNode orthancResult = orthanc.AmbilSeries(rs.getString("no_rawat"), tglOrthanc, tglOrthanc);
+                                if (orthancResult != null && orthancResult.size() > 0) {
+                                    String studyInstanceUID = orthancResult.get(0).path("MainDicomTags").path("StudyInstanceUID").asText();
+                                    if (!studyInstanceUID.isEmpty()) {
+                                        headers = new HttpHeaders();
+                                        headers.setContentType(MediaType.APPLICATION_JSON);
+                                        headers.add("Authorization", "Bearer "+api.TokenSatuSehat());
+                                        String isJson = "{" +
+                                            "\"resourceType\": \"ImagingStudy\"," +
+                                            "\"identifier\": [{\"system\": \"urn:dicom:uid\",\"value\": \"urn:oid:"+studyInstanceUID+"\"}]," +
+                                            "\"status\": \"available\"," +
+                                            "\"subject\": {\"reference\": \"Patient/"+idpasien+"\"}," +
+                                            "\"encounter\": {\"reference\": \"Encounter/"+rs.getString("id_encounter")+"\"}," +
+                                            "\"started\": \""+rs.getString("tgl_hasil")+"T"+rs.getString("jam_hasil")+"+07:00\"," +
+                                            "\"basedOn\": [{\"reference\": \"ServiceRequest/"+rs.getString("id_servicerequest")+"\"}]" +
+                                        "}";
+                                        TeksArea.append("URL : "+link+"/ImagingStudy");
+                                        TeksArea.append("Request JSON : "+isJson);
+                                        requestEntity = new HttpEntity(isJson, headers);
+                                        String isResponse = api.getRest().exchange(link+"/ImagingStudy", HttpMethod.POST, requestEntity, String.class).getBody();
+                                        TeksArea.append("Result JSON : "+isResponse);
+                                        JsonNode isRoot = mapper.readTree(isResponse);
+                                        imagingStudyId = isRoot.path("id").asText();
+                                    }
+                                }
+                            } catch(Exception eis) {
+                                TeksArea.append("Notifikasi ImagingStudy : "+eis);
+                            }
                             try{
                                 headers = new HttpHeaders();
                                 headers.setContentType(MediaType.APPLICATION_JSON);
@@ -5388,6 +5452,7 @@ public class frmUtama extends javax.swing.JFrame {
                                                     "\"reference\": \"ServiceRequest/"+rs.getString("id_servicerequest")+"\"" +
                                                 "}" +
                                             "]," +
+                                            (!imagingStudyId.isEmpty() ? "\"imagingStudy\": [{\"reference\": \"ImagingStudy/"+imagingStudyId+"\"}]," : "") +
                                             "\"conclusion\": \""+rs.getString("hasil").replaceAll("(\r\n|\r|\n|\n\r)","<br>").replaceAll("\t", " ")+"\"" +
                                         "}";
                                 TeksArea.append("URL : "+link+"/DiagnosticReport");

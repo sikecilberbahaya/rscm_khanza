@@ -2242,6 +2242,20 @@ private void tbDokterKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_
             } else {
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 int berhasil = 0;
+                String accessionNumber = "";
+                try(PreparedStatement psOrder = koneksi.prepareStatement(
+                        "SELECT CONCAT(REPLACE(permintaan_radiologi.noorder,'PR',''), permintaan_pemeriksaan_radiologi.kd_jenis_prw) AS accession " +
+                        "FROM permintaan_radiologi " +
+                        "JOIN permintaan_pemeriksaan_radiologi ON permintaan_pemeriksaan_radiologi.noorder = permintaan_radiologi.noorder " +
+                        "WHERE permintaan_radiologi.no_rawat=? AND permintaan_radiologi.tgl_hasil=? AND permintaan_radiologi.jam_hasil=? LIMIT 1")){
+                    psOrder.setString(1, NoRawatDicari.getText());
+                    psOrder.setString(2, TglDicari.getText());
+                    psOrder.setString(3, JamDicari.getText());
+                    ResultSet rsOrder = psOrder.executeQuery();
+                    if(rsOrder.next()) accessionNumber = rsOrder.getString("accession");
+                } catch(Exception ex){
+                    System.out.println("Notifikasi accession : " + ex);
+                }
                 for(int row : selectedRows){
                     String seriesId = tbListDicom.getValueAt(row, 2).toString();
                     String namafileFinal = seriesId + ".jpg";
@@ -2264,6 +2278,11 @@ private void tbDokterKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_
                     // Ambil gambar dari Orthanc
                     ApiOrthanc orthanc = new ApiOrthanc();
                     orthanc.AmbilJpg2(seriesId);
+                    // Update AccessionNumber di Orthanc
+                    if(!accessionNumber.isEmpty()){
+                        String studyId = tbListDicom.getValueAt(row, 1).toString();
+                        orthanc.UbahAccession(studyId, accessionNumber);
+                    }
                     // Upload ke web service
                     try {
                         CloseableHttpClient httpClient = HttpClients.createDefault();

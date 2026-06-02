@@ -57,7 +57,8 @@ public final class SatuSehatKirimDiagnosticReportRadiologi extends javax.swing.J
     private ObjectMapper mapper = new ObjectMapper();
     private JsonNode root;
     private JsonNode response;
-    private SatuSehatCekNIK cekViaSatuSehat=new SatuSehatCekNIK();  
+    private SatuSehatCekNIK cekViaSatuSehat=new SatuSehatCekNIK();
+    private ApiOrthanc orthanc = new ApiOrthanc();
     private StringBuilder htmlContent; 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private volatile boolean ceksukses = false;   
@@ -589,6 +590,48 @@ public final class SatuSehatKirimDiagnosticReportRadiologi extends javax.swing.J
                 try {
                     iddokter=cekViaSatuSehat.tampilIDParktisi(tbObat.getValueAt(i,7).toString());
                     idpasien=cekViaSatuSehat.tampilIDPasien(tbObat.getValueAt(i,4).toString());
+                    String imagingStudyId = "";
+                    try {
+                        String tglHasil = tbObat.getValueAt(i,10).toString();
+                        String tglOrthanc = tglHasil.length() >= 10 ? tglHasil.substring(0,10).replaceAll("-","") : "";
+                        JsonNode orthancResult = orthanc.AmbilSeries(tbObat.getValueAt(i,2).toString(), tglOrthanc, tglOrthanc);
+                        if (orthancResult != null && orthancResult.size() > 0) {
+                            String studyInstanceUID = orthancResult.get(0).path("MainDicomTags").path("StudyInstanceUID").asText();
+                            if (!studyInstanceUID.isEmpty()) {
+                                String modalityJson = "";
+                                JsonNode seriesList = orthancResult.get(0).path("Series");
+                                if (seriesList.size() > 0) {
+                                    String modality = orthanc.AmbilModalitas(seriesList.get(0).asText());
+                                    if (!modality.isEmpty()) {
+                                        modalityJson = "\"modality\": [{\"system\": \"http://dicom.nema.org/resources/ontology/DCM\",\"code\": \""+modality+"\"}],";
+                                    }
+                                }
+                                headers = new HttpHeaders();
+                                headers.setContentType(MediaType.APPLICATION_JSON);
+                                headers.add("Authorization", "Bearer "+api.TokenSatuSehat());
+                                headers.add("If-None-Exist", "identifier=urn:dicom:uid|urn:oid:"+studyInstanceUID);
+                                String isJson = "{" +
+                                    "\"resourceType\": \"ImagingStudy\"," +
+                                    "\"identifier\": [{\"system\": \"urn:dicom:uid\",\"value\": \"urn:oid:"+studyInstanceUID+"\"}]," +
+                                    "\"status\": \"available\"," +
+                                    modalityJson +
+                                    "\"subject\": {\"reference\": \"Patient/"+idpasien+"\"}," +
+                                    "\"encounter\": {\"reference\": \"Encounter/"+tbObat.getValueAt(i,8).toString()+"\"}," +
+                                    "\"started\": \""+tglHasil.replaceAll(" ","T")+"+07:00\"," +
+                                    "\"basedOn\": [{\"reference\": \"ServiceRequest/"+tbObat.getValueAt(i,16).toString()+"\"}]" +
+                                "}";
+                                System.out.println("URL : "+link+"/ImagingStudy");
+                                System.out.println("Request JSON : "+isJson);
+                                requestEntity = new HttpEntity(isJson, headers);
+                                String isResponse = api.getRest().exchange(link+"/ImagingStudy", HttpMethod.POST, requestEntity, String.class).getBody();
+                                System.out.println("Result JSON : "+isResponse);
+                                JsonNode isRoot = mapper.readTree(isResponse);
+                                imagingStudyId = isRoot.path("id").asText();
+                            }
+                        }
+                    } catch(Exception e) {
+                        System.out.println("Notifikasi ImagingStudy : "+e);
+                    }
                     try{
                         headers = new HttpHeaders();
                         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -649,6 +692,7 @@ public final class SatuSehatKirimDiagnosticReportRadiologi extends javax.swing.J
                                             "\"reference\": \"ServiceRequest/"+tbObat.getValueAt(i,16).toString()+"\"" +
                                         "}" +
                                     "]," +
+                                    (!imagingStudyId.isEmpty() ? "\"imagingStudy\": [{\"reference\": \"ImagingStudy/"+imagingStudyId+"\"}]," : "") +
                                     "\"conclusion\": \""+tbObat.getValueAt(i,21).toString().replaceAll("(\r\n|\r|\n|\n\r)","<br>").replaceAll("\t", " ")+"\"" +
                                 "}";
                         System.out.println("URL : "+link+"/DiagnosticReport");
@@ -694,6 +738,48 @@ public final class SatuSehatKirimDiagnosticReportRadiologi extends javax.swing.J
                 try {
                     iddokter=cekViaSatuSehat.tampilIDParktisi(tbObat.getValueAt(i,7).toString());
                     idpasien=cekViaSatuSehat.tampilIDPasien(tbObat.getValueAt(i,4).toString());
+                    String imagingStudyId = "";
+                    try {
+                        String tglHasil = tbObat.getValueAt(i,10).toString();
+                        String tglOrthanc = tglHasil.length() >= 10 ? tglHasil.substring(0,10).replaceAll("-","") : "";
+                        JsonNode orthancResult = orthanc.AmbilSeries(tbObat.getValueAt(i,2).toString(), tglOrthanc, tglOrthanc);
+                        if (orthancResult != null && orthancResult.size() > 0) {
+                            String studyInstanceUID = orthancResult.get(0).path("MainDicomTags").path("StudyInstanceUID").asText();
+                            if (!studyInstanceUID.isEmpty()) {
+                                String modalityJson = "";
+                                JsonNode seriesList = orthancResult.get(0).path("Series");
+                                if (seriesList.size() > 0) {
+                                    String modality = orthanc.AmbilModalitas(seriesList.get(0).asText());
+                                    if (!modality.isEmpty()) {
+                                        modalityJson = "\"modality\": [{\"system\": \"http://dicom.nema.org/resources/ontology/DCM\",\"code\": \""+modality+"\"}],";
+                                    }
+                                }
+                                headers = new HttpHeaders();
+                                headers.setContentType(MediaType.APPLICATION_JSON);
+                                headers.add("Authorization", "Bearer "+api.TokenSatuSehat());
+                                headers.add("If-None-Exist", "identifier=urn:dicom:uid|urn:oid:"+studyInstanceUID);
+                                String isJson = "{" +
+                                    "\"resourceType\": \"ImagingStudy\"," +
+                                    "\"identifier\": [{\"system\": \"urn:dicom:uid\",\"value\": \"urn:oid:"+studyInstanceUID+"\"}]," +
+                                    "\"status\": \"available\"," +
+                                    modalityJson +
+                                    "\"subject\": {\"reference\": \"Patient/"+idpasien+"\"}," +
+                                    "\"encounter\": {\"reference\": \"Encounter/"+tbObat.getValueAt(i,8).toString()+"\"}," +
+                                    "\"started\": \""+tglHasil.replaceAll(" ","T")+"+07:00\"," +
+                                    "\"basedOn\": [{\"reference\": \"ServiceRequest/"+tbObat.getValueAt(i,16).toString()+"\"}]" +
+                                "}";
+                                System.out.println("URL : "+link+"/ImagingStudy");
+                                System.out.println("Request JSON : "+isJson);
+                                requestEntity = new HttpEntity(isJson, headers);
+                                String isResponse = api.getRest().exchange(link+"/ImagingStudy", HttpMethod.POST, requestEntity, String.class).getBody();
+                                System.out.println("Result JSON : "+isResponse);
+                                JsonNode isRoot = mapper.readTree(isResponse);
+                                imagingStudyId = isRoot.path("id").asText();
+                            }
+                        }
+                    } catch(Exception e) {
+                        System.out.println("Notifikasi ImagingStudy : "+e);
+                    }
                     try{
                         headers = new HttpHeaders();
                         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -755,6 +841,7 @@ public final class SatuSehatKirimDiagnosticReportRadiologi extends javax.swing.J
                                             "\"reference\": \"ServiceRequest/"+tbObat.getValueAt(i,16).toString()+"\"" +
                                         "}" +
                                     "]," +
+                                    (!imagingStudyId.isEmpty() ? "\"imagingStudy\": [{\"reference\": \"ImagingStudy/"+imagingStudyId+"\"}]," : "") +
                                     "\"conclusion\": \""+tbObat.getValueAt(i,21).toString().replaceAll("(\r\n|\r|\n|\n\r)","<br>").replaceAll("\t", " ")+"\"" +
                                 "}";
                         System.out.println("URL : "+link+"/DiagnosticReport/"+tbObat.getValueAt(i,20).toString());

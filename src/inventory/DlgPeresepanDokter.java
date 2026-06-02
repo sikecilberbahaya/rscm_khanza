@@ -4321,7 +4321,7 @@ private void ppBersihkanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         ResultSet rsKronis = null;
         try {
             psKronis = koneksi.prepareStatement(
-                "select ro.no_resep, ro.tgl_peresepan, d.nm_dokter, group_concat(distinct db.nama_brng separator ', ') as nama_obat "
+                "select ro.no_resep, ro.tgl_peresepan, d.nm_dokter, group_concat(concat(db.nama_brng, ' (', rd.jml, ')') separator ', ') as nama_obat "
                 + "from resep_obat ro "
                 + "inner join reg_periksa rp on ro.no_rawat=rp.no_rawat "
                 + "inner join resep_dokter rd on ro.no_resep=rd.no_resep "
@@ -4339,8 +4339,7 @@ private void ppBersihkanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             while(rsKronis.next()) {
                 adaObatKronis = true;
                 nomor++;
-                pesanKronis.append(nomor).append(". No.Resep: ").append(rsKronis.getString("no_resep"))
-                    .append(" | Tgl: ").append(rsKronis.getString("tgl_peresepan"))
+                pesanKronis.append(nomor).append(". Tgl: ").append(rsKronis.getString("tgl_peresepan"))
                     .append(" | Dokter: ").append(rsKronis.getString("nm_dokter"))
                     .append(" | Obat: ").append(rsKronis.getString("nama_obat"))
                     .append("\n");
@@ -4351,7 +4350,7 @@ private void ppBersihkanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             if(rsKronis != null) { rsKronis.close(); rsKronis = null; }
             
             psKronis = koneksi.prepareStatement(
-                "select ro.no_resep, ro.tgl_peresepan, d.nm_dokter, group_concat(distinct db.nama_brng separator ', ') as nama_obat "
+                "select ro.no_resep, ro.tgl_peresepan, d.nm_dokter, group_concat(concat(db.nama_brng, ' (', rdrd.jml, ')') separator ', ') as nama_obat "
                 + "from resep_obat ro "
                 + "inner join reg_periksa rp on ro.no_rawat=rp.no_rawat "
                 + "inner join resep_dokter_racikan rdr on ro.no_resep=rdr.no_resep "
@@ -4370,8 +4369,7 @@ private void ppBersihkanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             while(rsKronis.next()) {
                 adaObatKronis = true;
                 nomor++;
-                pesanKronis.append(nomor).append(". No.Resep: ").append(rsKronis.getString("no_resep"))
-                    .append(" | Tgl: ").append(rsKronis.getString("tgl_peresepan"))
+                pesanKronis.append(nomor).append(". Tgl: ").append(rsKronis.getString("tgl_peresepan"))
                     .append(" | Dokter: ").append(rsKronis.getString("nm_dokter"))
                     .append(" | Obat Racikan: ").append(rsKronis.getString("nama_obat"))
                     .append("\n");
