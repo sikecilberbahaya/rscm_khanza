@@ -21,6 +21,7 @@ import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -1548,6 +1549,17 @@ public class BPJSSuratKontrol extends javax.swing.JDialog {
                             SkorMMRC.getText(),Eksaserbasi1Tahun.getSelectedItem().toString().trim(),MampuAktivitas.getSelectedItem().toString().trim(),Epileptik6Bulan.getSelectedItem().toString().trim(),EfekSampingOAB.getSelectedItem().toString().trim(), 
                             HamilMenyusui.getSelectedItem().toString().trim(),Remisi.getText(),TerapiRumatan.getSelectedItem().toString().trim(),Usia.getText(),AsamUrat.getText(),RemisiSLE.getText(),Hamil.getSelectedItem().toString().trim()
                         })==true){
+                        // Tracking: Surat Kontrol Berhasil Diterbitkan
+                        simpanTracking(
+                            response.asText(), 
+                            Valid.SetTgl(TanggalSurat.getSelectedItem()+"")+" "+new SimpleDateFormat("HH:mm:ss").format(new Date()),
+                            Valid.SetTgl(TanggalKontrol.getSelectedItem()+""),
+                            NoRawat.getText(),
+                            NoRM.getText(),
+                            NmPasien.getText(),
+                            "Terbit",
+                            "Surat Kontrol berhasil diterbitkan melalui API BPJS VClaim"
+                        );
                         emptTeks();
                         runBackground(() ->tampil());
                         if(JADIKANBOOKINGSURATKONTROLAPIBPJS.equals("yes")){
@@ -2631,6 +2643,33 @@ private void ChkInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         }
             
         return status;
+    }
+    
+    // Method untuk tracking BPJS Surat Kontrol
+    private void simpanTracking(String noSuratKontrol, String tglSurat, 
+                                String tglKontrol, String noRawat, 
+                                String noRM, String nmPasien, String aksi, 
+                                String keterangan) {
+        try {
+            String query = "INSERT INTO tracking_bpjs_surat_kontrol " +
+                          "(no_surat_kontrol, tgl_surat, tgl_kontrol, no_rawat, " +
+                          "no_rkm_medis, nm_pasien, aksi, user_id, tgl_aksi, keterangan) " +
+                          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
+            PreparedStatement psTracking = koneksi.prepareStatement(query);
+            psTracking.setString(1, noSuratKontrol);
+            psTracking.setString(2, tglSurat);
+            psTracking.setString(3, tglKontrol);
+            psTracking.setString(4, noRawat);
+            psTracking.setString(5, noRM);
+            psTracking.setString(6, nmPasien);
+            psTracking.setString(7, aksi);
+            psTracking.setString(8, akses.getkode());
+            psTracking.setString(9, keterangan);
+            psTracking.executeUpdate();
+            psTracking.close();
+        } catch (Exception e) {
+            System.out.println("Notifikasi Tracking Surat Kontrol: " + e);
+        }
     }
     
     private void runBackground(Runnable task) {

@@ -655,27 +655,27 @@ public final class SiranapKetersediaanKamar extends javax.swing.JDialog {
                 headers = new HttpHeaders();
                 headers.add("X-rs-id",idrs); 
                 headers.add("X-pass",api.getHmac()); 
-                headers.add("Content-Type","application/xml; charset=ISO-8859-1");
-                requestXML ="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
-                "<xml>\n"+    
-                    "<data>\n"+
-                        "<kode_ruang>"+KelasSiranap.getSelectedItem().toString().substring(0,4)+"</kode_ruang>\n"+
-                        "<tipe_pasien>"+RuangSiranap.getSelectedItem().toString().substring(0,4)+"</tipe_pasien>\n"+
-                        "<total_TT>"+Kapasitas.getText()+"</total_TT>\n"+
-                        "<terpakai_male>"+Integer.toString(Integer.parseInt(Tersedia.getText())-Integer.parseInt(TersediaPria.getText()))+"</terpakai_male>\n"+
-                        "<terpakai_female>"+Integer.toString(Integer.parseInt(Tersedia.getText())-Integer.parseInt(TersediaWanita.getText()))+"</terpakai_female>\n"+
-                        "<kosong_male>"+TersediaPria.getText()+"</kosong_male>\n"+
-                        "<kosong_female>"+TersediaWanita.getText()+"</kosong_female>\n"+
-                        "<waiting>"+TersediaMenunggu.getText()+"</waiting>\n"+
-                        "<tgl_update>"+Tanggal.getSelectedItem()+"</tgl_update>\n"+
-                    "</data>\n"+
-                "</xml>";              
-                System.out.println(requestXML);
-                requestEntity = new HttpEntity(requestXML,headers);
-                requestXML=api.getRest().exchange(URL+"/ranap", HttpMethod.POST, requestEntity, String.class).getBody();
+                headers.add("Content-Type","application/json");
+                int terpakai = Integer.parseInt(Kapasitas.getText()) - Integer.parseInt(Tersedia.getText());
+                String requestJSON = "{" +
+                    "\"id_tt\": \"" + RuangSiranap.getSelectedItem().toString().substring(0,4).trim() + "\"," +
+                    "\"ruang\": \"" + NmKamar.getText() + "\"," +
+                    "\"jumlah_ruang\": \"1\"," +
+                    "\"jumlah\": \"" + Kapasitas.getText() + "\"," +
+                    "\"terpakai\": \"" + terpakai + "\"," +
+                    "\"terpakai_suspek\": \"0\"," +
+                    "\"terpakai_konfirmasi\": \"0\"," +
+                    "\"antrian\": \"" + TersediaMenunggu.getText() + "\"," +
+                    "\"prepare\": \"0\"," +
+                    "\"prepare_plan\": \"0\"," +
+                    "\"covid\": 0" +
+                "}";
+                System.out.println(requestJSON);
+                requestEntity = new HttpEntity(requestJSON, headers);
+                requestXML = api.getRest().exchange(URL + "/Fasyankes", HttpMethod.POST, requestEntity, String.class).getBody();
                 System.out.println(requestXML);
                 root = mapper.readTree(requestXML);
-                respon=root.path("deskripsi").asText();
+                respon = root.path("deskripsi").asText();
                 if(root.path("deskripsi").asText().toLowerCase().contains("berhasil")){
                     if(Sequel.menyimpantf("siranap_ketersediaan_kamar","?,?,?,?,?,?,?,?,?","Data",9,new String[]{
                             RuangSiranap.getSelectedItem().toString(),KelasSiranap.getSelectedItem().toString(),KdKamar.getText(),
@@ -686,12 +686,12 @@ public final class SiranapKetersediaanKamar extends javax.swing.JDialog {
                             runBackground(() ->tampil());
                     }  
                 }else{
-                    JOptionPane.showMessageDialog(null,nameNode.path("deskripsi").asText());
+                    JOptionPane.showMessageDialog(null,respon);
                 }
             }catch (Exception ex) {
                 System.out.println("Notifikasi Bridging : "+ex);
                 if(ex.toString().contains("UnknownHostException")){
-                    JOptionPane.showMessageDialog(null,"Koneksi ke server SIRANAP terputus...!");
+                    JOptionPane.showMessageDialog(null,"Koneksi ke server SIRS terputus...!");
                 }else if(ex.toString().contains("502")){
                     JOptionPane.showMessageDialog(null,"Connection timed out. Hayati lelah bang...!");
                 }else{
@@ -726,24 +726,42 @@ public final class SiranapKetersediaanKamar extends javax.swing.JDialog {
                     headers = new HttpHeaders();
                     headers.add("X-rs-id",idrs); 
                     headers.add("X-pass",api.getHmac()); 
-                    headers.add("Content-Type","application/xml; charset=ISO-8859-1");
+                    headers.add("Content-Type","application/json");
                     requestEntity = new HttpEntity(headers);
-                    System.out.println(URL+"/sisrute/hapusdata/"+idrs+"/"+tbJnsPerawatan.getValueAt(i,2).toString().substring(0,4)+"/"+tbJnsPerawatan.getValueAt(i,1).toString().substring(0,4));
-                    requestXML=api.getRest().exchange(URL+"/sisrute/hapusdata/"+idrs+"/"+tbJnsPerawatan.getValueAt(i,1).toString().substring(0,4)+"/"+tbJnsPerawatan.getValueAt(i,2).toString().substring(0,4), HttpMethod.POST, requestEntity, String.class).getBody();
-                    System.out.println(requestXML);
-                    root = mapper.readTree(requestXML);
-                    respon=root.path("deskripsi").asText();
-                    if(root.path("deskripsi").asText().toLowerCase().contains("berhasil")){
-                        Sequel.queryu2("delete from siranap_ketersediaan_kamar where kode_ruang_siranap=? and kelas_ruang_siranap=? and kd_bangsal=? and kelas=?",4,new String[]{
-                            tbJnsPerawatan.getValueAt(i,1).toString(),tbJnsPerawatan.getValueAt(i,2).toString(),tbJnsPerawatan.getValueAt(i,3).toString(),tbJnsPerawatan.getValueAt(i,5).toString()
-                        });
-                    }else{
-                        JOptionPane.showMessageDialog(null,nameNode.path("deskripsi").asText());
+                    String hapusGetResp = api.getRest().exchange(URL + "/Fasyankes", HttpMethod.GET, requestEntity, String.class).getBody();
+                    JsonNode hapusGetRoot = mapper.readTree(hapusGetResp);
+                    String hapusIdTtt = "";
+                    String hapusTargetRuang = tbJnsPerawatan.getValueAt(i, 4).toString();
+                    if (hapusGetRoot.isArray()) {
+                        for (JsonNode item : hapusGetRoot) {
+                            if (item.path("ruang").asText().equalsIgnoreCase(hapusTargetRuang)) {
+                                hapusIdTtt = item.path("id_t_tt").asText();
+                                break;
+                            }
+                        }
+                    }
+                    if (hapusIdTtt.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "id_t_tt tidak ditemukan untuk ruang: " + hapusTargetRuang);
+                    } else {
+                        String deleteJson = "{\"id_t_tt\": \"" + hapusIdTtt + "\"}";
+                        requestEntity = new HttpEntity(deleteJson, headers);
+                        System.out.println(URL + "/Fasyankes - DELETE: " + deleteJson);
+                        requestXML = api.getRest().exchange(URL + "/Fasyankes", HttpMethod.DELETE, requestEntity, String.class).getBody();
+                        System.out.println(requestXML);
+                        root = mapper.readTree(requestXML);
+                        respon = root.path("deskripsi").asText();
+                        if(root.path("deskripsi").asText().toLowerCase().contains("berhasil")){
+                            Sequel.queryu2("delete from siranap_ketersediaan_kamar where kode_ruang_siranap=? and kelas_ruang_siranap=? and kd_bangsal=? and kelas=?",4,new String[]{
+                                tbJnsPerawatan.getValueAt(i,1).toString(),tbJnsPerawatan.getValueAt(i,2).toString(),tbJnsPerawatan.getValueAt(i,3).toString(),tbJnsPerawatan.getValueAt(i,5).toString()
+                            });
+                        }else{
+                            JOptionPane.showMessageDialog(null,respon);
+                        }
                     }
                 }catch (Exception ex) {
                     System.out.println("Notifikasi Bridging : "+ex);
                     if(ex.toString().contains("UnknownHostException")){
-                        JOptionPane.showMessageDialog(null,"Koneksi ke server SIRANAP terputus...!");
+                        JOptionPane.showMessageDialog(null,"Koneksi ke server SIRS terputus...!");
                     }else if(ex.toString().contains("502")){
                         JOptionPane.showMessageDialog(null,"Connection timed out. Hayati lelah bang...!");
                     }else{
@@ -782,72 +800,65 @@ public final class SiranapKetersediaanKamar extends javax.swing.JDialog {
                 headers = new HttpHeaders();
                 headers.add("X-rs-id",idrs); 
                 headers.add("X-pass",api.getHmac()); 
-                headers.add("Content-Type","application/xml; charset=ISO-8859-1");
+                headers.add("Content-Type","application/json");
                 requestEntity = new HttpEntity(headers);
-                requestXML=api.getRest().exchange(URL+"/sisrute/hapusdata/"+idrs+"/"+tbJnsPerawatan.getValueAt(tbJnsPerawatan.getSelectedRow(),2).toString().substring(0,4)+"/"+tbJnsPerawatan.getValueAt(tbJnsPerawatan.getSelectedRow(),1).toString().substring(0,4), HttpMethod.POST, requestEntity, String.class).getBody();
-                System.out.println(requestXML);
-                root = mapper.readTree(requestXML);
-                respon=root.path("deskripsi").asText();
-                if(root.path("response").asText().equals("1")){
-                    Sequel.queryu2("delete from siranap_ketersediaan_kamar where kode_ruang_siranap=? and kelas_ruang_siranap=? and kd_bangsal=? and kelas=?",4,new String[]{
-                        tbJnsPerawatan.getValueAt(tbJnsPerawatan.getSelectedRow(),1).toString(),tbJnsPerawatan.getValueAt(tbJnsPerawatan.getSelectedRow(),2).toString(),
-                        tbJnsPerawatan.getValueAt(tbJnsPerawatan.getSelectedRow(),3).toString(),tbJnsPerawatan.getValueAt(tbJnsPerawatan.getSelectedRow(),5).toString()
-                    });
-                }else{
-                    JOptionPane.showMessageDialog(null,nameNode.path("deskripsi").asText());
+                String editGetResp = api.getRest().exchange(URL + "/Fasyankes", HttpMethod.GET, requestEntity, String.class).getBody();
+                JsonNode editGetRoot = mapper.readTree(editGetResp);
+                String editIdTtt = "";
+                int selectedRow = tbJnsPerawatan.getSelectedRow();
+                String editTargetRuang = tbJnsPerawatan.getValueAt(selectedRow, 4).toString();
+                if (editGetRoot.isArray()) {
+                    for (JsonNode item : editGetRoot) {
+                        if (item.path("ruang").asText().equalsIgnoreCase(editTargetRuang)) {
+                            editIdTtt = item.path("id_t_tt").asText();
+                            break;
+                        }
+                    }
+                }
+                if (editIdTtt.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "id_t_tt tidak ditemukan untuk ruang: " + editTargetRuang + ". Pastikan data sudah pernah dikirim ke SIRS.");
+                } else {
+                    int terpakaiEdit = Integer.parseInt(Kapasitas.getText()) - Integer.parseInt(Tersedia.getText());
+                    String putJson = "{" +
+                        "\"id_t_tt\": \"" + editIdTtt + "\"," +
+                        "\"ruang\": \"" + NmKamar.getText() + "\"," +
+                        "\"jumlah_ruang\": \"1\"," +
+                        "\"jumlah\": \"" + Kapasitas.getText() + "\"," +
+                        "\"terpakai\": \"" + terpakaiEdit + "\"," +
+                        "\"terpakai_suspek\": \"0\"," +
+                        "\"terpakai_konfirmasi\": \"0\"," +
+                        "\"antrian\": \"" + TersediaMenunggu.getText() + "\"," +
+                        "\"prepare\": \"0\"," +
+                        "\"prepare_plan\": \"0\"," +
+                        "\"covid\": 0" +
+                    "}";
+                    System.out.println(URL + "/Fasyankes - PUT: " + putJson);
+                    requestEntity = new HttpEntity(putJson, headers);
+                    requestXML = api.getRest().exchange(URL + "/Fasyankes", HttpMethod.PUT, requestEntity, String.class).getBody();
+                    System.out.println(requestXML);
+                    root = mapper.readTree(requestXML);
+                    respon = root.path("deskripsi").asText();
+                    if(root.path("deskripsi").asText().toLowerCase().contains("berhasil")){
+                        Sequel.queryu2("delete from siranap_ketersediaan_kamar where kode_ruang_siranap=? and kelas_ruang_siranap=? and kd_bangsal=? and kelas=?",4,new String[]{
+                            tbJnsPerawatan.getValueAt(selectedRow,1).toString(),tbJnsPerawatan.getValueAt(selectedRow,2).toString(),
+                            tbJnsPerawatan.getValueAt(selectedRow,3).toString(),tbJnsPerawatan.getValueAt(selectedRow,5).toString()
+                        });
+                        if(Sequel.menyimpantf("siranap_ketersediaan_kamar","?,?,?,?,?,?,?,?,?","Data",9,new String[]{
+                                RuangSiranap.getSelectedItem().toString(),KelasSiranap.getSelectedItem().toString(),KdKamar.getText(),
+                                Kelas.getSelectedItem().toString(),Kapasitas.getText(),Tersedia.getText(),TersediaPria.getText(), 
+                                TersediaWanita.getText(),TersediaMenunggu.getText()
+                            })==true){
+                                emptTeks();
+                                runBackground(() ->tampil());
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(null, respon);
+                    }
                 }
             }catch (Exception ex) {
                 System.out.println("Notifikasi Bridging : "+ex);
                 if(ex.toString().contains("UnknownHostException")){
-                    JOptionPane.showMessageDialog(null,"Koneksi ke server SIRANAP terputus...!");
-                }else if(ex.toString().contains("502")){
-                    JOptionPane.showMessageDialog(null,"Connection timed out. Hayati lelah bang...!");
-                }else{
-                    JOptionPane.showMessageDialog(null,respon);
-                }
-            }
-            
-            try {
-                headers = new HttpHeaders();
-                headers.add("X-rs-id",idrs); 
-                headers.add("X-pass",api.getHmac()); 
-                headers.add("Content-Type","application/xml; charset=ISO-8859-1");
-                requestXML ="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
-                "<xml>\n"+    
-                    "<data>\n"+
-                        "<kode_ruang>"+KelasSiranap.getSelectedItem().toString().substring(0,4)+"</kode_ruang>\n"+
-                        "<tipe_pasien>"+RuangSiranap.getSelectedItem().toString().substring(0,4)+"</tipe_pasien>\n"+
-                        "<total_TT>"+Kapasitas.getText()+"</total_TT>\n"+
-                        "<terpakai_male>"+Integer.toString(Integer.parseInt(Tersedia.getText())-Integer.parseInt(TersediaPria.getText()))+"</terpakai_male>\n"+
-                        "<terpakai_female>"+Integer.toString(Integer.parseInt(Tersedia.getText())-Integer.parseInt(TersediaWanita.getText()))+"</terpakai_female>\n"+
-                        "<kosong_male>"+TersediaPria.getText()+"</kosong_male>\n"+
-                        "<kosong_female>"+TersediaWanita.getText()+"</kosong_female>\n"+
-                        "<waiting>"+TersediaMenunggu.getText()+"</waiting>\n"+
-                        "<tgl_update>"+Tanggal.getSelectedItem()+".0</tgl_update>\n"+
-                    "</data>\n"+
-                "</xml>";              
-                System.out.println(requestXML);
-                requestEntity = new HttpEntity(requestXML,headers);
-                requestXML=api.getRest().exchange(URL+"/ranap", HttpMethod.POST, requestEntity, String.class).getBody();
-                System.out.println(requestXML);
-                root = mapper.readTree(requestXML);
-                respon=root.path("deskripsi").asText();
-                if(root.path("response").asText().equals("1")){
-                    if(Sequel.menyimpantf("siranap_ketersediaan_kamar","?,?,?,?,?,?,?,?,?","Data",9,new String[]{
-                            RuangSiranap.getSelectedItem().toString(),KelasSiranap.getSelectedItem().toString(),KdKamar.getText(),
-                            Kelas.getSelectedItem().toString(),Kapasitas.getText(),Tersedia.getText(),TersediaPria.getText(), 
-                            TersediaWanita.getText(),TersediaMenunggu.getText()
-                        })==true){
-                            emptTeks();
-                            runBackground(() ->tampil());
-                    }  
-                }else{
-                    JOptionPane.showMessageDialog(null,nameNode.path("deskripsi").asText());
-                }
-            }catch (Exception ex) {
-                System.out.println("Notifikasi Bridging : "+ex);
-                if(ex.toString().contains("UnknownHostException")){
-                    JOptionPane.showMessageDialog(null,"Koneksi ke server SIRANAP terputus...!");
+                    JOptionPane.showMessageDialog(null,"Koneksi ke server SIRS terputus...!");
                 }else if(ex.toString().contains("502")){
                     JOptionPane.showMessageDialog(null,"Connection timed out. Hayati lelah bang...!");
                 }else{

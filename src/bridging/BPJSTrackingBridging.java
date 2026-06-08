@@ -538,14 +538,15 @@ public class BPJSTrackingBridging extends javax.swing.JDialog {
         try {
             String sql = "SELECT " +
                         "t.id, t.no_sep, t.tgl_sep, t.no_rawat, t.no_rkm_medis, " +
-                        "t.nm_pasien, t.aksi, t.user_id, t.tgl_aksi, t.keterangan " +
+                        "t.nm_pasien, t.aksi, COALESCE(p.nama, t.user_id) AS nm_user, t.tgl_aksi, t.keterangan " +
                         "FROM tracking_bpjs_sep t " +
+                        "LEFT JOIN pegawai p ON p.nik = t.user_id " +
                         "WHERE DATE(t.tgl_aksi) BETWEEN ? AND ? ";
             
             if (!TCari.getText().trim().equals("")) {
                 sql += "AND (t.no_sep LIKE ? OR t.no_rawat LIKE ? OR " +
                        "t.no_rkm_medis LIKE ? OR t.nm_pasien LIKE ? OR " +
-                       "t.aksi LIKE ? OR t.user_id LIKE ? OR t.keterangan LIKE ?) ";
+                       "t.aksi LIKE ? OR COALESCE(p.nama, t.user_id) LIKE ? OR t.keterangan LIKE ?) ";
             }
             
             sql += "ORDER BY t.tgl_aksi DESC";
@@ -574,7 +575,7 @@ public class BPJSTrackingBridging extends javax.swing.JDialog {
                     rs.getString("no_rkm_medis"),
                     rs.getString("nm_pasien"),
                     rs.getString("aksi"),
-                    rs.getString("user_id"),
+                    rs.getString("nm_user"),
                     rs.getString("tgl_aksi"),
                     rs.getString("keterangan")
                 });
@@ -591,14 +592,15 @@ public class BPJSTrackingBridging extends javax.swing.JDialog {
             String sql = "SELECT " +
                         "t.id, t.no_surat_kontrol, t.tgl_surat, t.tgl_kontrol, " +
                         "t.no_rawat, t.no_rkm_medis, t.nm_pasien, t.aksi, " +
-                        "t.user_id, t.tgl_aksi, t.keterangan " +
+                        "COALESCE(p.nama, t.user_id) AS nm_user, t.tgl_aksi, t.keterangan " +
                         "FROM tracking_bpjs_surat_kontrol t " +
+                        "LEFT JOIN pegawai p ON p.nik = t.user_id " +
                         "WHERE DATE(t.tgl_aksi) BETWEEN ? AND ? ";
             
             if (!TCari1.getText().trim().equals("")) {
                 sql += "AND (t.no_surat_kontrol LIKE ? OR t.no_rawat LIKE ? OR " +
                        "t.no_rkm_medis LIKE ? OR t.nm_pasien LIKE ? OR " +
-                       "t.aksi LIKE ? OR t.user_id LIKE ? OR t.keterangan LIKE ?) ";
+                       "t.aksi LIKE ? OR COALESCE(p.nama, t.user_id) LIKE ? OR t.keterangan LIKE ?) ";
             }
             
             sql += "ORDER BY t.tgl_aksi DESC";
@@ -628,7 +630,7 @@ public class BPJSTrackingBridging extends javax.swing.JDialog {
                     rs.getString("no_rkm_medis"),
                     rs.getString("nm_pasien"),
                     rs.getString("aksi"),
-                    rs.getString("user_id"),
+                    rs.getString("nm_user"),
                     rs.getString("tgl_aksi"),
                     rs.getString("keterangan")
                 });

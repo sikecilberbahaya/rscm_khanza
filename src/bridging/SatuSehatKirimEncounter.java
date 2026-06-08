@@ -1,7 +1,3 @@
-/*
-  by Mas Elkhanza
- */
-
 package bridging;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -626,6 +622,10 @@ public final class SatuSehatKirimEncounter extends javax.swing.JDialog {
                             headers = new HttpHeaders();
                             headers.setContentType(MediaType.APPLICATION_JSON);
                             headers.add("Authorization", "Bearer "+api.TokenSatuSehat());
+                            boolean isIGD = "IGDK".equalsIgnoreCase(tbObat.getValueAt(i,9).toString());
+                            boolean isRanap = "Ranap".equals(tbObat.getValueAt(i,13).toString());
+                            String classCode    = isIGD ? "EMER"      : (isRanap ? "IMP" : "AMB");
+                            String classDisplay = isIGD ? "emergency" : (isRanap ? "inpatient encounter" : "ambulatory");
                             json = "{" +
                                         "\"resourceType\": \"EpisodeOfCare\"," +
                                         "\"identifier\": [" +
