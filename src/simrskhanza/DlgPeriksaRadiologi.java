@@ -2273,6 +2273,8 @@ private void ChkJlnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
                         TNoRw.getText(),Valid.SetTgl(Tanggal.getSelectedItem()+""),CmbJam.getSelectedItem()+":"+CmbMenit.getSelectedItem()+":"+CmbDetik.getSelectedItem(),HasilPeriksa.getText()
                     });
                 }
+                simpanKeOrderOut(noorder, TNoRM.getText(), TPasien.getText(), HasilPeriksa.getText(),
+                    Sequel.cariIsi("select nama from pegawai where nik='"+KdPtg.getText()+"'"));
                 
                 if(!url.equals("")){
                     Sequel.menyimpan("gambar_radiologi","?,?,?,?", "URL Radiologi",4,new String[]{
@@ -2474,5 +2476,116 @@ private void ChkJlnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
     public void dispose() {
         executor.shutdownNow();
         super.dispose();
+    }
+
+    private void simpanKeOrderOut(String noOrder, String noRm, String namaP,
+                                   String hasilPeriksa, String dokterRad) {
+        try {
+            if (koneksiradiologi == null) return;
+
+            String noRontgen = noOrder.replaceAll("PR", "");
+            if (noRontgen.isEmpty()) return;
+
+            // Ambil tanggal periksa dari tabel periksa_radiologi
+            String tglOrder = "";
+            try {
+                PreparedStatement psTgl = koneksi.prepareStatement(
+                    "select concat(tgl_periksa,' ',jam) from periksa_radiologi " +
+                    "where no_rawat=? limit 1");
+                psTgl.setString(1, TNoRw.getText());
+                ResultSet rsTgl = psTgl.executeQuery();
+                if (rsTgl.next()) { tglOrder = rsTgl.getString(1); }
+                rsTgl.close(); psTgl.close();
+            } catch (Exception e) {
+                System.out.println("[simpanKeOrderOut] Error get tglOrder: " + e);
+            }
+
+            // Ambil kode_tindakan dan tindakan_radiologi dari periksa_radiologi
+            String kodeTindakan = "";
+            String tindakanRadiologi = "";
+            try {
+                PreparedStatement psTindakan = koneksi.prepareStatement(
+                    "select periksa_radiologi.kd_jenis_prw, " +
+                    "jns_perawatan_radiologi.nm_jenis_prw " +
+                    "from periksa_radiologi " +
+                    "join jns_perawatan_radiologi " +
+                    "on periksa_radiologi.kd_jenis_prw = jns_perawatan_radiologi.kd_jenis_prw " +
+                    "where periksa_radiologi.no_rawat=? limit 1");
+                psTindakan.setString(1, TNoRw.getText());
+                ResultSet rsTindakan = psTindakan.executeQuery();
+                if (rsTindakan.next()) {
+                    kodeTindakan     = rsTindakan.getString(1);
+                    tindakanRadiologi = rsTindakan.getString(2);
+                }
+                rsTindakan.close(); psTindakan.close();
+            } catch (Exception e) {
+                System.out.println("[simpanKeOrderOut] Error get tindakan: " + e);
+            }
+
+            // Cek apakah no_rontgen sudah ada di order_out
+            boolean ada = false;
+            PreparedStatement psCek = koneksiradiologi.prepareStatement(
+                "select count(*) from order_out where no_rontgen=?");
+            psCek.setString(1, noRontgen);
+            ResultSet rsCek = psCek.executeQuery();
+            if (rsCek.next()) { ada = rsCek.getInt(1) > 0; }
+            rsCek.close(); psCek.close();
+
+            if (ada) {
+                // UPDATE record yang sudah ada
+                PreparedStatement psUpd = koneksiradiologi.prepareStatement(
+                    "update order_out set expertise_finding=?, " +
+                    "expertise_conclusion=?, dokter_radiolog=?, " +
+                    "proyeksi=?, kV=?, mAS=?, FFD=?, BSF=?, inak=?, " +
+                    "jml_penyinaran=?, dosis=?, statusupdate='1' " +
+                    "where no_rontgen=?");
+                psUpd.setString(1,  hasilPeriksa);
+                psUpd.setString(2,  hasilPeriksa);
+                psUpd.setString(3,  dokterRad);
+                psUpd.setString(4,  proyeksi);
+                psUpd.setString(5,  kV);
+                psUpd.setString(6,  mAS);
+                psUpd.setString(7,  FFD);
+                psUpd.setString(8,  BSF);
+                psUpd.setString(9,  inak);
+                psUpd.setString(10, jml_penyinaran);
+                psUpd.setString(11, dosis);
+                psUpd.setString(12, noRontgen);
+                psUpd.executeUpdate();
+                psUpd.close();
+            } else {
+                // INSERT record baru jika kode tindakan tersedia
+                if (!kodeTindakan.isEmpty()) {
+                    PreparedStatement psIns = koneksiradiologi.prepareStatement(
+                        "insert into order_out (tanggal_order, no_rm, no_rontgen, " +
+                        "nama_pasien, expertise_finding, expertise_conclusion, " +
+                        "dokter_radiolog, kode_tindakan, tindakan_radiologi, " +
+                        "proyeksi, kV, mAS, FFD, BSF, inak, jml_penyinaran, " +
+                        "dosis, statusupdate) " +
+                        "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'1')");
+                    psIns.setString(1,  tglOrder.isEmpty() ? null : tglOrder);
+                    psIns.setString(2,  noRm);
+                    psIns.setString(3,  noRontgen);
+                    psIns.setString(4,  namaP);
+                    psIns.setString(5,  hasilPeriksa);
+                    psIns.setString(6,  hasilPeriksa);
+                    psIns.setString(7,  dokterRad);
+                    psIns.setString(8,  kodeTindakan);
+                    psIns.setString(9,  tindakanRadiologi);
+                    psIns.setString(10, proyeksi);
+                    psIns.setString(11, kV);
+                    psIns.setString(12, mAS);
+                    psIns.setString(13, FFD);
+                    psIns.setString(14, BSF);
+                    psIns.setString(15, inak);
+                    psIns.setString(16, jml_penyinaran);
+                    psIns.setString(17, dosis);
+                    psIns.executeUpdate();
+                    psIns.close();
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("[simpanKeOrderOut] Error: " + e);
+        }
     }
 }

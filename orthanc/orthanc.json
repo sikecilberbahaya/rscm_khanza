@@ -1,0 +1,82 @@
+// =============================================================================
+// orthanc.json — Contoh konfigurasi Orthanc untuk RSCM Khanza
+// Sesuaikan nilai yang ditandai <GANTI_INI> sebelum digunakan
+// =============================================================================
+// Cara pakai:
+//   sudo cp orthanc.json /etc/orthanc/orthanc.json
+//   sudo systemctl restart orthanc
+// =============================================================================
+
+{
+  // ---------------------------------------------------------------------------
+  // Identitas server Orthanc
+  // ---------------------------------------------------------------------------
+  "Name"        : "OrthancRSCM",
+  "HttpPort"    : 8042,
+  "DicomPort"   : 4242,
+  "StorageDirectory" : "/var/lib/orthanc/db",
+
+  // ---------------------------------------------------------------------------
+  // Autentikasi REST API Orthanc
+  // Ganti username/password sesuai kebijakan keamanan RS
+  // ---------------------------------------------------------------------------
+  "AuthenticationEnabled" : true,
+  "RegisteredUsers" : {
+    "orthanc"  : "<GANTI_PASSWORD_ORTHANC>",
+    "admin"    : "<GANTI_PASSWORD_ADMIN>"
+  },
+
+  // ---------------------------------------------------------------------------
+  // Plugin Python — autoforward ke SatuSehat
+  // ---------------------------------------------------------------------------
+  "PythonScript" : "/etc/orthanc/autoforward_satusehat.py",
+  "Python" : {
+    "Enable" : true
+  },
+
+  // ---------------------------------------------------------------------------
+  // Modalities DICOM
+  //
+  // DICOMROUTER : nama HARUS persis "DICOMROUTER" (huruf besar semua) karena
+  //               sudah hardcoded di ApiOrthanc.java baris 247.
+  //               Ganti Host dan AET sesuai konfigurasi router SatuSehat.
+  // ---------------------------------------------------------------------------
+  "DicomModalities" : {
+    "DICOMROUTER" : {
+      "AET"            : "SATUSEHAT_ROUTER",
+      "Host"           : "<IP_ATAU_HOSTNAME_SATUSEHAT_ROUTER>",
+      "Port"           : 104,
+      "AllowEcho"      : true,
+      "AllowFind"      : false,
+      "AllowGet"       : false,
+      "AllowMove"      : true,
+      "AllowStore"     : true
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // Sumber DICOM yang diizinkan mengirim ke Orthanc ini (opsional)
+  // Tambahkan alat radiologi (CT, MRI, CR, dll.) sesuai konfigurasi jaringan RS
+  // ---------------------------------------------------------------------------
+  "DicomAet"       : "ORSCM",
+  "DicomCheckCalledAet" : false,
+
+  // ---------------------------------------------------------------------------
+  // Batas ukuran storage
+  // ---------------------------------------------------------------------------
+  "MaximumStorageSize"    : 0,
+  "MaximumPatientCount"   : 0,
+
+  // ---------------------------------------------------------------------------
+  // Performa
+  // ---------------------------------------------------------------------------
+  "ConcurrentJobs"       : 2,
+  "JobsHistorySize"      : 10,
+
+  // ---------------------------------------------------------------------------
+  // Logging
+  // ---------------------------------------------------------------------------
+  "Verbose"  : false,
+  "Trace"    : false,
+  "LogFile"  : "/var/log/orthanc/orthanc.log"
+}
