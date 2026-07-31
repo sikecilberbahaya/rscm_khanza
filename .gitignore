@@ -3,3 +3,14 @@
 /lib/
 /build/
 /KhanzaHMSServiceSatuSehat/dist/
+
+# Tooling (bukan bagian proyek)
+.codebase-memory/
+/docs/
+
+# NetBeans settings privat per-mesin
+nbproject/private/
+
+# OS
+Thumbs.db
+.DS_Store
