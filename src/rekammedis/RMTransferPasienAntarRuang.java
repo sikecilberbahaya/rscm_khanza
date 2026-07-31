@@ -2141,9 +2141,18 @@ public final class RMTransferPasienAntarRuang extends javax.swing.JDialog {
             TCari.requestFocus();
         }else{
             if(tbObat.getSelectedRow()>-1){
-                Sequel.queryu("delete from antripersetujuantransferantarruang");
-                Sequel.queryu("insert into antripersetujuantransferantarruang values('"+tbObat.getValueAt(tbObat.getSelectedRow(),0).toString()+"','"+tbObat.getValueAt(tbObat.getSelectedRow(),5).toString()+"')");
                 Sequel.queryu("delete from bukti_persetujuan_transfer_pasien_antar_ruang where no_rawat='"+tbObat.getValueAt(tbObat.getSelectedRow(),0).toString()+"' and tanggal_masuk='"+tbObat.getValueAt(tbObat.getSelectedRow(),5).toString()+"'");
+                try {
+                    String baseUrl = "http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/";
+                    String noRawat = tbObat.getValueAt(tbObat.getSelectedRow(),0).toString();
+                    String tanggalMasuk = Valid.SetTgl(tbObat.getValueAt(tbObat.getSelectedRow(),5).toString().substring(0,10))+" "+tbObat.getValueAt(tbObat.getSelectedRow(),5).toString().substring(11,19);
+                    String url = baseUrl+"index.php?page=consent&type=transfer&act=capture&no_surat="+
+                            java.net.URLEncoder.encode(noRawat,"UTF-8")+"&tgl="+
+                            java.net.URLEncoder.encode(tanggalMasuk,"UTF-8");
+                    Desktop.getDesktop().browse(new java.net.URI(url));
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null,"Gagal membuka halaman capture transfer antar ruang : "+e.getMessage());
+                }
             }else{
                 JOptionPane.showMessageDialog(rootPane,"Silahkan anda pilih data terlebih dahulu..!!");
             }
@@ -2674,7 +2683,7 @@ public final class RMTransferPasienAntarRuang extends javax.swing.JDialog {
                         if(rs.getString("photo").equals("")||rs.getString("photo").equals("-")){
                             LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
                         }else{
-                            LoadHTML2.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/persetujuantransferruang/"+rs.getString("photo")+"' alt='photo' width='500' height='500'/></center></body></html>");
+                            LoadHTML2.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/"+rs.getString("photo").replace("_ttd.png","_gabung.jpeg")+"' alt='photo' width='500' height='500'/></center></body></html>");
                         }  
                     }else{
                         LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");

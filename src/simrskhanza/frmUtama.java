@@ -26980,10 +26980,8 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
                 jmlmenu++;
             }
             
-            if(akses.getbridging_tracking()==true){
-                Panelmenu.add(btnBPJSTrackingBridging);
-                jmlmenu++;
-            }
+            Panelmenu.add(btnBPJSTrackingBridging);
+            jmlmenu++;
             
             if(akses.getbpjs_cek_sep()==true){
                 Panelmenu.add(btnCekSEP);
@@ -32904,10 +32902,8 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
             jmlmenu++;
         }
         
-        if(akses.getbridging_tracking()==true){
-            Panelmenu.add(btnBPJSTrackingBridging);
-            jmlmenu++;
-        }
+        Panelmenu.add(btnBPJSTrackingBridging);
+        jmlmenu++;
         
         if(akses.getbpjs_cek_sep()==true){
             Panelmenu.add(btnCekSEP);
@@ -39906,11 +39902,9 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
             }                
         }
         
-        if(akses.getbridging_tracking()==true){
-            if(btnBPJSTrackingBridging.getText().toLowerCase().trim().contains(TCari.getText().toLowerCase().trim())){
-                Panelmenu.add(btnBPJSTrackingBridging);
-                jmlmenu++;
-            }                
+        if(btnBPJSTrackingBridging.getText().toLowerCase().trim().contains(TCari.getText().toLowerCase().trim())){
+            Panelmenu.add(btnBPJSTrackingBridging);
+            jmlmenu++;
         }
         
         if(akses.getbpjs_cek_sep()==true){

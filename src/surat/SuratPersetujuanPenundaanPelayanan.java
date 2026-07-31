@@ -12,12 +12,20 @@ import fungsi.koneksiDB;
 import fungsi.sekuel;
 import fungsi.validasi;
 import fungsi.akses;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -61,7 +69,8 @@ public final class SuratPersetujuanPenundaanPelayanan extends javax.swing.JDialo
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private volatile boolean ceksukses = false;
     private StringBuilder htmlContent;
-    private String finger="",lokasifile="";
+    private String finger="",lokasifile="",lokasifile2="";
+    private JPanel photoPanel;
     
     public SuratPersetujuanPenundaanPelayanan(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -159,6 +168,14 @@ public final class SuratPersetujuanPenundaanPelayanan extends javax.swing.JDialo
         
         ChkAccor.setSelected(false);
         isPhoto();
+
+        Hubungan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                if ("Diri Sendiri".equals(Hubungan.getSelectedItem()) && !TNoRw.getText().trim().isEmpty()) {
+                    autoisiPasien();
+                }
+            }
+        });
         
         HTMLEditorKit kit = new HTMLEditorKit();
         LoadHTML2.setEditable(true);
@@ -1547,7 +1564,9 @@ public final class SuratPersetujuanPenundaanPelayanan extends javax.swing.JDialo
                 param.put("kontakrs",akses.getkontakrs());
                 param.put("emailrs",akses.getemailrs());
                 param.put("logo",Sequel.cariGambar("select setting.logo from setting"));
-                param.put("photo","http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/penundaanpelayanan/"+lokasifile);
+                String baseUrl = "http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/";
+                param.put("photo", baseUrl + lokasifile);
+                param.put("photo_foto", baseUrl + lokasifile2);
                 finger=Sequel.cariIsi("select sha1(sidikjari.sidikjari) from sidikjari inner join pegawai on pegawai.id=sidikjari.id where pegawai.nik=?",tbObat.getValueAt(tbObat.getSelectedRow(),21).toString());
                 param.put("finger","Dikeluarkan di "+akses.getnamars()+", Kabupaten/Kota "+akses.getkabupatenrs()+"\nDitandatangani secara elektronik oleh "+tbObat.getValueAt(tbObat.getSelectedRow(),22).toString()+"\nID "+(finger.equals("")?tbObat.getValueAt(tbObat.getSelectedRow(),21).toString():finger)+"\n"+Valid.SetTgl3(tbObat.getValueAt(tbObat.getSelectedRow(),7).toString())+" "+tbObat.getValueAt(tbObat.getSelectedRow(),7).toString().substring(11,19));
                 Valid.MyReportqry("rptSuratPenundaanPelayanan.jasper","report","::[ Surat Penundaan Pelayanan ]::",
@@ -1730,7 +1749,7 @@ public final class SuratPersetujuanPenundaanPelayanan extends javax.swing.JDialo
             }
                 
             try {
-                if(TCari.getText().toString().trim().equals("")){
+                if(TCari.getText().trim().equals("")){
                     ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+"")+" 00:00:00");
                     ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+"")+" 23:59:59");
                 }else{
@@ -1821,6 +1840,34 @@ public final class SuratPersetujuanPenundaanPelayanan extends javax.swing.JDialo
             KdDokter.setText(tbObat.getValueAt(tbObat.getSelectedRow(),23).toString());
             NmDokter.setText(tbObat.getValueAt(tbObat.getSelectedRow(),24).toString());
             Valid.SetTgl2(Tanggal,tbObat.getValueAt(tbObat.getSelectedRow(),7).toString());
+        }
+    }
+
+    private void autoisiPasien() {
+        try {
+            ps = koneksi.prepareStatement(
+                "SELECT pasien.nm_pasien, reg_periksa.umurdaftar, pasien.alamat, pasien.no_tlp " +
+                "FROM reg_periksa JOIN pasien ON reg_periksa.no_rkm_medis=pasien.no_rkm_medis " +
+                "WHERE reg_periksa.no_rawat=?"
+            );
+            try {
+                ps.setString(1, TNoRw.getText());
+                rs = ps.executeQuery();
+                if (rs.next()) {
+                    NamaPJ.setText(TPasien.getText());
+                    UmurPJ.setText(rs.getString("umurdaftar") != null ? rs.getString("umurdaftar") : "");
+                    AlamatPj.setText(rs.getString("alamat") != null ? rs.getString("alamat") : "");
+                    NoTelpPJ.setText(rs.getString("no_tlp") != null ? rs.getString("no_tlp") : "");
+                    NoKTP.setText("");
+                }
+            } catch (Exception e) {
+                System.out.println("Notif autoisiPasien: " + e);
+            } finally {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+            }
+        } catch (Exception e) {
+            System.out.println("Notif autoisiPasien: " + e);
         }
     }
 
@@ -1963,7 +2010,7 @@ public final class SuratPersetujuanPenundaanPelayanan extends javax.swing.JDialo
 
     private void panggilPhoto() {
         if(FormPhoto.isVisible()==true){
-            lokasifile="";
+            lokasifile=""; lokasifile2="";
             try {
                 ps=koneksi.prepareStatement("select bukti_persetujuan_penundaan_pelayanan.photo from bukti_persetujuan_penundaan_pelayanan where bukti_persetujuan_penundaan_pelayanan.no_surat=?");
                 try {
@@ -1972,13 +2019,36 @@ public final class SuratPersetujuanPenundaanPelayanan extends javax.swing.JDialo
                     if(rs.next()){
                         if(rs.getString("photo").equals("")||rs.getString("photo").equals("-")){
                             lokasifile="";
+                            Scroll5.setViewportView(LoadHTML2);
                             LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
                         }else{
-                            lokasifile=rs.getString("photo");
-                            LoadHTML2.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/penundaanpelayanan/"+rs.getString("photo")+"' alt='photo' width='500' height='500'/></center></body></html>");
+                            String ttd = rs.getString("photo");
+                            String foto = ttd.replace("_ttd.png", ".jpeg");
+                            lokasifile = ttd;
+                            lokasifile2 = foto;
+                            String baseUrl = "http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/";
+                            BufferedImage fotoImg = ImageIO.read(new java.net.URL(baseUrl + foto));
+                            BufferedImage ttdImg = ImageIO.read(new java.net.URL(baseUrl + ttd));
+                            if (photoPanel == null) {
+                                photoPanel = new JPanel();
+                                photoPanel.setLayout(new BoxLayout(photoPanel, BoxLayout.Y_AXIS));
+                                photoPanel.setBackground(Color.WHITE);
+                            }
+                            photoPanel.removeAll();
+                            JLabel fotoLabel = new JLabel(new ImageIcon(fotoImg));
+                            fotoLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                            JLabel ttdLabel = new JLabel(new ImageIcon(ttdImg));
+                            ttdLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                            photoPanel.add(Box.createVerticalGlue());
+                            photoPanel.add(fotoLabel);
+                            photoPanel.add(Box.createVerticalStrut(8));
+                            photoPanel.add(ttdLabel);
+                            photoPanel.add(Box.createVerticalGlue());
+                            Scroll5.setViewportView(photoPanel);
                         }  
                     }else{
                         lokasifile="";
+                        Scroll5.setViewportView(LoadHTML2);
                         LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
                     }
                 } catch (Exception e) {

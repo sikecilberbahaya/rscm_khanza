@@ -27,84 +27,78 @@
     </script>
 </head>
 
-<body class="login-page">
-    <div class="bg"></div>
-    <div class="bg bg2"></div>
-    <div class="bg bg3"></div>
-    <div id="content">
-        <div class="login-box">
-            <div class="logo">
-                <a href="javascript:void(0);">E-MCU <?=$_SESSION["nama_instansi"];?> </a>
-            </div>
-            <div class="card">
-                <div class="body">
-                    <form id="sigin" role="form" onsubmit="return validasiIsi();" method="post" action="" enctype=multipart/form-data>
-                        <div class="msg">Silahkan Login</div>
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="material-icons">person</i>
-                            </span>
-                            <div class="form-line">
-                                <input type="password" class="form-control" name="username" placeholder="Username" pattern="[a-zA-Z0-9, ./@_]{1,65}" title=" a-zA-Z0-9, ./@_ (Maksimal 65 karakter)" required onkeydown="setDefault(this, document.getElementById('MsgIsi1'));" id="TxtIsi1" autocomplete="off" autofocus>
-                                <span id="MsgIsi1" style="color:#CC0000; font-size:10px;"></span>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="material-icons">lock</i>
-                            </span>
-                            <div class="form-line">
-                                <input type="password" class="form-control" name="password" placeholder="Password" pattern="[a-zA-Z0-9, ./@_]{1,65}" title=" a-zA-Z0-9, ./@_ (Maksimal 65 karakter)" required onkeydown="setDefault(this, document.getElementById('MsgIsi2'));" id="TxtIsi2" autocomplete="off">
-                                <span id="MsgIsi2" style="color:#CC0000; font-size:10px;"></span>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="material-icons">assignment</i>
-                            </span>
-                            <div class="form-line">
-                                <table width="100%" border="0">
-                                    <tr>
-                                        <td width="50%" valign="top">
-                                            <img width="98%" height="45px" src="pages/captcha.php" alt="gambar" />
-                                        </td>
-                                        <td width="50%">
-                                            <input type="text" class="form-control" onkeydown="setDefault(this, document.getElementById('MsgIsi3'));" id="TxtIsi3" name="inputcaptcha" pattern="[0-9]{1,6}" title=" 0-9 (Maksimal 6 karakter)" required placeholder="Masukkan Captcha" autocomplete="off" />
-                                        </td>
-                                    </tr>
-                                </table>
-                                <span id="MsgIsi3" style="color:#CC0000; font-size:10px;"></span>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-4">
-                                <button class="btn btn-block bg-pink waves-effect" name="BtnLogin" type="submit">Log In</button>
-                            </div>
-                            <div class="col-xs-4">
-                                <button class="btn btn-block bg-pink waves-effect" name="BtnReset" type="reset">Reset</button>
-                            </div>
-                        </div>
-                    </form>
-                    <?php 
-                        $BtnLogin=isset($_POST['BtnLogin'])?$_POST['BtnLogin']:NULL;
-                        if (isset($BtnLogin)) {
-                            if(@$_SESSION["Capcay"]==getOne2("select aes_encrypt(".validTeks4($_POST["inputcaptcha"],10).",'windi')")){
-                                unset($_SESSION['Capcay']);
-                                $username  = validTeks4($_POST['username'],20);
-                                $password  = validTeks4($_POST['password'],40);
-                                if(getOne2("select count(*) from password_perusahaan_pasien where password_perusahaan_pasien.kode_perusahaan='$username' and password_perusahaan_pasien.password=AES_ENCRYPT('$password','windi')")>0){
-                                    $_SESSION["ses_emcu"]= encrypt_decrypt($username,"e");
-                                    exit(header("Location:index.php")); 
-                                }else{
-                                    echo "Username/Password ada yang salah. Silahkan ulangi...!";
-                                }
-                            }else{
-                                echo "Captcha tidak sesuai, silahkan ulangi ...!";
-                            }
-                        }
-                    ?>
+<body>
+    <div class="bg-decoration">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
                 </div>
+                <h1>E-MCU <?=$_SESSION["nama_instansi"];?></h1>
+                <p>Silahkan login untuk melanjutkan</p>
             </div>
+            <form id="sigin" role="form" onsubmit="return validasiIsi();" method="post" action="" enctype=multipart/form-data>
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="material-icons">person</i>
+                    </span>
+                    <div class="form-line">
+                        <input type="password" class="form-control" name="username" placeholder="Username" pattern="[a-zA-Z0-9, ./@_]{1,65}" title=" a-zA-Z0-9, ./@_ (Maksimal 65 karakter)" required onkeydown="setDefault(this, document.getElementById('MsgIsi1'));" id="TxtIsi1" autocomplete="off" autofocus>
+                        <span id="MsgIsi1" class="error-msg"></span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="material-icons">lock</i>
+                    </span>
+                    <div class="form-line">
+                        <input type="password" class="form-control" name="password" placeholder="Password" pattern="[a-zA-Z0-9, ./@_]{1,65}" title=" a-zA-Z0-9, ./@_ (Maksimal 65 karakter)" required onkeydown="setDefault(this, document.getElementById('MsgIsi2'));" id="TxtIsi2" autocomplete="off">
+                        <span id="MsgIsi2" class="error-msg"></span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="material-icons">assignment</i>
+                    </span>
+                    <div class="form-line">
+                        <div class="captcha-row">
+                            <img src="pages/captcha.php" alt="gambar" />
+                            <input type="text" class="form-control" onkeydown="setDefault(this, document.getElementById('MsgIsi3'));" id="TxtIsi3" name="inputcaptcha" pattern="[0-9]{1,6}" title=" 0-9 (Maksimal 6 karakter)" required placeholder="Masukkan Captcha" autocomplete="off" />
+                        </div>
+                        <span id="MsgIsi3" class="error-msg"></span>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-login" name="BtnLogin" type="submit">Log In</button>
+                    <button class="btn-reset" name="BtnReset" type="reset">Reset</button>
+                </div>
+            </form>
+            <?php 
+                $BtnLogin=isset($_POST['BtnLogin'])?$_POST['BtnLogin']:NULL;
+                if (isset($BtnLogin)) {
+                    if(@$_SESSION["Capcay"]==getOne2("select aes_encrypt(".validTeks4($_POST["inputcaptcha"],10).",'windi')")){
+                        unset($_SESSION['Capcay']);
+                        $username  = validTeks4($_POST['username'],20);
+                        $password  = validTeks4($_POST['password'],40);
+                        if(getOne2("select count(*) from password_perusahaan_pasien where password_perusahaan_pasien.kode_perusahaan='$username' and password_perusahaan_pasien.password=AES_ENCRYPT('$password','windi')")>0){
+                            $_SESSION["ses_emcu"]= encrypt_decrypt($username,"e");
+                            exit(header("Location:index.php")); 
+                        }else{
+                            echo "<div class=\"alert alert-error\" style=\"margin-top:16px;\">Username/Password ada yang salah. Silahkan ulangi...!</div>";
+                        }
+                    }else{
+                        echo "<div class=\"alert alert-error\" style=\"margin-top:16px;\">Captcha tidak sesuai, silahkan ulangi ...!</div>";
+                    }
+                }
+            ?>
         </div>
     </div>
     <script src="plugins/jquery/jquery.min.js"></script>

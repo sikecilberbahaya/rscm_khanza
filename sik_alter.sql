@@ -74,3 +74,9 @@ CREATE TABLE IF NOT EXISTS `antrian_panggil_ralan` (
   PRIMARY KEY (`id`),
   KEY `idx_kd_display_sudah` (`kd_display`,`sudah_tampil`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+ALTER TABLE surat_pulang_atas_permintaan_sendiri 
+MODIFY hubungan ENUM('Suami','Istri','Anak','Ayah','Ibu','Saudara','Keponakan','Diri Sendiri') NOT NULL;
+
+ALTER TABLE surat_pernyataan_pasien_umum 
+MODIFY hubungan ENUM('Suami','Istri','Anak','Ayah','Ibu','Saudara','Keponakan','Diri Sendiri') NOT NULL;

@@ -18,7 +18,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 import java.util.concurrent.RejectedExecutionException;
-import javax.swing.SwingUtilities;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -30,8 +29,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.table.DefaultTableModel;
@@ -39,6 +44,9 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
+import java.awt.image.BufferedImage;
+import java.net.URL;
+import javax.imageio.ImageIO;
 import kepegawaian.DlgCariPetugas;
 
 
@@ -60,6 +68,7 @@ public final class RMPerencanaanPemulangan extends javax.swing.JDialog {
     private StringBuilder htmlContent;
     private String pilihan="";
     private String finger="",lokasifile="";
+    private JPanel photoPanel;
     
     /** Creates new form DlgRujuk
      * @param parent
@@ -1995,7 +2004,7 @@ public final class RMPerencanaanPemulangan extends javax.swing.JDialog {
                 param.put("kontakrs",akses.getkontakrs());
                 param.put("emailrs",akses.getemailrs());
                 param.put("logo",Sequel.cariGambar("select setting.logo from setting"));
-                param.put("photo","http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/perencanaanpemulangan/"+lokasifile);
+                param.put("photo","http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/"+lokasifile);
                 finger=Sequel.cariIsi("select sha1(sidikjari.sidikjari) from sidikjari inner join pegawai on pegawai.id=sidikjari.id where pegawai.nik=?",tbObat.getValueAt(tbObat.getSelectedRow(),38).toString());
                 param.put("finger","Dikeluarkan di "+akses.getnamars()+", Kabupaten/Kota "+akses.getkabupatenrs()+"\nDitandatangani secara elektronik oleh "+tbObat.getValueAt(tbObat.getSelectedRow(),39).toString()+"\nID "+(finger.equals("")?tbObat.getValueAt(tbObat.getSelectedRow(),38).toString():finger)+"\n"+Valid.SetTgl3(tbObat.getValueAt(tbObat.getSelectedRow(),6).toString()));
                 Valid.MyReportqry("rptSuratPerencanaanPulang.jasper","report","::[ Surat Perencanaan Pulang ]::",
@@ -2456,13 +2465,35 @@ public final class RMPerencanaanPemulangan extends javax.swing.JDialog {
                     if(rs.next()){
                         if(rs.getString("photo").equals("")||rs.getString("photo").equals("-")){
                             lokasifile="";
+                            Scroll5.setViewportView(LoadHTML2);
                             LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
                         }else{
-                            lokasifile=rs.getString("photo");
-                            LoadHTML2.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/perencanaanpemulangan/"+rs.getString("photo")+"' alt='photo' width='450' height='500'/></center></body></html>");
+                            String ttd = rs.getString("photo");
+                            lokasifile = ttd;
+                            String foto = ttd.replace("_ttd.png", ".jpeg");
+                            String baseUrl = "http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/";
+                            BufferedImage fotoImg = ImageIO.read(new URL(baseUrl + foto));
+                            BufferedImage ttdImg = ImageIO.read(new URL(baseUrl + ttd));
+                            if (photoPanel == null) {
+                                photoPanel = new JPanel();
+                                photoPanel.setLayout(new BoxLayout(photoPanel, BoxLayout.Y_AXIS));
+                                photoPanel.setBackground(java.awt.Color.WHITE);
+                            }
+                            photoPanel.removeAll();
+                            JLabel fotoLabel = new JLabel(new ImageIcon(fotoImg));
+                            fotoLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                            JLabel ttdLabel = new JLabel(new ImageIcon(ttdImg));
+                            ttdLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                            photoPanel.add(Box.createVerticalGlue());
+                            photoPanel.add(fotoLabel);
+                            photoPanel.add(Box.createVerticalStrut(8));
+                            photoPanel.add(ttdLabel);
+                            photoPanel.add(Box.createVerticalGlue());
+                            Scroll5.setViewportView(photoPanel);
                         }  
                     }else{
                         lokasifile="";
+                        Scroll5.setViewportView(LoadHTML2);
                         LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
                     }
                 } catch (Exception e) {

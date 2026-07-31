@@ -12,8 +12,16 @@ import fungsi.sekuel;
 import fungsi.validasi;
 import fungsi.akses;
 import java.awt.Cursor;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.Connection;
@@ -60,7 +68,8 @@ public final class SuratPulangAtasPermintaanSendiri extends javax.swing.JDialog 
     private LocalDate today=LocalDate.now();
     private LocalDate birthday;
     private Period p;
-    private String finger="",lokasifile="",lokasifile2="";
+    private String finger="",lokasifile="",lokasifile2="",alamatPasien="";
+    private JPanel photoPanel;
     
     public SuratPulangAtasPermintaanSendiri(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -158,6 +167,21 @@ public final class SuratPulangAtasPermintaanSendiri extends javax.swing.JDialog 
         Document doc = kit.createDefaultDocument();
         LoadHTML2.setDocument(doc);
         LoadHTML3.setDocument(doc);
+        
+        Hubungan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                if ("Diri Sendiri".equals(Hubungan.getSelectedItem())) {
+                    NamaPihak2.setText(TPasien.getText());
+                    if (!LahirPasien.getText().isEmpty()) {
+                        Valid.SetTgl(TglLahir, LahirPasien.getText());
+                    }
+                    String umurStr = Umur.getText().trim();
+                    UmurPJ.setText(umurStr.contains(" ") ? umurStr.split(" ")[0] : umurStr);
+                    JKPJ.setSelectedItem("L".equals(JK.getText()) ? "Laki-laki" : "Perempuan");
+                    AlamatPj.setText(alamatPasien);
+                }
+            }
+        });
     }
     
     
@@ -1300,8 +1324,25 @@ public final class SuratPulangAtasPermintaanSendiri extends javax.swing.JDialog 
                 param.put("kontakrs",akses.getkontakrs());
                 param.put("emailrs",akses.getemailrs());
                 param.put("logo",Sequel.cariGambar("select setting.logo from setting"));
-                param.put("photo_penerima","http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/pulangaps/"+lokasifile);
-                param.put("photo_saksi","http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/pulangaps/"+lokasifile2);
+                String baseUrl = "http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/";
+                param.put("photo", baseUrl + lokasifile);
+                param.put("photo_foto", baseUrl + lokasifile2);
+                // Query saksi keluarga for Jasper
+                String saksiUrl = "";
+                try {
+                    ps = koneksi.prepareStatement("select photo from surat_pulang_atas_permintaan_sendiri_saksi_keluarga where no_surat=?");
+                    ps.setString(1, tbObat.getValueAt(tbObat.getSelectedRow(), 0).toString());
+                    rs = ps.executeQuery();
+                    if (rs.next()) {
+                        String s = rs.getString("photo");
+                        if (s != null && !s.equals("") && !s.equals("-")) {
+                            saksiUrl = baseUrl + s;
+                        }
+                    }
+                    rs.close(); ps.close();
+                } catch (Exception e) { System.out.println("Notif : "+e); }
+                param.put("photo_penerima", baseUrl + lokasifile);
+                param.put("photo_saksi", saksiUrl.isEmpty() ? baseUrl + lokasifile : saksiUrl);
                 finger=Sequel.cariIsi("select sha1(sidikjari.sidikjari) from sidikjari inner join pegawai on pegawai.id=sidikjari.id where pegawai.nik=?",tbObat.getValueAt(tbObat.getSelectedRow(),16).toString());
                 param.put("finger","Dikeluarkan di "+akses.getnamars()+", Kabupaten/Kota "+akses.getkabupatenrs()+"\nDitandatangani secara elektronik oleh "+tbObat.getValueAt(tbObat.getSelectedRow(),17).toString()+"\nID "+(finger.equals("")?tbObat.getValueAt(tbObat.getSelectedRow(),16).toString():finger)+"\n"+Valid.SetTgl3(tbObat.getValueAt(tbObat.getSelectedRow(),6).toString()));
                 Valid.MyReportqry("rptSuratPulangAtasPermintaanSendiri.jasper","report","::[ Surat Pulang Atas Permintaan Sendiri ]::",
@@ -1462,7 +1503,7 @@ public final class SuratPulangAtasPermintaanSendiri extends javax.swing.JDialog 
             }
                 
             try {
-                if(TCari.getText().toString().trim().equals("")){
+                if(TCari.getText().trim().equals("")){
                     ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
                     ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
                 }else{
@@ -1542,7 +1583,7 @@ public final class SuratPulangAtasPermintaanSendiri extends javax.swing.JDialog 
         try {
             ps=koneksi.prepareStatement(
                     "select reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.jk,pasien.tgl_lahir,reg_periksa.tgl_registrasi,"+
-                    "reg_periksa.umurdaftar,reg_periksa.sttsumur from reg_periksa inner join pasien on reg_periksa.no_rkm_medis=pasien.no_rkm_medis "+
+                    "reg_periksa.umurdaftar,reg_periksa.sttsumur,pasien.alamat from reg_periksa inner join pasien on reg_periksa.no_rkm_medis=pasien.no_rkm_medis "+
                     "where reg_periksa.no_rawat=?");
             try {
                 ps.setString(1,TNoRw.getText());
@@ -1554,6 +1595,7 @@ public final class SuratPulangAtasPermintaanSendiri extends javax.swing.JDialog 
                     JK.setText(rs.getString("jk"));
                     LahirPasien.setText(rs.getString("tgl_lahir"));
                     Umur.setText(rs.getString("umurdaftar")+" "+rs.getString("sttsumur"));
+                    alamatPasien = rs.getString("alamat") != null ? rs.getString("alamat") : "";
                 }
             } catch (Exception e) {
                 System.out.println("Notif : "+e);
@@ -1667,79 +1709,92 @@ public final class SuratPulangAtasPermintaanSendiri extends javax.swing.JDialog 
 
     private void panggilPhoto() {
         if(FormPhoto.isVisible()==true){
-            lokasifile="";
+            lokasifile=""; lokasifile2="";
+            String baseUrl = "http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/";
+
+            // Query pembuat pernyataan (TTD)
             try {
                 ps=koneksi.prepareStatement("select surat_pulang_atas_permintaan_sendiri_pembuat_pernyataan.photo from surat_pulang_atas_permintaan_sendiri_pembuat_pernyataan where surat_pulang_atas_permintaan_sendiri_pembuat_pernyataan.no_surat=?");
                 try {
                     ps.setString(1,tbObat.getValueAt(tbObat.getSelectedRow(),0).toString());
                     rs=ps.executeQuery();
                     if(rs.next()){
-                        if(rs.getString("photo").equals("")||rs.getString("photo").equals("-")){
-                            lokasifile="";
-                        }else{
-                            lokasifile=rs.getString("photo");
-                        }  
-                    }else{
-                        lokasifile="";
+                        if(!rs.getString("photo").equals("")&&!rs.getString("photo").equals("-")){
+                            String ttd = rs.getString("photo");
+                            String foto = ttd.replace("_ttd.png", "_foto.jpeg");
+                            lokasifile = ttd;
+                            lokasifile2 = foto;
+                        }
                     }
                 } catch (Exception e) {
-                    lokasifile="";
                     System.out.println("Notif : "+e);
                 } finally{
-                    if(rs!=null){
-                        rs.close();
-                    }
-                    if(ps!=null){
-                        ps.close();
-                    }
+                    if(rs!=null) rs.close();
+                    if(ps!=null) ps.close();
                 }
             } catch (Exception e) {
                 System.out.println("Notif : "+e);
             }
-            
-            lokasifile2="";
+
+            // Display photo + TTD inline
+            if(!lokasifile.equals("")){
+                try {
+                    BufferedImage fotoImg = ImageIO.read(new java.net.URL(baseUrl + lokasifile2));
+                    BufferedImage ttdImg = ImageIO.read(new java.net.URL(baseUrl + lokasifile));
+                    if (photoPanel == null) {
+                        photoPanel = new JPanel();
+                        photoPanel.setLayout(new BoxLayout(photoPanel, BoxLayout.Y_AXIS));
+                        photoPanel.setBackground(Color.WHITE);
+                    }
+                    photoPanel.removeAll();
+                    JLabel fotoLabel = new JLabel(new ImageIcon(fotoImg));
+                    fotoLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                    JLabel ttdLabel = new JLabel(new ImageIcon(ttdImg));
+                    ttdLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                    photoPanel.add(Box.createVerticalGlue());
+                    photoPanel.add(fotoLabel);
+                    photoPanel.add(Box.createVerticalStrut(8));
+                    photoPanel.add(ttdLabel);
+                    photoPanel.add(Box.createVerticalGlue());
+                    Scroll5.setViewportView(photoPanel);
+                } catch (Exception e) {
+                    lokasifile="";
+                    Scroll5.setViewportView(LoadHTML2);
+                    LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
+                }
+            }else{
+                Scroll5.setViewportView(LoadHTML2);
+                LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
+            }
+
+            // Query saksi keluarga (still via LoadHTML3 for second tab)
+            String saksiFile="";
             try {
                 ps=koneksi.prepareStatement("select surat_pulang_atas_permintaan_sendiri_saksi_keluarga.photo from surat_pulang_atas_permintaan_sendiri_saksi_keluarga where surat_pulang_atas_permintaan_sendiri_saksi_keluarga.no_surat=?");
                 try {
                     ps.setString(1,tbObat.getValueAt(tbObat.getSelectedRow(),0).toString());
                     rs=ps.executeQuery();
                     if(rs.next()){
-                        if(rs.getString("photo").equals("")||rs.getString("photo").equals("-")){
-                            lokasifile2="";
-                        }else{
-                            lokasifile2=rs.getString("photo");
-                        }  
-                    }else{
-                        lokasifile2="";
+                        if(!rs.getString("photo").equals("")&&!rs.getString("photo").equals("-")){
+                            saksiFile = rs.getString("photo");
+                        }
                     }
                 } catch (Exception e) {
-                    lokasifile2="";
                     System.out.println("Notif : "+e);
                 } finally{
-                    if(rs!=null){
-                        rs.close();
-                    }
-                    if(ps!=null){
-                        ps.close();
-                    }
+                    if(rs!=null) rs.close();
+                    if(ps!=null) ps.close();
                 }
             } catch (Exception e) {
                 System.out.println("Notif : "+e);
             }
-            
-            if(TabData.getSelectedIndex()==0){
-                if(lokasifile.equals("")){
-                    LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
-                }else{
-                    LoadHTML2.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/pulangaps/"+lokasifile+"' alt='photo' width='450' height='550'/></center></body></html>");
-                }  
+
+            if(saksiFile.equals("")){
+                LoadHTML3.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
             }else{
-                if(lokasifile2.equals("")){
-                    LoadHTML3.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
-                }else{
-                    LoadHTML3.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/pulangaps/"+lokasifile2+"' alt='photo' width='450' height='550'/></center></body></html>");
-                } 
-            } 
+                String saksiFoto = saksiFile.replace("_ttd.png", "_foto.jpeg");
+                LoadHTML3.setText("<html><body><center><img src='" + baseUrl + saksiFoto + "' alt='foto' width='450'/><br><br><img src='" + baseUrl + saksiFile + "' alt='ttd' width='450'/></center></body></html>");
+            }
         }
     }
     

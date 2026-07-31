@@ -13,6 +13,7 @@ import fungsi.akses;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -21,6 +22,7 @@ import java.awt.event.WindowListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,7 +32,13 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import javax.imageio.ImageIO;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
@@ -58,6 +66,7 @@ public final class SuratPenolakanAnjuranMedis extends javax.swing.JDialog {
     private DlgCariPegawai pegawai;
     private StringBuilder htmlContent;
     private String finger="",lokasifile="";
+    private JPanel photoPanel;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private volatile boolean ceksukses = false;
     
@@ -1419,7 +1428,7 @@ public final class SuratPenolakanAnjuranMedis extends javax.swing.JDialog {
                 param.put("kontakrs",akses.getkontakrs());
                 param.put("emailrs",akses.getemailrs());
                 param.put("logo",Sequel.cariGambar("select setting.logo from setting"));
-                param.put("photo","http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/penolakananjuranmedis/"+lokasifile);
+                param.put("photo","http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/"+lokasifile);
                 finger=Sequel.cariIsi("select sha1(sidikjari.sidikjari) from sidikjari inner join pegawai on pegawai.id=sidikjari.id where pegawai.nik=?",tbObat.getValueAt(tbObat.getSelectedRow(),18).toString());
                 param.put("finger","Dikeluarkan di "+akses.getnamars()+", Kabupaten/Kota "+akses.getkabupatenrs()+"\nDitandatangani secara elektronik oleh "+tbObat.getValueAt(tbObat.getSelectedRow(),19).toString()+"\nID "+(finger.equals("")?tbObat.getValueAt(tbObat.getSelectedRow(),18).toString():finger)+"\n"+Valid.SetTgl3(tbObat.getValueAt(tbObat.getSelectedRow(),7).toString())+" "+tbObat.getValueAt(tbObat.getSelectedRow(),7).toString().substring(11,19));
                 Valid.MyReportqry("rptSuratPenolakanAnjuranMedis.jasper","report","::[ Surat Penolakan Anjuran Medis ]::",
@@ -1591,7 +1600,7 @@ public final class SuratPenolakanAnjuranMedis extends javax.swing.JDialog {
             }
                 
             try {
-                if(TCari.getText().toString().trim().equals("")){
+                if(TCari.getText().trim().equals("")){
                     ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+"")+" 00:00:00");
                     ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+"")+" 23:59:59");
                 }else{
@@ -1802,36 +1811,69 @@ public final class SuratPenolakanAnjuranMedis extends javax.swing.JDialog {
     private void panggilPhoto() {
         if(FormPhoto.isVisible()==true){
             lokasifile="";
+            String noSurat = tbObat.getValueAt(tbObat.getSelectedRow(),0).toString();
             try {
                 ps=koneksi.prepareStatement("select surat_penolakan_anjuran_medis_pembuat_pernyataan.photo from surat_penolakan_anjuran_medis_pembuat_pernyataan where surat_penolakan_anjuran_medis_pembuat_pernyataan.no_surat=?");
                 try {
-                    ps.setString(1,tbObat.getValueAt(tbObat.getSelectedRow(),0).toString());
+                    ps.setString(1,noSurat);
                     rs=ps.executeQuery();
                     if(rs.next()){
-                        if(rs.getString("photo").equals("")||rs.getString("photo").equals("-")){
-                            lokasifile="";
-                            LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
-                        }else{
-                            lokasifile=rs.getString("photo");
-                            LoadHTML2.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/penolakananjuranmedis/"+rs.getString("photo")+"' alt='photo' width='500' height='500'/></center></body></html>");
-                        }  
-                    }else{
-                        lokasifile="";
-                        LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
+                        if(!rs.getString("photo").equals("")&&!rs.getString("photo").equals("-")){
+                            lokasifile = rs.getString("photo");
+                        }
                     }
                 } catch (Exception e) {
-                    lokasifile="";
                     System.out.println("Notif : "+e);
                 } finally{
-                    if(rs!=null){
-                        rs.close();
-                    }
-                    if(ps!=null){
-                        ps.close();
-                    }
+                    if(rs!=null) rs.close();
+                    if(ps!=null) ps.close();
                 }
             } catch (Exception e) {
                 System.out.println("Notif : "+e);
+            }
+
+            String baseUrl = "http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/";
+
+            if(lokasifile.equals("")||lokasifile.equals("-")){
+                Scroll5.setViewportView(LoadHTML2);
+                LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
+            }else{
+                try{
+                    String gabung = lokasifile.replace("_ttd.png", "_gabung.jpeg");
+                    BufferedImage gabungImg = ImageIO.read(new URL(baseUrl + gabung));
+                    if(photoPanel==null){
+                        photoPanel = new JPanel();
+                        photoPanel.setLayout(new BoxLayout(photoPanel, BoxLayout.Y_AXIS));
+                        photoPanel.setBackground(java.awt.Color.WHITE);
+                    }
+                    photoPanel.removeAll();
+                    photoPanel.add(Box.createVerticalGlue());
+                    JLabel gabungLabel = new JLabel(new ImageIcon(gabungImg));
+                    gabungLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                    photoPanel.add(gabungLabel);
+                    photoPanel.add(Box.createVerticalGlue());
+                    Scroll5.setViewportView(photoPanel);
+                }catch(Exception e){
+                    try{
+                        BufferedImage ttdImg = ImageIO.read(new URL(baseUrl + lokasifile));
+                        if(photoPanel==null){
+                            photoPanel = new JPanel();
+                            photoPanel.setLayout(new BoxLayout(photoPanel, BoxLayout.Y_AXIS));
+                            photoPanel.setBackground(java.awt.Color.WHITE);
+                        }
+                        photoPanel.removeAll();
+                        photoPanel.add(Box.createVerticalGlue());
+                        JLabel ttdLabel = new JLabel(new ImageIcon(ttdImg));
+                        ttdLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                        photoPanel.add(ttdLabel);
+                        photoPanel.add(Box.createVerticalGlue());
+                        Scroll5.setViewportView(photoPanel);
+                    }catch(Exception ex){
+                        System.out.println("Notif : "+ex);
+                        Scroll5.setViewportView(LoadHTML2);
+                        LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
+                    }
+                }
             }
         }
     }

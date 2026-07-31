@@ -11,10 +11,18 @@ import fungsi.koneksiDB;
 import fungsi.sekuel;
 import fungsi.validasi;
 import fungsi.akses;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
@@ -59,7 +67,9 @@ public final class SuratPersetujuanPenolakanTindakan extends javax.swing.JDialog
     private DlgCariDokter dokter;
     private DlgCariPetugas petugas;
     private MasterCariTemplatePersetujuanPenolakanTindakan template;
-    private String finger="",finger2="",lokasifile="",lokasifile2="";
+    private String finger="",finger2="",lokasifile="",lokasifile2="",lokasifile3="",lokasifile4="";
+    private JPanel photoPanel1;
+    private JPanel photoPanel2;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private volatile boolean ceksukses = false;
     
@@ -2207,8 +2217,11 @@ public final class SuratPersetujuanPenolakanTindakan extends javax.swing.JDialog
                 param.put("kontakrs",akses.getkontakrs());
                 param.put("emailrs",akses.getemailrs());
                 param.put("logo",Sequel.cariGambar("select setting.logo from setting"));
-                param.put("photo_penerima","http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/persetujuantindakan/"+lokasifile);
-                param.put("photo_saksi","http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/persetujuantindakan/"+lokasifile2);
+                String baseUrl = "http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/";
+                param.put("photo_penerima", baseUrl + lokasifile);
+                param.put("photo_saksi", baseUrl + lokasifile2);
+                param.put("photo_foto_penerima", baseUrl + lokasifile3);
+                param.put("photo_foto_saksi", baseUrl + lokasifile4);
                 finger=Sequel.cariIsi("select sha1(sidikjari.sidikjari) from sidikjari inner join pegawai on pegawai.id=sidikjari.id where pegawai.nik=?",tbObat.getValueAt(tbObat.getSelectedRow(),29).toString());
                 finger2=Sequel.cariIsi("select sha1(sidikjari.sidikjari) from sidikjari inner join pegawai on pegawai.id=sidikjari.id where pegawai.nik=?",tbObat.getValueAt(tbObat.getSelectedRow(),31).toString());
                 param.put("finger","Dikeluarkan di "+akses.getnamars()+", Kabupaten/Kota "+akses.getkabupatenrs()+"\nDitandatangani secara elektronik oleh "+tbObat.getValueAt(tbObat.getSelectedRow(),30).toString()+"\nID "+(finger.equals("")?tbObat.getValueAt(tbObat.getSelectedRow(),29).toString():finger)+"\n"+Valid.SetTgl3(tbObat.getValueAt(tbObat.getSelectedRow(),6).toString()));
@@ -2228,19 +2241,6 @@ public final class SuratPersetujuanPenolakanTindakan extends javax.swing.JDialog
     }//GEN-LAST:event_BtnPrint1ActionPerformed
 
     private void TabDataMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TabDataMouseClicked
-        if(TabData.getSelectedIndex()==0){
-            if(lokasifile.equals("")){
-                LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
-            }else{
-                LoadHTML2.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/persetujuantindakan/"+lokasifile+"' alt='photo' width='450' height='550'/></center></body></html>");
-            } 
-        }else{
-            if(lokasifile2.equals("")){
-                LoadHTML3.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
-            }else{
-                LoadHTML3.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/persetujuantindakan/"+lokasifile2+"' alt='photo' width='450' height='550'/></center></body></html>");
-            } 
-        }
     }//GEN-LAST:event_TabDataMouseClicked
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
@@ -2675,78 +2675,125 @@ public final class SuratPersetujuanPenolakanTindakan extends javax.swing.JDialog
 
     private void panggilPhoto() {
         if(FormPhoto.isVisible()==true){
-            lokasifile="";
+            lokasifile=""; lokasifile2=""; lokasifile3=""; lokasifile4="";
             try {
                 ps=koneksi.prepareStatement("select bukti_persetujuan_penolakan_tindakan_penerimainformasi.photo from bukti_persetujuan_penolakan_tindakan_penerimainformasi where bukti_persetujuan_penolakan_tindakan_penerimainformasi.no_pernyataan=?");
                 try {
                     ps.setString(1,tbObat.getValueAt(tbObat.getSelectedRow(),0).toString());
                     rs=ps.executeQuery();
                     if(rs.next()){
-                        if(rs.getString("photo").equals("")||rs.getString("photo").equals("-")){
-                            lokasifile="";
-                        }else{
-                            lokasifile=rs.getString("photo");
-                        }  
-                    }else{
-                        lokasifile="";
+                        if(!rs.getString("photo").equals("")&&!rs.getString("photo").equals("-")){
+                            String ttd = rs.getString("photo");
+                            String foto = ttd.replace("_ttd.png", "_foto.jpeg");
+                            lokasifile = ttd;
+                            lokasifile3 = foto;
+                        }
                     }
                 } catch (Exception e) {
-                    lokasifile="";
                     System.out.println("Notif : "+e);
                 } finally{
-                    if(rs!=null){
-                        rs.close();
-                    }
-                    if(ps!=null){
-                        ps.close();
-                    }
+                    if(rs!=null) rs.close();
+                    if(ps!=null) ps.close();
                 }
             } catch (Exception e) {
                 System.out.println("Notif : "+e);
             }
 
-            lokasifile2="";
             try {
                 ps=koneksi.prepareStatement("select bukti_persetujuan_penolakan_tindakan_saksikeluarga.photo from bukti_persetujuan_penolakan_tindakan_saksikeluarga where bukti_persetujuan_penolakan_tindakan_saksikeluarga.no_pernyataan=?");
                 try {
                     ps.setString(1,tbObat.getValueAt(tbObat.getSelectedRow(),0).toString());
                     rs=ps.executeQuery();
                     if(rs.next()){
-                        if(rs.getString("photo").equals("")||rs.getString("photo").equals("-")){
-                            lokasifile2="";
-                        }else{
-                            lokasifile2=rs.getString("photo");
-                        }  
-                    }else{
-                        lokasifile2="";
+                        if(!rs.getString("photo").equals("")&&!rs.getString("photo").equals("-")){
+                            String ttd = rs.getString("photo");
+                            String foto = ttd.replace("_ttd.png", "_foto.jpeg");
+                            lokasifile2 = ttd;
+                            lokasifile4 = foto;
+                        }
                     }
                 } catch (Exception e) {
-                    lokasifile2="";
                     System.out.println("Notif : "+e);
                 } finally{
-                    if(rs!=null){
-                        rs.close();
-                    }
-                    if(ps!=null){
-                        ps.close();
-                    }
+                    if(rs!=null) rs.close();
+                    if(ps!=null) ps.close();
                 }
             } catch (Exception e) {
                 System.out.println("Notif : "+e);
             }
-            
-            if(TabData.getSelectedIndex()==0){
-                if(lokasifile.equals("")){
-                    LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
-                }else{
-                    LoadHTML2.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/persetujuantindakan/"+lokasifile+"' alt='photo' width='450' height='550'/></center></body></html>");
-                } 
+
+            String baseUrl = "http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/";
+
+            if(lokasifile.equals("")||lokasifile.equals("-")){
+                Scroll5.setViewportView(LoadHTML2);
+                LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
             }else{
-                if(lokasifile2.equals("")){
+                try{
+                    BufferedImage ttdImg = ImageIO.read(new java.net.URL(baseUrl + lokasifile));
+                    if(photoPanel1==null){
+                        photoPanel1 = new JPanel();
+                        photoPanel1.setLayout(new BoxLayout(photoPanel1, BoxLayout.Y_AXIS));
+                        photoPanel1.setBackground(Color.WHITE);
+                    }
+                    photoPanel1.removeAll();
+                    photoPanel1.add(Box.createVerticalGlue());
+                    try {
+                        BufferedImage fotoImg = ImageIO.read(new java.net.URL(baseUrl + lokasifile3));
+                        if (fotoImg != null) {
+                            JLabel fotoLabel = new JLabel(new ImageIcon(fotoImg));
+                            fotoLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                            photoPanel1.add(fotoLabel);
+                            photoPanel1.add(Box.createVerticalStrut(8));
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("Notif foto: "+ex);
+                    }
+                    JLabel ttdLabel = new JLabel(new ImageIcon(ttdImg));
+                    ttdLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                    photoPanel1.add(ttdLabel);
+                    photoPanel1.add(Box.createVerticalGlue());
+                    Scroll5.setViewportView(photoPanel1);
+                }catch(Exception e){
+                    System.out.println("Notif : "+e);
+                    Scroll5.setViewportView(LoadHTML2);
+                    LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
+                }
+            }
+
+            if(lokasifile2.equals("")||lokasifile2.equals("-")){
+                Scroll6.setViewportView(LoadHTML3);
+                LoadHTML3.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
+            }else{
+                try{
+                    BufferedImage ttdImg = ImageIO.read(new java.net.URL(baseUrl + lokasifile2));
+                    if(photoPanel2==null){
+                        photoPanel2 = new JPanel();
+                        photoPanel2.setLayout(new BoxLayout(photoPanel2, BoxLayout.Y_AXIS));
+                        photoPanel2.setBackground(Color.WHITE);
+                    }
+                    photoPanel2.removeAll();
+                    photoPanel2.add(Box.createVerticalGlue());
+                    try {
+                        BufferedImage fotoImg = ImageIO.read(new java.net.URL(baseUrl + lokasifile4));
+                        if (fotoImg != null) {
+                            JLabel fotoLabel = new JLabel(new ImageIcon(fotoImg));
+                            fotoLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                            photoPanel2.add(fotoLabel);
+                            photoPanel2.add(Box.createVerticalStrut(8));
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("Notif foto: "+ex);
+                    }
+                    JLabel ttdLabel = new JLabel(new ImageIcon(ttdImg));
+                    ttdLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                    photoPanel2.add(ttdLabel);
+                    photoPanel2.add(Box.createVerticalGlue());
+                    Scroll6.setViewportView(photoPanel2);
+                }catch(Exception e){
+                    System.out.println("Notif : "+e);
+                    Scroll6.setViewportView(LoadHTML3);
                     LoadHTML3.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
-                }else{
-                    LoadHTML3.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/persetujuantindakan/"+lokasifile2+"' alt='photo' width='450' height='550'/></center></body></html>");
-                } 
+                }
             }
         }
     }

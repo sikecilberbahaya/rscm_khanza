@@ -2593,6 +2593,17 @@ private void ChkInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             System.out.println("message : "+nameNode.path("message").asText());
             if(nameNode.path("code").asText().equals("200")){
                 Sequel.meghapus("bridging_surat_kontrol_bpjs","no_surat",NoSurat.getText());
+                // Tracking: Surat Kontrol Berhasil Dihapus
+                simpanTracking(
+                    NoSurat.getText(),
+                    Valid.SetTgl(TanggalSurat.getSelectedItem()+"")+" "+new SimpleDateFormat("HH:mm:ss").format(new Date()),
+                    Valid.SetTgl(TanggalKontrol.getSelectedItem()+""),
+                    NoRawat.getText(),
+                    NoRM.getText(),
+                    NmPasien.getText(),
+                    "Hapus",
+                    "Surat Kontrol berhasil dihapus melalui API BPJS VClaim"
+                );
                 tabMode.removeRow(tbObat.getSelectedRow());
                 LCount.setText(""+tabMode.getRowCount());
                 emptTeks();

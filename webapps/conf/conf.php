@@ -3,10 +3,10 @@
         exit(header("Location:../index.php"));
     }
     
-    $db_hostname    = "localhost";
-    $db_username    = "root";
-    $db_password    = "";
-    $db_name        = "sik";
+    $db_hostname    = "172.16.1.27";
+    $db_username    = "yanekaputra";
+    $db_password    = "lopakun";
+    $db_name        = "sik2";
     define('USERHYBRIDWEB', 'yanghack');
     define('PASHYBRIDWEB', 'sialselamanya');
 

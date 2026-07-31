@@ -1,14 +1,3 @@
-/*
-  Dilarang keras menggandakan/mengcopy/menyebarkan/membajak/mendecompile 
-  Software ini dalam bentuk apapun tanpa seijin pembuat software
-  (Khanza.Soft Media). Bagi yang sengaja membajak softaware ini ta
-  npa ijin, kami sumpahi sial 1000 turunan, miskin sampai 500 turu
-  nan. Selalu mendapat kecelakaan sampai 400 turunan. Anak pertama
-  nya cacat tidak punya kaki sampai 300 turunan. Susah cari jodoh
-  sampai umur 50 tahun sampai 200 turunan. Ya Alloh maafkan kami 
-  karena telah berdoa buruk, semua ini kami lakukan karena kami ti
-  dak pernah rela karya kami dibajak tanpa ijin.
- */
 
 package kepegawaian;
 
@@ -836,18 +825,35 @@ public final class DlgPetugas extends javax.swing.JDialog {
                 Sequel.menyimpanignore("bidang","?",1,new String[]{"-"});
                 Sequel.menyimpanignore("bank","'T'");
                 Sequel.menyimpanignore("stts_wp","?,?",2,new String[]{"-","-"});
-                Sequel.menyimpanignore("stts_kerja","?,?,?",3,new String[]{"-","-","0"});
+                Sequel.menyimpanignore("stts_kerja","?,?,?,?",4,new String[]{"-","-","0","0"});
                 Sequel.menyimpanignore("kelompok_jabatan","?,?,?",3,new String[]{"-","-","0"});
                 Sequel.menyimpanignore("resiko_kerja","?,?,?",3,new String[]{"-","-","0"});
                 Sequel.menyimpanignore("emergency_index","?,?,?",3,new String[]{"-","-","0"});
                 Sequel.menyimpanignore("pendidikan","?,?,?,?,?",5,new String[]{"-","0","0","0","0"});
-                Sequel.menyimpanignore("pegawai","?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?",34,new String[]{
-                    "0",TNip.getText(),TNm.getText(),CmbJk.getSelectedItem().toString().replaceAll("PEREMPUAN","Wanita").replaceAll("LAKI-LAKI","Pria"),
+                // 36 kolom sesuai struktur production: +shift_id (pos 27) +face_descriptor (pos 35)
+                Sequel.menyimpanignore("pegawai","?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?",36,new String[]{
+                    "0",TNip.getText().trim(),TNm.getText(),CmbJk.getSelectedItem().toString().replaceAll("PEREMPUAN","Wanita").replaceAll("LAKI-LAKI","Pria"),
                     "-","-","-","-","-","-","-","-","-","-","-","0",TTmp.getText(),Valid.SetTgl(DTPLahir.getSelectedItem()+""),TAlmt.getText(),"-","1900-01-01","<1",
-                    "-","T","-","AKTIF","0","0","0","1900-01-01","0","0","pages/pegawai/photo/","-"
+                    "-","T","-","AKTIF","1","0","0","0","1900-01-01","0","0","pages/pegawai/photo/","","-"
                 });
+                // Verifikasi pegawai.nik sudah ada sebelum insert petugas (FK: petugas.nip → pegawai.nik)
+                ps = koneksi.prepareStatement("SELECT COUNT(*) FROM pegawai WHERE nik=?");
+                ps.setString(1, TNip.getText().trim());
+                rs = ps.executeQuery();
+                rs.next();
+                if(rs.getInt(1) == 0){
+                    ps.close();
+                    Sequel.RollBack();
+                    Sequel.AutoComitTrue();
+                    JOptionPane.showMessageDialog(null,
+                        "Gagal menyimpan: data pegawai dengan NIP '"+TNip.getText().trim()+"' tidak dapat dibuat.\n"+
+                        "Pastikan data referensi (jabatan, departemen, dll) sudah lengkap.",
+                        "Gagal Simpan", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                ps.close();
                 Sequel.menyimpan("petugas","?,?,?,?,?,?,?,?,?,?,?,?,?","NIP",13,new String[]{
-                    TNip.getText(),TNm.getText(),CmbJk.getSelectedItem().toString().replaceAll("LAKI-LAKI","L").replaceAll("PEREMPUAN","P").trim(),
+                    TNip.getText().trim(),TNm.getText(),CmbJk.getSelectedItem().toString().replaceAll("LAKI-LAKI","L").replaceAll("PEREMPUAN","P").trim(),
                     TTmp.getText(),Valid.SetTgl(DTPLahir.getSelectedItem()+""),CMbGd.getSelectedItem().toString(),
                     cmbAgama.getSelectedItem().toString(),CmbStts.getSelectedItem().toString(),
                     TAlmt.getText(),KdJbtn.getText(),TTlp.getText(),Email.getText(),"1"
@@ -857,6 +863,8 @@ public final class DlgPetugas extends javax.swing.JDialog {
                 runBackground(() ->tampil());
                 emptTeks();
             } catch (Exception ex) {
+                Sequel.RollBack();
+                Sequel.AutoComitTrue();
                 System.out.println("Notif : "+ex);
             }            
         }

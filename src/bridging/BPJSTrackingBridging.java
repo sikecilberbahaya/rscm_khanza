@@ -4,7 +4,6 @@ import fungsi.WarnaTable;
 import fungsi.koneksiDB;
 import fungsi.sekuel;
 import fungsi.validasi;
-import fungsi.akses;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
@@ -642,6 +641,6 @@ public class BPJSTrackingBridging extends javax.swing.JDialog {
     }
     
     public void isCek() {
-        BtnAll.setEnabled(akses.getbridging_tracking());
+        BtnAll.setEnabled(true);
     }
 }

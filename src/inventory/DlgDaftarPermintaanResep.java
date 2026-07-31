@@ -430,12 +430,11 @@ public class DlgDaftarPermintaanResep extends javax.swing.JDialog {
         DTPCari2 = new widget.Tanggal();
         jLabel12 = new widget.Label();
         cmbStatus = new widget.ComboBox();
-      
         label9 = new widget.Label();
         TCari = new widget.TextBox();
-        cmbIterasi = new widget.ComboBox();
         BtnCari = new widget.Button();
         BtnAll = new widget.Button();
+        cmbIterasi = new javax.swing.JComboBox<>();
         panelisi1 = new widget.panelisi();
         BtnTambah = new widget.Button();
         BtnEdit = new widget.Button();
@@ -531,7 +530,7 @@ public class DlgDaftarPermintaanResep extends javax.swing.JDialog {
         panelisi2.add(jLabel20);
 
         DTPCari1.setForeground(new java.awt.Color(50, 70, 50));
-        DTPCari1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "07-02-2026" }));
+        DTPCari1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "13-04-2026" }));
         DTPCari1.setDisplayFormat("dd-MM-yyyy");
         DTPCari1.setName("DTPCari1"); // NOI18N
         DTPCari1.setOpaque(false);
@@ -545,7 +544,7 @@ public class DlgDaftarPermintaanResep extends javax.swing.JDialog {
         panelisi2.add(jLabel21);
 
         DTPCari2.setForeground(new java.awt.Color(50, 70, 50));
-        DTPCari2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "07-02-2026" }));
+        DTPCari2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "13-04-2026" }));
         DTPCari2.setDisplayFormat("dd-MM-yyyy");
         DTPCari2.setName("DTPCari2"); // NOI18N
         DTPCari2.setOpaque(false);
@@ -609,10 +608,11 @@ public class DlgDaftarPermintaanResep extends javax.swing.JDialog {
             }
         });
         panelisi2.add(BtnAll);
-        cmbIterasi.setBackground(new java.awt.Color(255, 185, 78));
-        cmbIterasi.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Semua", "Tanpa Iterasi", "Iterasi 1 Kali", "Iterasi 2 Kali" }));
+
+        cmbIterasi.setBackground(new java.awt.Color(255, 255, 255));
+        cmbIterasi.setForeground(new java.awt.Color(51, 51, 51));
+        cmbIterasi.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {"Semua", "Tanpa Iterasi", "Iterasi 1 Kali", "Iterasi 2 Kali"}));
         cmbIterasi.setName("cmbIterasi"); // NOI18N
-        cmbIterasi.setPreferredSize(new java.awt.Dimension(130, 23));
         panelisi2.add(cmbIterasi);
 
         jPanel2.add(panelisi2, java.awt.BorderLayout.PAGE_START);
@@ -3879,7 +3879,7 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
     private javax.swing.JTabbedPane TabPilihRawat;
     private javax.swing.JTabbedPane TabRawatInap;
     private javax.swing.JTabbedPane TabRawatJalan;
-    private widget.ComboBox cmbIterasi;
+    private javax.swing.JComboBox<String> cmbIterasi;
     private widget.ComboBox cmbStatus;
     private widget.InternalFrame internalFrame1;
     private widget.InternalFrame internalFrame2;
@@ -3967,21 +3967,21 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                         }
 
                         try{
-                            int paramIndex = 1;
                             ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
                             ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                            int paramIndex = 3;
                             if(!cmbIterasi.getSelectedItem().toString().equals("Semua")){
                                 ps.setString(paramIndex++, cmbIterasi.getSelectedItem().toString());
                             }
                             if(!semua){
-                                ps.setString(3,"%"+CrDokter.getText().trim()+"%");
-                                ps.setString(4,"%"+CrPoli.getText().trim()+"%");
-                                ps.setString(5,"%"+TCari.getText()+"%");
-                                ps.setString(6,"%"+TCari.getText()+"%");
-                                ps.setString(7,"%"+TCari.getText()+"%");
-                                ps.setString(8,"%"+TCari.getText()+"%");
-                                ps.setString(9,"%"+TCari.getText()+"%");
-                            } 
+                                ps.setString(paramIndex++,"%"+CrDokter.getText().trim()+"%");
+                                ps.setString(paramIndex++,"%"+CrPoli.getText().trim()+"%");
+                                ps.setString(paramIndex++,"%"+TCari.getText()+"%");
+                                ps.setString(paramIndex++,"%"+TCari.getText()+"%");
+                                ps.setString(paramIndex++,"%"+TCari.getText()+"%");
+                                ps.setString(paramIndex++,"%"+TCari.getText()+"%");
+                                ps.setString(paramIndex++,"%"+TCari.getText()+"%");
+                            }
                             rs=ps.executeQuery();
                             i=0;
                             if(cmbStatus.getSelectedItem().toString().equals("Semua")){

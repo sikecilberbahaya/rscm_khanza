@@ -1313,7 +1313,7 @@ public final class RMPelaksanaanInformasiEdukasi extends javax.swing.JDialog {
                     "select reg_periksa.no_rawat,pasien.no_rkm_medis,pasien.nm_pasien,reg_periksa.umurdaftar,reg_periksa.sttsumur,pasien.jk,pasien.tgl_lahir,pelaksanaan_informasi_edukasi.tanggal,pegawai.jbtn,reg_periksa.tgl_registrasi,"+
                     "pelaksanaan_informasi_edukasi.nik,pegawai.nama,pelaksanaan_informasi_edukasi.materi_edukasi,pelaksanaan_informasi_edukasi.keterangan,pelaksanaan_informasi_edukasi.diberikan_pada,reg_periksa.jam_reg,"+
                     "pelaksanaan_informasi_edukasi.keterangan_diberikan_pada,pelaksanaan_informasi_edukasi.lama_edukasi,pelaksanaan_informasi_edukasi.metode_edukasi,pelaksanaan_informasi_edukasi.hasil_verifikasi,"+
-                    "pelaksanaan_informasi_edukasi.status,concat('http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/pelaksanaanedukasi/',bukti_pelaksanaan_informasi_edukasi.photo) as photo  "+
+                    "pelaksanaan_informasi_edukasi.status,concat('http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/',REPLACE(bukti_pelaksanaan_informasi_edukasi.photo,'_ttd.png','_gabung.jpeg')) as photo  "+
                     "from pelaksanaan_informasi_edukasi inner join reg_periksa on pelaksanaan_informasi_edukasi.no_rawat=reg_periksa.no_rawat "+
                     "inner join pasien on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join pegawai on pelaksanaan_informasi_edukasi.nik=pegawai.nik "+
                     "inner join bukti_pelaksanaan_informasi_edukasi on pelaksanaan_informasi_edukasi.no_rawat=bukti_pelaksanaan_informasi_edukasi.no_rawat "+
@@ -1371,9 +1371,18 @@ public final class RMPelaksanaanInformasiEdukasi extends javax.swing.JDialog {
             TCari.requestFocus();
         }else{
             if(tbObat.getSelectedRow()>-1){
-                Sequel.queryu("delete from antripelaksanaanedukasi");
-                Sequel.queryu("insert into antripelaksanaanedukasi values('"+tbObat.getValueAt(tbObat.getSelectedRow(),0).toString()+"','"+tbObat.getValueAt(tbObat.getSelectedRow(),6).toString()+"')");
                 Sequel.queryu("delete from bukti_pelaksanaan_informasi_edukasi where no_rawat='"+tbObat.getValueAt(tbObat.getSelectedRow(),0).toString()+"' and tanggal='"+tbObat.getValueAt(tbObat.getSelectedRow(),6).toString()+"'");
+                try {
+                    String baseUrl = "http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/";
+                    String noRawat = tbObat.getValueAt(tbObat.getSelectedRow(),0).toString();
+                    String tanggal = tbObat.getValueAt(tbObat.getSelectedRow(),6).toString();
+                    String url = baseUrl+"index.php?page=consent&type=edukasi&act=capture&no_surat="+
+                            java.net.URLEncoder.encode(noRawat,"UTF-8")+"&tanggal="+
+                            java.net.URLEncoder.encode(tanggal,"UTF-8");
+                    Desktop.getDesktop().browse(new java.net.URI(url));
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null,"Gagal membuka halaman capture edukasi : "+e.getMessage());
+                }
             }else{
                 JOptionPane.showMessageDialog(rootPane,"Silahkan anda pilih data terlebih dahulu..!!");
             }
@@ -1863,7 +1872,7 @@ public final class RMPelaksanaanInformasiEdukasi extends javax.swing.JDialog {
                         if(rs.getString("photo").equals("")||rs.getString("photo").equals("-")){
                             LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
                         }else{
-                            LoadHTML2.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/pelaksanaanedukasi/"+rs.getString("photo")+"' alt='photo' width='500' height='500'/></center></body></html>");
+                            LoadHTML2.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/"+rs.getString("photo").replace("_ttd.png","_gabung.jpeg")+"' alt='photo' width='500' height='500'/></center></body></html>");
                         }  
                     }else{
                         LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");

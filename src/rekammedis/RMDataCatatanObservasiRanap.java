@@ -56,6 +56,7 @@ public final class RMDataCatatanObservasiRanap extends javax.swing.JDialog {
     private volatile boolean ceksukses = false;
     private String dpjp="";
     private String TANGGALMUNDUR="yes";
+    private widget.Button btnGrafikTD, btnGrafikHR, btnGrafikRR, btnGrafikSuhu, btnGrafikSpO2, btnGrafikSemua;
     /** Creates new form DlgRujuk
      * @param parent
      * @param modal */
@@ -134,6 +135,55 @@ public final class RMDataCatatanObservasiRanap extends javax.swing.JDialog {
         } catch (Exception e) {
             TANGGALMUNDUR="yes";
         }
+        buatTombolGrafik();
+    }
+
+
+    private void buatTombolGrafik() {
+        btnGrafikTD = new widget.Button();
+        btnGrafikTD.setText("Grafik TD");
+        btnGrafikTD.addActionListener(evt -> tampilkanGrafik("Grafik TD - Perkembangan Pasien", "TD"));
+        FormInput.add(btnGrafikTD);
+        btnGrafikTD.setBounds(176, 100, 85, 23);
+
+        btnGrafikHR = new widget.Button();
+        btnGrafikHR.setText("Grafik HR");
+        btnGrafikHR.addActionListener(evt -> tampilkanGrafik("Grafik HR - Perkembangan Pasien", "HR"));
+        FormInput.add(btnGrafikHR);
+        btnGrafikHR.setBounds(295, 100, 85, 23);
+
+        btnGrafikRR = new widget.Button();
+        btnGrafikRR.setText("Grafik RR");
+        btnGrafikRR.addActionListener(evt -> tampilkanGrafik("Grafik RR - Perkembangan Pasien", "RR"));
+        FormInput.add(btnGrafikRR);
+        btnGrafikRR.setBounds(430, 100, 85, 23);
+
+        btnGrafikSuhu = new widget.Button();
+        btnGrafikSuhu.setText("Grafik Suhu");
+        btnGrafikSuhu.addActionListener(evt -> tampilkanGrafik("Grafik Suhu - Perkembangan Pasien", "Suhu"));
+        FormInput.add(btnGrafikSuhu);
+        btnGrafikSuhu.setBounds(570, 100, 85, 23);
+
+        btnGrafikSpO2 = new widget.Button();
+        btnGrafikSpO2.setText("Grafik SpO2");
+        btnGrafikSpO2.addActionListener(evt -> tampilkanGrafik("Grafik SpO2 - Perkembangan Pasien", "SpO2"));
+        FormInput.add(btnGrafikSpO2);
+        btnGrafikSpO2.setBounds(686, 100, 85, 23);
+
+        btnGrafikSemua = new widget.Button();
+        btnGrafikSemua.setText("Grafik Semua");
+        btnGrafikSemua.addActionListener(evt -> tampilkanGrafik("Grafik Semua - Perkembangan Pasien", "SEMUA"));
+        FormInput.add(btnGrafikSemua);
+        btnGrafikSemua.setBounds(176, 130, 120, 23);
+    }
+
+    private void tampilkanGrafik(String judul, String item) {
+        if (tbObat.getSelectedRow() < 0) {
+            JOptionPane.showMessageDialog(rootPane, "Silahkan pilih data terlebih dahulu..!!");
+            return;
+        }
+        String noRawat = tbObat.getValueAt(tbObat.getSelectedRow(), 0).toString();
+        new DlgGrafikObservasiRanap(judul, item, noRawat).setVisible(true);
     }
 
 
@@ -1385,7 +1435,7 @@ public final class RMDataCatatanObservasiRanap extends javax.swing.JDialog {
     private void isForm(){
         if(ChkInput.isSelected()==true){
             ChkInput.setVisible(false);
-            PanelInput.setPreferredSize(new Dimension(WIDTH,124));
+            PanelInput.setPreferredSize(new Dimension(WIDTH,185));
             FormInput.setVisible(true);      
             ChkInput.setVisible(true);
         }else if(ChkInput.isSelected()==false){           

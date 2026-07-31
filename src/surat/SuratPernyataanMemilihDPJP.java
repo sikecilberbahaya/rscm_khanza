@@ -14,6 +14,7 @@ import fungsi.akses;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -21,12 +22,21 @@ import java.awt.event.WindowListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import javax.imageio.ImageIO;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -58,6 +68,7 @@ public final class SuratPernyataanMemilihDPJP extends javax.swing.JDialog {
     private int i=0;
     private DlgCariPetugas petugas;
     private String finger="",finger2="",lokasifile="",lokasifile2="";
+    private JPanel photoPanelPembuat, photoPanelSaksi;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private volatile boolean ceksukses = false;
     
@@ -1424,19 +1435,19 @@ public final class SuratPernyataanMemilihDPJP extends javax.swing.JDialog {
     }//GEN-LAST:event_SaksiKeluargaKeyPressed
 
     private void HubunganDenganPasienItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_HubunganDenganPasienItemStateChanged
+        if(evt.getStateChange() != java.awt.event.ItemEvent.SELECTED) return;
         if(HubunganDenganPasien.getSelectedIndex()==0){
             try {
                 ps=koneksi.prepareStatement("select concat(pasien.alamat,', ',kelurahan.nm_kel,', ',kecamatan.nm_kec,', ',kabupaten.nm_kab) asal,"+
-                            "TIMESTAMPDIFF(YEAR, pasien.tgl_lahir, CURDATE()) as tahun,pasien.tgl_lahir "+
+                            "pasien.tgl_lahir "+
                             "from pasien inner join kelurahan on pasien.kd_kel=kelurahan.kd_kel "+
                             "inner join kecamatan on pasien.kd_kec=kecamatan.kd_kec "+
                             "inner join kabupaten on pasien.kd_kab=kabupaten.kd_kab "+
-                            "inner join penjab on pasien.kd_pj=penjab.kd_pj "+
                             "where pasien.no_rkm_medis=?");
                 try {            
                     ps.setString(1,TNoRM.getText());
                     rs=ps.executeQuery();
-                    while(rs.next()){
+                    if(rs.next()){
                         PembuatPernyataan.setText(TPasien.getText());
                         AlamatPembuatPernyataan.setText(rs.getString("asal"));
                         TanggalLahir.setDate(rs.getDate("tgl_lahir"));
@@ -1510,8 +1521,8 @@ public final class SuratPernyataanMemilihDPJP extends javax.swing.JDialog {
                 param.put("kontakrs",akses.getkontakrs());
                 param.put("emailrs",akses.getemailrs());
                 param.put("logo",Sequel.cariGambar("select setting.logo from setting"));
-                param.put("photo_penerima","http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/pernyataanmemilihdpjp/"+lokasifile);
-                param.put("photo_saksi","http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/pernyataanmemilihdpjp/"+lokasifile2);
+                param.put("photo_penerima","http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/"+lokasifile);
+                param.put("photo_saksi","http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/"+lokasifile2);
                 finger=Sequel.cariIsi("select sha1(sidikjari.sidikjari) from sidikjari inner join pegawai on pegawai.id=sidikjari.id where pegawai.nik=?",tbObat.getValueAt(tbObat.getSelectedRow(),13).toString());
                 finger2=Sequel.cariIsi("select sha1(sidikjari.sidikjari) from sidikjari inner join pegawai on pegawai.id=sidikjari.id where pegawai.nik=?",tbObat.getValueAt(tbObat.getSelectedRow(),15).toString());
                 param.put("finger","Dikeluarkan di "+akses.getnamars()+", Kabupaten/Kota "+akses.getkabupatenrs()+"\nDitandatangani secara elektronik oleh "+tbObat.getValueAt(tbObat.getSelectedRow(),14).toString()+"\nID "+(finger.equals("")?tbObat.getValueAt(tbObat.getSelectedRow(),13).toString():finger)+"\n"+Valid.SetTgl3(tbObat.getValueAt(tbObat.getSelectedRow(),6).toString()));
@@ -1528,19 +1539,7 @@ public final class SuratPernyataanMemilihDPJP extends javax.swing.JDialog {
     }//GEN-LAST:event_BtnPrint1ActionPerformed
 
     private void TabDataMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TabDataMouseClicked
-        if(TabData.getSelectedIndex()==0){
-            if(lokasifile.equals("")){
-                LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
-            }else{
-                LoadHTML2.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/pernyataanmemilihdpjp/"+lokasifile+"' alt='photo' width='450' height='550'/></center></body></html>");
-            } 
-        }else{
-            if(lokasifile2.equals("")){
-                LoadHTML3.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
-            }else{
-                LoadHTML3.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/pernyataanmemilihdpjp/"+lokasifile2+"' alt='photo' width='450' height='550'/></center></body></html>");
-            } 
-        }
+        panggilPhoto();
     }//GEN-LAST:event_TabDataMouseClicked
 
     private void ChkInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChkInputActionPerformed
@@ -1909,78 +1908,132 @@ public final class SuratPernyataanMemilihDPJP extends javax.swing.JDialog {
 
     private void panggilPhoto() {
         if(FormPhoto.isVisible()==true){
-            lokasifile="";
+            lokasifile=""; lokasifile2="";
+            String noPernyataan = tbObat.getValueAt(tbObat.getSelectedRow(),0).toString();
             try {
                 ps=koneksi.prepareStatement("select bukti_surat_pernyataan_memilih_dpjp.photo from bukti_surat_pernyataan_memilih_dpjp where bukti_surat_pernyataan_memilih_dpjp.no_pernyataan=?");
                 try {
-                    ps.setString(1,tbObat.getValueAt(tbObat.getSelectedRow(),0).toString());
+                    ps.setString(1,noPernyataan);
                     rs=ps.executeQuery();
                     if(rs.next()){
-                        if(rs.getString("photo").equals("")||rs.getString("photo").equals("-")){
-                            lokasifile="";
-                        }else{
-                            lokasifile=rs.getString("photo");
-                        }  
-                    }else{
-                        lokasifile="";
+                        if(!rs.getString("photo").equals("")&&!rs.getString("photo").equals("-")){
+                            lokasifile = rs.getString("photo");
+                        }
                     }
                 } catch (Exception e) {
-                    lokasifile="";
                     System.out.println("Notif : "+e);
                 } finally{
-                    if(rs!=null){
-                        rs.close();
-                    }
-                    if(ps!=null){
-                        ps.close();
-                    }
+                    if(rs!=null) rs.close();
+                    if(ps!=null) ps.close();
                 }
             } catch (Exception e) {
                 System.out.println("Notif : "+e);
             }
 
-            lokasifile2="";
             try {
                 ps=koneksi.prepareStatement("select bukti_surat_pernyataan_memilih_dpjp_saksikeluarga.photo from bukti_surat_pernyataan_memilih_dpjp_saksikeluarga where bukti_surat_pernyataan_memilih_dpjp_saksikeluarga.no_pernyataan=?");
                 try {
-                    ps.setString(1,tbObat.getValueAt(tbObat.getSelectedRow(),0).toString());
+                    ps.setString(1,noPernyataan);
                     rs=ps.executeQuery();
                     if(rs.next()){
-                        if(rs.getString("photo").equals("")||rs.getString("photo").equals("-")){
-                            lokasifile2="";
-                        }else{
-                            lokasifile2=rs.getString("photo");
-                        }  
-                    }else{
-                        lokasifile2="";
+                        if(!rs.getString("photo").equals("")&&!rs.getString("photo").equals("-")){
+                            lokasifile2 = rs.getString("photo");
+                        }
                     }
                 } catch (Exception e) {
-                    lokasifile2="";
                     System.out.println("Notif : "+e);
                 } finally{
-                    if(rs!=null){
-                        rs.close();
-                    }
-                    if(ps!=null){
-                        ps.close();
-                    }
+                    if(rs!=null) rs.close();
+                    if(ps!=null) ps.close();
                 }
             } catch (Exception e) {
                 System.out.println("Notif : "+e);
             }
-            
-            if(TabData.getSelectedIndex()==0){
-                if(lokasifile.equals("")){
-                    LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
-                }else{
-                    LoadHTML2.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/pernyataanmemilihdpjp/"+lokasifile+"' alt='photo' width='450' height='550'/></center></body></html>");
-                } 
+
+            String baseUrl = "http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/appsrscm/";
+
+            if(lokasifile.equals("")||lokasifile.equals("-")){
+                Scroll5.setViewportView(LoadHTML2);
+                LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
             }else{
-                if(lokasifile2.equals("")){
-                    LoadHTML3.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
-                }else{
-                    LoadHTML3.setText("<html><body><center><img src='http://"+koneksiDB.HOSTHYBRIDWEB()+":"+koneksiDB.PORTWEB()+"/"+koneksiDB.HYBRIDWEB()+"/pernyataanmemilihdpjp/"+lokasifile2+"' alt='photo' width='450' height='550'/></center></body></html>");
-                } 
+                try{
+                    String gabung = lokasifile.replace("_ttd.png", "_gabung.jpeg");
+                    BufferedImage gabungImg = ImageIO.read(new java.net.URL(baseUrl + gabung));
+                    if(photoPanelPembuat==null){
+                        photoPanelPembuat = new JPanel();
+                        photoPanelPembuat.setLayout(new BoxLayout(photoPanelPembuat, BoxLayout.Y_AXIS));
+                        photoPanelPembuat.setBackground(java.awt.Color.WHITE);
+                    }
+                    photoPanelPembuat.removeAll();
+                    photoPanelPembuat.add(Box.createVerticalGlue());
+                    JLabel gabungLabel = new JLabel(new ImageIcon(gabungImg));
+                    gabungLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                    photoPanelPembuat.add(gabungLabel);
+                    photoPanelPembuat.add(Box.createVerticalGlue());
+                    Scroll5.setViewportView(photoPanelPembuat);
+                }catch(Exception e){
+                    try{
+                        BufferedImage ttdImg = ImageIO.read(new java.net.URL(baseUrl + lokasifile));
+                        if(photoPanelPembuat==null){
+                            photoPanelPembuat = new JPanel();
+                            photoPanelPembuat.setLayout(new BoxLayout(photoPanelPembuat, BoxLayout.Y_AXIS));
+                            photoPanelPembuat.setBackground(java.awt.Color.WHITE);
+                        }
+                        photoPanelPembuat.removeAll();
+                        photoPanelPembuat.add(Box.createVerticalGlue());
+                        JLabel ttdLabel = new JLabel(new ImageIcon(ttdImg));
+                        ttdLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                        photoPanelPembuat.add(ttdLabel);
+                        photoPanelPembuat.add(Box.createVerticalGlue());
+                        Scroll5.setViewportView(photoPanelPembuat);
+                    }catch(Exception ex){
+                        System.out.println("Notif : "+ex);
+                        Scroll5.setViewportView(LoadHTML2);
+                        LoadHTML2.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
+                    }
+                }
+            }
+
+            if(lokasifile2.equals("")||lokasifile2.equals("-")){
+                Scroll6.setViewportView(LoadHTML3);
+                LoadHTML3.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
+            }else{
+                try{
+                    String gabung = lokasifile2.replace("_ttd.png", "_gabung.jpeg");
+                    BufferedImage gabungImg = ImageIO.read(new java.net.URL(baseUrl + gabung));
+                    if(photoPanelSaksi==null){
+                        photoPanelSaksi = new JPanel();
+                        photoPanelSaksi.setLayout(new BoxLayout(photoPanelSaksi, BoxLayout.Y_AXIS));
+                        photoPanelSaksi.setBackground(java.awt.Color.WHITE);
+                    }
+                    photoPanelSaksi.removeAll();
+                    photoPanelSaksi.add(Box.createVerticalGlue());
+                    JLabel gabungLabel = new JLabel(new ImageIcon(gabungImg));
+                    gabungLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                    photoPanelSaksi.add(gabungLabel);
+                    photoPanelSaksi.add(Box.createVerticalGlue());
+                    Scroll6.setViewportView(photoPanelSaksi);
+                }catch(Exception e){
+                    try{
+                        BufferedImage ttdImg = ImageIO.read(new java.net.URL(baseUrl + lokasifile2));
+                        if(photoPanelSaksi==null){
+                            photoPanelSaksi = new JPanel();
+                            photoPanelSaksi.setLayout(new BoxLayout(photoPanelSaksi, BoxLayout.Y_AXIS));
+                            photoPanelSaksi.setBackground(java.awt.Color.WHITE);
+                        }
+                        photoPanelSaksi.removeAll();
+                        photoPanelSaksi.add(Box.createVerticalGlue());
+                        JLabel ttdLabel = new JLabel(new ImageIcon(ttdImg));
+                        ttdLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+                        photoPanelSaksi.add(ttdLabel);
+                        photoPanelSaksi.add(Box.createVerticalGlue());
+                        Scroll6.setViewportView(photoPanelSaksi);
+                    }catch(Exception ex){
+                        System.out.println("Notif : "+ex);
+                        Scroll6.setViewportView(LoadHTML3);
+                        LoadHTML3.setText("<html><body><center><br><br><font face='tahoma' size='2' color='#434343'>Kosong</font></center></body></html>");
+                    }
+                }
             }
         }
     }

@@ -2327,6 +2327,7 @@ private void tbDokterKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_
                 this.setCursor(Cursor.getDefaultCursor());
                 if(berhasil > 0){
                     JOptionPane.showMessageDialog(null, berhasil + " gambar berhasil diupload.");
+                    tampilOrthanc();
                 }
             }
         }
