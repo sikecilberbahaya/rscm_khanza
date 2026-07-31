@@ -54,11 +54,11 @@ except ImportError:
 # Konfigurasi database MySQL — baca dari environment variable atau hardcode
 # Sesuaikan nilai default di bawah jika tidak menggunakan environment variable
 # ---------------------------------------------------------------------------
-DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
+DB_HOST = os.environ.get('DB_HOST', '172.16.1.27')
 DB_PORT = int(os.environ.get('DB_PORT', '3306'))
-DB_NAME = os.environ.get('DB_NAME', 'sik_bridging_radiologi')
-DB_USER = os.environ.get('DB_USER', 'root')
-DB_PASS = os.environ.get('DB_PASS', 'password')
+DB_NAME = os.environ.get('DB_NAME', 'sik_rad')
+DB_USER = os.environ.get('DB_USER', 'yaneka')
+DB_PASS = os.environ.get('DB_PASS', 'lopakun')
 
 # ---------------------------------------------------------------------------
 # Konfigurasi plugin
