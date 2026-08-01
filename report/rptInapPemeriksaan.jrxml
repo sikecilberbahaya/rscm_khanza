@@ -24,7 +24,8 @@ pemeriksaan_ranap.pemeriksaan,pemeriksaan_ranap.alergi,pemeriksaan_ranap.penilai
 pemeriksaan_ranap.instruksi,pemeriksaan_ranap.evaluasi,pemeriksaan_ranap.nip,pegawai.nama 
 from pasien inner join reg_periksa on reg_periksa.no_rkm_medis=pasien.no_rkm_medis
 inner join pemeriksaan_ranap on pemeriksaan_ranap.no_rawat=reg_periksa.no_rawat 
-inner join pegawai on pemeriksaan_ranap.nip=pegawai.nik]]>
+inner join pegawai on pemeriksaan_ranap.nip=pegawai.nik
+where pemeriksaan_ranap.verifikasi='Sudah']]>
 	</queryString>
 	<field name="no_rawat" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="no_rawat"/>
