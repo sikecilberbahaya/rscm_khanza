@@ -27593,11 +27593,6 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
                 jmlmenu++;
             }
             
-            if(akses.getsatu_sehat_kirim_episode_of_care()==true){
-                Panelmenu.add(btnKirimEpisodeOfCareSatuSehat);
-                jmlmenu++;
-            }
-            
             if(akses.getsatu_sehat_mapping_radiologi()==true){
                 Panelmenu.add(btnMappingRadiologiSatuSehat);
                 jmlmenu++;
@@ -33512,11 +33507,6 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
         
         if(akses.getsatu_sehat_kirim_allergy_intolerance()==true){
             Panelmenu.add(btnKirimAllergiSatuSehat);
-            jmlmenu++;
-        }
-        
-        if(akses.getsatu_sehat_kirim_episode_of_care()==true){
-            Panelmenu.add(btnKirimEpisodeOfCareSatuSehat);
             jmlmenu++;
         }
         
@@ -40757,13 +40747,6 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
         if(akses.getsatu_sehat_kirim_allergy_intolerance()==true){
             if(btnKirimAllergiSatuSehat.getText().toLowerCase().trim().contains(TCari.getText().toLowerCase().trim())){
                 Panelmenu.add(btnKirimAllergiSatuSehat);
-                jmlmenu++;
-            } 
-        }
-        
-        if(akses.getsatu_sehat_kirim_episode_of_care()==true){
-            if(btnKirimEpisodeOfCareSatuSehat.getText().toLowerCase().trim().contains(TCari.getText().toLowerCase().trim())){
-                Panelmenu.add(btnKirimEpisodeOfCareSatuSehat);
                 jmlmenu++;
             } 
         }

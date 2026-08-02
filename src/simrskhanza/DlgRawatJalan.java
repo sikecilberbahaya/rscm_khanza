@@ -11067,8 +11067,8 @@ tampilkanStatusValidasi();
         } catch (Exception e) {
             System.out.println("Notif : "+e);
         }
-        String jabUser = Sequel.cariIsi("SELECT jbtn FROM pegawai WHERE nik=?", akses.getkode());
-        BtnValidasiDokter.setVisible(jabUser.toLowerCase().contains("dokter") || akses.getkode().equals("Admin Utama"));
+        boolean userAdalahDokter = !Sequel.cariIsi("SELECT kd_dokter FROM dokter WHERE kd_dokter=?", akses.getkode()).equals("");
+        BtnValidasiDokter.setVisible(userAdalahDokter || akses.getkode().equals("Admin Utama"));
         tampilkanPendingValidasi();
     }
     
@@ -14337,7 +14337,7 @@ tampilkanStatusValidasi();
                         (!TBerat.getText().trim().equals(""))||(!TRespirasi.getText().trim().equals(""))||(!TNadi.getText().trim().equals(""))||
                         (!TGCS.getText().trim().equals(""))||(!TindakLanjut.getText().trim().equals(""))||(!TPenilaian.getText().trim().equals(""))||
                         (!TInstruksi.getText().trim().equals(""))||(!SpO2.getText().trim().equals(""))||(!TEvaluasi.getText().trim().equals(""))){
-                    String statusVerif = (Jabatan.getText().toLowerCase().contains("dokter")||akses.getkode().equals("Admin Utama")) ? "Sudah" : "Belum";
+                    String statusVerif = (!Sequel.cariIsi("SELECT kd_dokter FROM dokter WHERE kd_dokter=?", KdPeg.getText()).equals("")||akses.getkode().equals("Admin Utama")) ? "Sudah" : "Belum";
                     String tglVerif = statusVerif.equals("Sudah") ? new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()) : null;
                     String nipVerif = statusVerif.equals("Sudah") ? akses.getkode() : null;
                     if(KdPeg.getText().trim().equals("")||TPegawai.getText().trim().equals("")){
@@ -14519,8 +14519,7 @@ tampilkanStatusValidasi();
             JOptionPane.showMessageDialog(null, "SOAP ini sudah divalidasi sebelumnya.");
             return;
         }
-        String jabUser = Sequel.cariIsi("SELECT jbtn FROM pegawai WHERE nik=?", akses.getkode());
-        boolean userAdalahDokter = jabUser.toLowerCase().contains("dokter") || akses.getkode().equals("Admin Utama");
+        boolean userAdalahDokter = !Sequel.cariIsi("SELECT kd_dokter FROM dokter WHERE kd_dokter=?", akses.getkode()).equals("") || akses.getkode().equals("Admin Utama");
         if (!userAdalahDokter) {
             JOptionPane.showMessageDialog(null, "Hanya DOKTER yang boleh melakukan validasi SOAP!");
             return;
