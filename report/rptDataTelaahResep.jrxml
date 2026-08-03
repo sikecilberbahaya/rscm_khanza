@@ -1014,7 +1014,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{nama}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement positionType="Float" x="2055" y="0" width="40" height="10" uuid="11111111-2222-3333-4444-555555555555">
 					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
 				</reportElement>
@@ -1024,7 +1024,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{nip2}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement positionType="Float" x="2095" y="0" width="40" height="10" uuid="66666666-7777-8888-9999-aaaaaaaaaaaa">
 					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
 				</reportElement>
