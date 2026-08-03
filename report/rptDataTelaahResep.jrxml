@@ -34,12 +34,13 @@
                 telaah_farmasi.resep_interaksi_obat,telaah_farmasi.resep_ket_interaksi_obat,telaah_farmasi.resep_kontra_indikasi_obat,
                 telaah_farmasi.resep_ket_kontra_indikasi_obat,telaah_farmasi.obat_tepat_pasien,telaah_farmasi.obat_tepat_obat,
                 telaah_farmasi.obat_tepat_dosis,telaah_farmasi.obat_tepat_cara_pemberian,telaah_farmasi.obat_tepat_waktu_pemberian,
-                telaah_farmasi.nip,petugas.nama 
+                telaah_farmasi.nip,petugas.nama,telaah_farmasi.nip2,petugas2.nama as nama_validator2 
                 from telaah_farmasi inner join resep_obat on telaah_farmasi.no_resep=resep_obat.no_resep 
                 inner join reg_periksa on resep_obat.no_rawat=reg_periksa.no_rawat 
                 inner join pasien on pasien.no_rkm_medis=reg_periksa.no_rkm_medis 
                 inner join dokter on resep_obat.kd_dokter=dokter.kd_dokter 
-                inner join petugas on telaah_farmasi.nip=petugas.nip]]>
+                inner join petugas on telaah_farmasi.nip=petugas.nip
+                left join petugas as petugas2 on telaah_farmasi.nip2=petugas2.nip]]>
 	</queryString>
 	<field name="no_resep" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="no_resep"/>
@@ -245,6 +246,16 @@
 		<property name="com.jaspersoft.studio.field.label" value="nama"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="petugas"/>
 	</field>
+	<field name="nip2" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="nip2"/>
+		<property name="com.jaspersoft.studio.field.label" value="nip2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="telaah_farmasi"/>
+	</field>
+	<field name="nama_validator2" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="nama_validator2"/>
+		<property name="com.jaspersoft.studio.field.label" value="nama_validator2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="petugas"/>
+	</field>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -260,7 +271,7 @@
 			</staticText>
 			<image scaleImage="FillFrame" onErrorType="Blank">
 				<reportElement x="0" y="2" width="48" height="45" uuid="0b5ac850-d047-49b2-9a74-6249b9e226e8"/>
-				<imageExpression><![CDATA[$P{logo}]]></imageExpression>
+				<imageExpression class="java.io.InputStream"><![CDATA[$P{logo}]]></imageExpression>
 			</image>
 			<textField>
 				<reportElement x="2" y="0" width="2128" height="17" uuid="dace3819-932a-480b-b0b1-f5f7e8b4be00"/>
@@ -348,7 +359,7 @@
 				<text><![CDATA[T.O.Tepat Cara Pemberian]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="1909" y="0" width="63" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="beebe38a-898a-44c4-adb0-1ac8856738fc">
+				<reportElement mode="Opaque" x="1909" y="0" width="50" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="beebe38a-898a-44c4-adb0-1ac8856738fc">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -358,7 +369,7 @@
 				<text><![CDATA[T.O.Tepat Waktu Pemberian]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="1972" y="0" width="54" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="0ab88886-84f6-449c-849c-07ff6727eb5b">
+				<reportElement mode="Opaque" x="1959" y="0" width="40" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="0ab88886-84f6-449c-849c-07ff6727eb5b">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -368,12 +379,20 @@
 				<text><![CDATA[NIP]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="2026" y="0" width="104" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="00ea587d-69fb-4705-8e0d-602a4c31a0dd"/>
+				<reportElement mode="Opaque" x="1999" y="0" width="56" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="00ea587d-69fb-4705-8e0d-602a4c31a0dd"/>
 				<textElement verticalAlignment="Middle">
 					<font fontName="Tahoma" size="8" isBold="false"/>
 					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<text><![CDATA[Nama Dokter]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="2055" y="0" width="40" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="bbbbbbbb-cccc-dddd-eeee-ffffffffffff"/>
+				<text><![CDATA[NIP2]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="2095" y="0" width="40" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="12121212-3434-5656-7878-909090909090"/>
+				<text><![CDATA[Validator Ke-2]]></text>
 			</staticText>
 			<staticText>
 				<reportElement mode="Opaque" x="1599" y="0" width="50" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="b267a5d7-f066-4d13-90c4-5d6c7a17f839">
@@ -709,7 +728,7 @@
 					<font fontName="Tahoma" size="8"/>
 					<paragraph lineSpacing="Single"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{tgl_lahir}]]></textFieldExpression>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{tgl_lahir}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
 				<reportElement positionType="Float" x="450" y="0" width="54" height="10" uuid="8ccda384-6ed4-4843-8596-bf675bb62e18">
@@ -805,7 +824,7 @@
 					<font fontName="Tahoma" size="8"/>
 					<paragraph lineSpacing="Single"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{tgl_perawatan}]]></textFieldExpression>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{tgl_perawatan}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" pattern="HH:mm:ss" isBlankWhenNull="true">
 				<reportElement positionType="Float" x="105" y="0" width="38" height="10" uuid="dd03ce7a-a431-4fd3-9b40-1651c316383a"/>
@@ -966,7 +985,7 @@
 				<textFieldExpression><![CDATA[$F{obat_tepat_cara_pemberian}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
-				<reportElement positionType="Float" x="1909" y="0" width="63" height="10" uuid="492eed86-5869-4b52-83dd-15a53baf2731">
+				<reportElement positionType="Float" x="1909" y="0" width="50" height="10" uuid="492eed86-5869-4b52-83dd-15a53baf2731">
 					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
 				</reportElement>
 				<textElement textAlignment="Center">
@@ -976,7 +995,7 @@
 				<textFieldExpression><![CDATA[$F{obat_tepat_cara_pemberian}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
-				<reportElement positionType="Float" x="1972" y="0" width="54" height="10" uuid="ec80750c-a124-4759-97df-bd811509aeed">
+				<reportElement positionType="Float" x="1959" y="0" width="40" height="10" uuid="ec80750c-a124-4759-97df-bd811509aeed">
 					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
 				</reportElement>
 				<textElement textAlignment="Center">
@@ -986,7 +1005,7 @@
 				<textFieldExpression><![CDATA[$F{nip}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
-				<reportElement positionType="Float" x="2026" y="0" width="104" height="10" uuid="a00b8bac-bc00-49c6-bd4f-38e611ddf793">
+				<reportElement positionType="Float" x="1999" y="0" width="56" height="10" uuid="a00b8bac-bc00-49c6-bd4f-38e611ddf793">
 					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
 				</reportElement>
 				<textElement textAlignment="Left">
@@ -994,6 +1013,26 @@
 					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{nama}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="2055" y="0" width="40" height="10" uuid="11111111-2222-3333-4444-555555555555">
+					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="8"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nip2}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="2095" y="0" width="40" height="10" uuid="66666666-7777-8888-9999-aaaaaaaaaaaa">
+					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="8"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nama_validator2}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
