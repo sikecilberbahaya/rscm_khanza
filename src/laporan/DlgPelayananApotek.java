@@ -505,8 +505,8 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
 
     public void tampil(){        
         try{   
-            this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); 
-            Valid.tabelKosong(tabMode);   
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            java.util.List<Object[]> baris = new java.util.ArrayList<>();
             limabelas=0;
             tigapuluh=0;
             satujam=0;
@@ -547,7 +547,7 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                 ps.setString(6,"%"+TCari.getText().trim()+"%");
                 rs=ps.executeQuery();
                 while(rs.next()){
-                    tabMode.addRow(new Object[]{
+                    baris.add(new Object[]{
                         i,rs.getString("no_rkm_medis"),rs.getString("nm_pasien"),rs.getString("nm_dokter"),rs.getString("nm_poli"),
                         rs.getString("tgl_peresepan")+" "+rs.getString("jam_peresepan"),rs.getString("tgl_perawatan")+" "+rs.getString("jam"),
                         rs.getString("tgl_penyerahan")+" "+rs.getString("jam_penyerahan"),rs.getString("durasivalidasi"),rs.getString("durasipenyerahan"),
@@ -596,24 +596,30 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                 }
             }   
                 
-            if(lamajam>0){
-                tabMode.addRow(new Object[]{
-                    "","","Rata-rata (Menit)",": ","","","","",""+Valid.SetAngka6(lamajam/(i-1)),""+Valid.SetAngka6(lamajam2/(i-1)),""+Valid.SetAngka6(lamajam3/(i-1))
-                });
-                tabMode.addRow(new Object[]{
-                    "","","0 - 15 Menit",": ","","","","",""+limabelas,""+limabelas2,""+limabelas3
-                });
-                tabMode.addRow(new Object[]{
-                    "","",">15 - <=30 Menit",": ","","","","",""+tigapuluh,""+tigapuluh2,""+tigapuluh3
-                });
-                tabMode.addRow(new Object[]{
-                    "","",">30 - <=60 Menit",": ","","","","",""+satujam,""+satujam2,""+satujam3
-                });
-                tabMode.addRow(new Object[]{
-                    "","",">60 Menit",": ","","","","",""+lebihsatujam,""+lebihsatujam2,""+lebihsatujam3
-                });
-            } 
-            this.setCursor(Cursor.getDefaultCursor());
+            SwingUtilities.invokeLater(() -> {
+                Valid.tabelKosong(tabMode);
+                for (Object[] brs : baris) {
+                    tabMode.addRow(brs);
+                }
+                if (lamajam > 0) {
+                    tabMode.addRow(new Object[]{
+                        "","","Rata-rata (Menit)",": ","","","","",""+Valid.SetAngka6(lamajam/(i-1)),""+Valid.SetAngka6(lamajam2/(i-1)),""+Valid.SetAngka6(lamajam3/(i-1))
+                    });
+                    tabMode.addRow(new Object[]{
+                        "","","0 - 15 Menit",": ","","","","",""+limabelas,""+limabelas2,""+limabelas3
+                    });
+                    tabMode.addRow(new Object[]{
+                        "","",">15 - <=30 Menit",": ","","","","",""+tigapuluh,""+tigapuluh2,""+tigapuluh3
+                    });
+                    tabMode.addRow(new Object[]{
+                        "","",">30 - <=60 Menit",": ","","","","",""+satujam,""+satujam2,""+satujam3
+                    });
+                    tabMode.addRow(new Object[]{
+                        "","",">60 Menit",": ","","","","",""+lebihsatujam,""+lebihsatujam2,""+lebihsatujam3
+                    });
+                }
+                this.setCursor(Cursor.getDefaultCursor());
+            });
         }catch(Exception e){
             System.out.println("Notifikasi : "+e);
         }
