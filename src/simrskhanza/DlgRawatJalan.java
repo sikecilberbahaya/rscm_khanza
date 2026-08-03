@@ -2500,20 +2500,20 @@ public final class DlgRawatJalan extends javax.swing.JDialog {
             }
         });
         panelGlass12.add(BtnValidasiDokter);
-        BtnValidasiDokter.setBounds(543, 220, 160, 28);
+        BtnValidasiDokter.setBounds(543, 244, 160, 28);
 
         lblVerifikasiStatus = new widget.Label();
         lblVerifikasiStatus.setText("Status: -");
         lblVerifikasiStatus.setForeground(new java.awt.Color(102, 102, 102));
         panelGlass12.add(lblVerifikasiStatus);
-        lblVerifikasiStatus.setBounds(713, 224, 190, 20);
+        lblVerifikasiStatus.setBounds(713, 248, 190, 20);
 
         lblPendingValidasi = new widget.Label();
         lblPendingValidasi.setText("Belum Divalidasi: 0");
         lblPendingValidasi.setForeground(new java.awt.Color(200, 0, 0));
         lblPendingValidasi.setFont(new java.awt.Font("Tahoma", 1, 11));
         panelGlass12.add(lblPendingValidasi);
-        lblPendingValidasi.setBounds(543, 256, 360, 20);
+        lblPendingValidasi.setBounds(543, 280, 360, 20);
 
         PanelInput.add(panelGlass12, java.awt.BorderLayout.CENTER);
 
@@ -14542,9 +14542,8 @@ tampilkanStatusValidasi();
                 tbPemeriksaan.setValueAt("Sudah", row, 26);
                 lblVerifikasiStatus.setText("SUDAH DIVALIDASI OLEH DOKTER");
                 lblVerifikasiStatus.setForeground(new java.awt.Color(0, 128, 0));
-                Sequel.menyimpan("audit_validasi_soap",
-                        "'" + noRawat + "','" + tgl + "','" + jam + "','" + nipPembuat + "','" + akses.getkode() + "',NOW(),'VALIDASI DOKTER',''",
-                        "Validasi SOAP oleh Dokter");
+                Sequel.queryutf("INSERT INTO audit_validasi_soap (no_rawat,tgl_perawatan,jam_rawat,nip_pembuat,nip_verifikator,tgl_verifikasi,status,keterangan) VALUES('" +
+                        noRawat + "','" + tgl + "','" + jam + "','" + nipPembuat + "','" + akses.getkode() + "',NOW(),'VALIDASI DOKTER','')");
                 tampilkanStatusValidasi();
                 tampilkanPendingValidasi();
             }
