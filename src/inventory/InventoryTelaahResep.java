@@ -250,6 +250,10 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
         Nip = new widget.TextBox();
         NamaPetugas = new widget.TextBox();
         btnPetugas = new widget.Button();
+        Nip2 = new widget.TextBox();
+        NamaPetugas2 = new widget.TextBox();
+        btnPetugas2 = new widget.Button();
+        jLabel43 = new widget.Label();
         jLabel8 = new widget.Label();
         TglLahir = new widget.TextBox();
         Alamat = new widget.TextBox();
