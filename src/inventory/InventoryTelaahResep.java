@@ -1183,10 +1183,10 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
             if(akses.getkode().equals("Admin Utama")){
                 hapus();
             }else{
-                if(Nip.getText().equals(tbObat.getValueAt(tbObat.getSelectedRow(),33).toString())){
+                if(akses.getkode().equals(tbObat.getValueAt(tbObat.getSelectedRow(),33).toString())){
                     hapus();
                 }else{
-                    JOptionPane.showMessageDialog(null,"Hanya bisa dihapus oleh petugas yang bersangkutan..!!");
+                    JOptionPane.showMessageDialog(null,"Hanya bisa dihapus oleh penelaah (validator ke-1)..!!");
                 }
             }
         }else{
@@ -1213,7 +1213,7 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
                 if(akses.getkode().equals("Admin Utama")){
                     ganti();
                 }else{
-                    if(Nip.getText().equals(tbObat.getValueAt(tbObat.getSelectedRow(),33).toString())){
+                    if(akses.getkode().equals(tbObat.getValueAt(tbObat.getSelectedRow(),33).toString())){
                         ganti();
                     }else{
                         JOptionPane.showMessageDialog(null,"Hanya bisa diganti oleh penelaah (validator ke-1)..!!");
@@ -1954,6 +1954,15 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
     }
 
     private void hapus() {
+        if(tbObat.getSelectedRow()<0){
+            JOptionPane.showMessageDialog(rootPane,"Silahkan anda pilih data terlebih dahulu..!!");
+            return;
+        }
+        String penelaah=tbObat.getValueAt(tbObat.getSelectedRow(),33).toString();
+        if(!akses.getkode().equals("Admin Utama") && !akses.getkode().equals(penelaah)){
+            JOptionPane.showMessageDialog(null,"Hanya penelaah (validator ke-1) atau Admin yang boleh menghapus..!!");
+            return;
+        }
         if(Sequel.queryu2tf("delete from telaah_farmasi where no_resep=?",1,new String[]{
             tbObat.getValueAt(tbObat.getSelectedRow(),0).toString()
         })==true){
@@ -1964,6 +1973,15 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
     }
 
     private void ganti() {
+        if(tbObat.getSelectedRow()<0){
+            JOptionPane.showMessageDialog(rootPane,"Silahkan anda pilih data terlebih dahulu..!!");
+            return;
+        }
+        String penelaah=tbObat.getValueAt(tbObat.getSelectedRow(),33).toString();
+        if(!akses.getkode().equals("Admin Utama") && !akses.getkode().equals(penelaah)){
+            JOptionPane.showMessageDialog(null,"Hanya penelaah (validator ke-1) atau Admin yang boleh mengubah..!!");
+            return;
+        }
         if(Sequel.mengedittf("telaah_farmasi","no_resep=?","no_resep=?,resep_identifikasi_pasien=?,resep_ket_identifikasi_pasien=?,resep_tepat_obat=?,resep_ket_tepat_obat=?,"+
                 "resep_tepat_dosis=?,resep_ket_tepat_dosis=?,resep_tepat_cara_pemberian=?,resep_ket_tepat_cara_pemberian=?,resep_tepat_waktu_pemberian=?,resep_ket_tepat_waktu_pemberian=?,"+
                 "resep_ada_tidak_duplikasi_obat=?,resep_ket_ada_tidak_duplikasi_obat=?,resep_interaksi_obat=?,resep_ket_interaksi_obat=?,resep_kontra_indikasi_obat=?,"+
