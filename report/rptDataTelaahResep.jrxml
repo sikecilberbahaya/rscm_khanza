@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.5.1  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" pageWidth="2175" pageHeight="612" orientation="Landscape" columnWidth="2135" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="0f505995-42c1-4cc5-b34d-0896041d3a11">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" pageWidth="2400" pageHeight="612" orientation="Landscape" columnWidth="2360" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="0f505995-42c1-4cc5-b34d-0896041d3a11">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
@@ -34,7 +34,8 @@
                 telaah_farmasi.resep_interaksi_obat,telaah_farmasi.resep_ket_interaksi_obat,telaah_farmasi.resep_kontra_indikasi_obat,
                 telaah_farmasi.resep_ket_kontra_indikasi_obat,telaah_farmasi.obat_tepat_pasien,telaah_farmasi.obat_tepat_obat,
                 telaah_farmasi.obat_tepat_dosis,telaah_farmasi.obat_tepat_cara_pemberian,telaah_farmasi.obat_tepat_waktu_pemberian,
-                telaah_farmasi.nip,petugas.nama,telaah_farmasi.nip2,petugas2.nama as nama_validator2 
+                telaah_farmasi.nip,petugas.nama,telaah_farmasi.nip2,petugas2.nama as nama_validator2,
+                telaah_farmasi.status_validasi2,telaah_farmasi.catatan_validasi2,telaah_farmasi.tgl_validasi2
                 from telaah_farmasi inner join resep_obat on telaah_farmasi.no_resep=resep_obat.no_resep 
                 inner join reg_periksa on resep_obat.no_rawat=reg_periksa.no_rawat 
                 inner join pasien on pasien.no_rkm_medis=reg_periksa.no_rkm_medis 
@@ -251,11 +252,26 @@
 		<property name="com.jaspersoft.studio.field.label" value="nip2"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="telaah_farmasi"/>
 	</field>
-	<field name="nama_validator2" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.name" value="nama_validator2"/>
-		<property name="com.jaspersoft.studio.field.label" value="nama_validator2"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="petugas"/>
-	</field>
+ 	<field name="nama_validator2" class="java.lang.String">
+ 		<property name="com.jaspersoft.studio.field.name" value="nama_validator2"/>
+ 		<property name="com.jaspersoft.studio.field.label" value="nama_validator2"/>
+ 		<property name="com.jaspersoft.studio.field.tree.path" value="petugas"/>
+ 	</field>
+ 	<field name="status_validasi2" class="java.lang.String">
+ 		<property name="com.jaspersoft.studio.field.name" value="status_validasi2"/>
+ 		<property name="com.jaspersoft.studio.field.label" value="status_validasi2"/>
+ 		<property name="com.jaspersoft.studio.field.tree.path" value="telaah_farmasi"/>
+ 	</field>
+ 	<field name="catatan_validasi2" class="java.lang.String">
+ 		<property name="com.jaspersoft.studio.field.name" value="catatan_validasi2"/>
+ 		<property name="com.jaspersoft.studio.field.label" value="catatan_validasi2"/>
+ 		<property name="com.jaspersoft.studio.field.tree.path" value="telaah_farmasi"/>
+ 	</field>
+ 	<field name="tgl_validasi2" class="java.sql.Timestamp">
+ 		<property name="com.jaspersoft.studio.field.name" value="tgl_validasi2"/>
+ 		<property name="com.jaspersoft.studio.field.label" value="tgl_validasi2"/>
+ 		<property name="com.jaspersoft.studio.field.tree.path" value="telaah_farmasi"/>
+ 	</field>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -306,7 +322,7 @@
 				<textFieldExpression><![CDATA[$P{kontakrs}]]></textFieldExpression>
 			</textField>
 			<line>
-				<reportElement x="0" y="48" width="2130" height="1" uuid="4fb76038-b325-403c-b1dd-64632d65ad1c"/>
+				<reportElement x="0" y="48" width="2360" height="1" uuid="4fb76038-b325-403c-b1dd-64632d65ad1c"/>
 				<graphicElement>
 					<pen lineWidth="2.0" lineStyle="Double"/>
 				</graphicElement>
@@ -386,14 +402,26 @@
 				</textElement>
 				<text><![CDATA[Nama Dokter]]></text>
 			</staticText>
-			<staticText>
-				<reportElement mode="Opaque" x="2055" y="0" width="40" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="bbbbbbbb-cccc-dddd-eeee-ffffffffffff"/>
-				<text><![CDATA[NIP2]]></text>
-			</staticText>
-			<staticText>
-				<reportElement mode="Opaque" x="2095" y="0" width="40" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="12121212-3434-5656-7878-909090909090"/>
-				<text><![CDATA[Validator Ke-2]]></text>
-			</staticText>
+<staticText>
+ 				<reportElement mode="Opaque" x="2055" y="0" width="40" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="bbbbbbbb-cccc-dddd-eeee-ffffffffffff"/>
+ 				<text><![CDATA[NIP2]]></text>
+ 			</staticText>
+ 			<staticText>
+ 				<reportElement mode="Opaque" x="2135" y="0" width="60" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="99999999-aaaa-bbbb-cccc-dddddddddddd"/>
+ 				<text><![CDATA[Status V2]]></text>
+ 			</staticText>
+ 			<staticText>
+ 				<reportElement mode="Opaque" x="2195" y="0" width="120" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="88888888-9999-aaaa-bbbb-cccccccccccc"/>
+ 				<text><![CDATA[Catatan]]></text>
+ 			</staticText>
+ 			<staticText>
+ 				<reportElement mode="Opaque" x="2315" y="0" width="85" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="77777777-8888-9999-aaaa-bbbbbbbbbbbb"/>
+ 				<text><![CDATA[Tgl.Validasi2]]></text>
+ 			</staticText>
+ 			<staticText>
+ 				<reportElement mode="Opaque" x="2095" y="0" width="40" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="12121212-3434-5656-7878-909090909090"/>
+ 				<text><![CDATA[Validator Ke-2]]></text>
+ 			</staticText>
 			<staticText>
 				<reportElement mode="Opaque" x="1599" y="0" width="50" height="26" forecolor="#000000" backcolor="#F0F0DC" uuid="b267a5d7-f066-4d13-90c4-5d6c7a17f839">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -651,7 +679,7 @@
 				<text><![CDATA[JK]]></text>
 			</staticText>
 			<line>
-				<reportElement x="0" y="26" width="2130" height="1" uuid="f1062824-af54-46b9-92c2-c07c722ef05b"/>
+				<reportElement x="0" y="26" width="2360" height="1" uuid="f1062824-af54-46b9-92c2-c07c722ef05b"/>
 				<graphicElement>
 					<pen lineWidth="0.5"/>
 				</graphicElement>
@@ -664,8 +692,8 @@
 				</textElement>
 				<text><![CDATA[Status]]></text>
 			</staticText>
-			<line>
-				<reportElement positionType="FixRelativeToBottom" x="0" y="0" width="2130" height="1" uuid="b9df08be-712d-4d7a-8167-33f136e9b181"/>
+ 			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="0" width="2360" height="1" uuid="b9df08be-712d-4d7a-8167-33f136e9b181"/>
 				<graphicElement>
 					<pen lineWidth="0.5"/>
 				</graphicElement>
@@ -750,8 +778,8 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{resep_tepat_dosis}]]></textFieldExpression>
 			</textField>
-			<line>
-				<reportElement positionType="Float" x="0" y="11" width="2130" height="1" uuid="0d957b63-991b-4cfa-9c0f-c30d7460e5db">
+ 			<line>
+				<reportElement positionType="Float" x="0" y="11" width="2360" height="1" uuid="0d957b63-991b-4cfa-9c0f-c30d7460e5db">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 				</reportElement>
 				<graphicElement>
@@ -1024,18 +1052,48 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{nip2}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="2095" y="0" width="40" height="10" uuid="66666666-7777-8888-9999-aaaaaaaaaaaa">
-					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
-				</reportElement>
-				<textElement textAlignment="Center">
-					<font fontName="Tahoma" size="8"/>
-					<paragraph lineSpacing="Single"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{nama_validator2}]]></textFieldExpression>
-			</textField>
-		</band>
-	</detail>
+<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+ 				<reportElement positionType="Float" x="2095" y="0" width="40" height="10" uuid="66666666-7777-8888-9999-aaaaaaaaaaaa">
+ 					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
+ 				</reportElement>
+ 				<textElement textAlignment="Center">
+ 					<font fontName="Tahoma" size="8"/>
+ 					<paragraph lineSpacing="Single"/>
+ 				</textElement>
+ 				<textFieldExpression><![CDATA[$F{nama_validator2}]]></textFieldExpression>
+ 			</textField>
+ 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+ 				<reportElement positionType="Float" x="2135" y="0" width="60" height="10" uuid="aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee">
+ 					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
+ 				</reportElement>
+ 				<textElement textAlignment="Center">
+ 					<font fontName="Tahoma" size="8"/>
+ 					<paragraph lineSpacing="Single"/>
+ 				</textElement>
+ 				<textFieldExpression><![CDATA[$F{status_validasi2}]]></textFieldExpression>
+ 			</textField>
+ 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+ 				<reportElement positionType="Float" x="2195" y="0" width="120" height="10" uuid="bbbbbbbb-dddd-eeee-ffff-aaaaaaaaaaaa">
+ 					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
+ 				</reportElement>
+ 				<textElement>
+ 					<font fontName="Tahoma" size="8"/>
+ 					<paragraph lineSpacing="Single"/>
+ 				</textElement>
+ 				<textFieldExpression><![CDATA[$F{catatan_validasi2}]]></textFieldExpression>
+ 			</textField>
+ 			<textField isStretchWithOverflow="true" pattern="dd-MM-yyyy HH:mm" isBlankWhenNull="true">
+ 				<reportElement positionType="Float" x="2315" y="0" width="85" height="10" uuid="cccccccc-dddd-eeee-0000-111111111111">
+ 					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
+ 				</reportElement>
+ 				<textElement textAlignment="Center">
+ 					<font fontName="Tahoma" size="8"/>
+ 					<paragraph lineSpacing="Single"/>
+ 				</textElement>
+ 				<textFieldExpression class="java.util.Date"><![CDATA[$F{tgl_validasi2}]]></textFieldExpression>
+ 			</textField>
+ 		</band>
+ 	</detail>
 	<columnFooter>
 		<band splitType="Stretch"/>
 	</columnFooter>

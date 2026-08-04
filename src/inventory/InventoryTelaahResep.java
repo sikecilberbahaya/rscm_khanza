@@ -79,7 +79,7 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
             "T.R.Tepat Dosis","Ket T.R.Tepat Dosis","T.R.Tepat Cara Pemberian","Ket T.R.Tepat Cara Pemberian",
             "T.R.Tepat Waktu Pemberian","Ket T.R.Tepat Waktu Pemberian","T.R.Ada/Tidak Duplikasi","Ket T.R.Ada/Tidak Duplikasi",
             "T.R.Interaksi Obat","Ket T.R.Interaksi Obat","T.R.Kontra Indikasi","Ket T.R.Kontra Indikasi","T.O.Tepat Pasien",
-            "T.O.Tepat Obat","T.O.Tepat Dosis","T.O.Tepat Cara Pemberian",            "T.O.Tepat Waktu Pemberian","NIP","Petugas Farmasi","NIP2","Validator Ke-2"
+            "T.O.Tepat Obat","T.O.Tepat Dosis","T.O.Tepat Cara Pemberian",            "T.O.Tepat Waktu Pemberian","NIP","Petugas Farmasi","NIP2","Validator Ke-2","Status Validasi 2","Catatan Validasi 2","Tgl Validasi 2"
         }){
               @Override public boolean isCellEditable(int rowIndex, int colIndex){return false;}
         };
@@ -89,7 +89,7 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
         tbObat.setPreferredScrollableViewportSize(new Dimension(500,500));
         tbObat.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        for (i = 0; i < 37; i++) {
+        for (i = 0; i < 40; i++) {
             TableColumn column = tbObat.getColumnModel().getColumn(i);
             if(i==0){
                 column.setPreferredWidth(85);
@@ -223,6 +223,7 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
         BtnHapus = new widget.Button();
         BtnEdit = new widget.Button();
         BtnPrint = new widget.Button();
+        BtnValidasi2 = new widget.Button();
         jLabel7 = new widget.Label();
         LCount = new widget.Label();
         BtnKeluar = new widget.Button();
@@ -422,6 +423,21 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
             }
         });
         panelGlass8.add(BtnPrint);
+
+        BtnValidasi2.setText("Validasi 2");
+        BtnValidasi2.setName("BtnValidasi2"); // NOI18N
+        BtnValidasi2.setPreferredSize(new java.awt.Dimension(110, 30));
+        BtnValidasi2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BtnValidasi2ActionPerformed(evt);
+            }
+        });
+        BtnValidasi2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                BtnValidasi2KeyPressed(evt);
+            }
+        });
+        panelGlass8.add(BtnValidasi2);
 
         jLabel7.setText("Record :");
         jLabel7.setName("jLabel7"); // NOI18N
@@ -1118,21 +1134,24 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
             Valid.textKosong(TNoRw,"resep/pasien");
         }else if(Nip.getText().trim().equals("")||NamaPetugas.getText().trim().equals("")){
             Valid.textKosong(Nip,"Petugas");
-        }else if(Nip2.getText().trim().equals("")||NamaPetugas2.getText().trim().equals("")){
-            Valid.textKosong(Nip2,"Validator Ke-2");
-        }else if(Nip.getText().equals(Nip2.getText())){
+        }else if(!Nip2.getText().trim().equals("") && Nip.getText().equals(Nip2.getText())){
             JOptionPane.showMessageDialog(null,"Validator ke-2 harus petugas yang BERBEDA dengan penelaah..!!");
         }else{
-            if(Sequel.menyimpantf("telaah_farmasi","?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?","Data",24,new String[]{
-                NoResep.getText(),ResepTepatIdentifikasiPasien.getSelectedItem().toString(),KetResepTepatIdetifikasiPasien.getText(), 
-                ResepTepatObat.getSelectedItem().toString(),KetResepTepatObat.getText(),ResepTepatDosis.getSelectedItem().toString(), 
-                KetResepTepatDosis.getText(),ResepTepatCaraPemberian.getSelectedItem().toString(),KetResepTepatCaraPemberian.getText(), 
-                ResepTepatWaktuPemberian.getSelectedItem().toString(),KetResepTepatWaktuPemberian.getText(),ResepTidakDuplikasiObat.getSelectedItem().toString(), 
-                KetResepTidakDuplikasiObat.getText(),ResepInteraksiObat.getSelectedItem().toString(),KetResepInteraksiObat.getText(), 
-                ResepKontraIndikasiObat.getSelectedItem().toString(),KetResepKontraIndikasiObat.getText(),ObatTepatPasien.getSelectedItem().toString(),
-                ObatTepatObat.getSelectedItem().toString(),ObatTepatDosis.getSelectedItem().toString(),ObatTepatCaraPemberian.getSelectedItem().toString(), 
-                ObatTepatWaktuPemberian.getSelectedItem().toString(),Nip.getText(),Nip2.getText()
-            })==true){
+            if(!Sequel.cariIsi("select no_resep from telaah_farmasi where no_resep='"+NoResep.getText()+"'").equals("")){
+                ganti();
+            }else if(Sequel.queryutf("INSERT INTO telaah_farmasi (no_resep,resep_identifikasi_pasien,resep_ket_identifikasi_pasien,"+
+                "resep_tepat_obat,resep_ket_tepat_obat,resep_tepat_dosis,resep_ket_tepat_dosis,"+
+                "resep_tepat_cara_pemberian,resep_ket_tepat_cara_pemberian,resep_tepat_waktu_pemberian,resep_ket_tepat_waktu_pemberian,"+
+                "resep_ada_tidak_duplikasi_obat,resep_ket_ada_tidak_duplikasi_obat,resep_interaksi_obat,resep_ket_interaksi_obat,"+
+                "resep_kontra_indikasi_obat,resep_ket_kontra_indikasi_obat,obat_tepat_pasien,obat_tepat_obat,obat_tepat_dosis,"+
+                "obat_tepat_cara_pemberian,obat_tepat_waktu_pemberian,nip,nip2,status_validasi2) VALUES('"+
+                NoResep.getText()+"','"+ResepTepatIdentifikasiPasien.getSelectedItem().toString()+"','"+KetResepTepatIdetifikasiPasien.getText()+"','"+
+                ResepTepatObat.getSelectedItem().toString()+"','"+KetResepTepatObat.getText()+"','"+ResepTepatDosis.getSelectedItem().toString()+"','"+KetResepTepatDosis.getText()+"','"+
+                ResepTepatCaraPemberian.getSelectedItem().toString()+"','"+KetResepTepatCaraPemberian.getText()+"','"+ResepTepatWaktuPemberian.getSelectedItem().toString()+"','"+KetResepTepatWaktuPemberian.getText()+"','"+
+                ResepTidakDuplikasiObat.getSelectedItem().toString()+"','"+KetResepTidakDuplikasiObat.getText()+"','"+ResepInteraksiObat.getSelectedItem().toString()+"','"+KetResepInteraksiObat.getText()+"','"+
+                ResepKontraIndikasiObat.getSelectedItem().toString()+"','"+KetResepKontraIndikasiObat.getText()+"','"+ObatTepatPasien.getSelectedItem().toString()+"','"+
+                ObatTepatObat.getSelectedItem().toString()+"','"+ObatTepatDosis.getSelectedItem().toString()+"','"+ObatTepatCaraPemberian.getSelectedItem().toString()+"','"+
+                ObatTepatWaktuPemberian.getSelectedItem().toString()+"','"+Nip.getText()+"','"+Nip2.getText()+"','"+(Nip2.getText().trim().equals("")?"Belum":"Sesuai")+"')")){
                 runBackground(() ->tampil());
                 emptTeks();
             }   
@@ -1189,20 +1208,15 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
             Valid.textKosong(TNoRw,"resep/pasien");
         }else if(Nip.getText().trim().equals("")||NamaPetugas.getText().trim().equals("")){
             Valid.textKosong(Nip,"Petugas");
-        }else if(Nip2.getText().trim().equals("")||NamaPetugas2.getText().trim().equals("")){
-            Valid.textKosong(Nip2,"Validator Ke-2");
-        }else if(Nip.getText().equals(Nip2.getText())){
-            JOptionPane.showMessageDialog(null,"Validator ke-2 harus petugas yang BERBEDA dengan penelaah..!!");
         }else{
             if(tbObat.getSelectedRow()>-1){
                 if(akses.getkode().equals("Admin Utama")){
                     ganti();
                 }else{
-                    if((Nip.getText().equals(tbObat.getValueAt(tbObat.getSelectedRow(),33).toString()))
-                    &&(Nip2.getText().equals(tbObat.getValueAt(tbObat.getSelectedRow(),35).toString()))){
+                    if(Nip.getText().equals(tbObat.getValueAt(tbObat.getSelectedRow(),33).toString())){
                         ganti();
                     }else{
-                        JOptionPane.showMessageDialog(null,"Hanya bisa diganti oleh petugas yang bersangkutan..!!");
+                        JOptionPane.showMessageDialog(null,"Hanya bisa diganti oleh penelaah (validator ke-1)..!!");
                     }
                 }
             }else{
@@ -1255,7 +1269,8 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
                     "telaah_farmasi.resep_interaksi_obat,telaah_farmasi.resep_ket_interaksi_obat,telaah_farmasi.resep_kontra_indikasi_obat,"+
                     "telaah_farmasi.resep_ket_kontra_indikasi_obat,telaah_farmasi.obat_tepat_pasien,telaah_farmasi.obat_tepat_obat,"+
                     "telaah_farmasi.obat_tepat_dosis,telaah_farmasi.obat_tepat_cara_pemberian,telaah_farmasi.obat_tepat_waktu_pemberian,"+
-                    "telaah_farmasi.nip,petugas.nama,telaah_farmasi.nip2,petugas2.nama as nama_validator2 "+
+                "telaah_farmasi.nip,petugas.nama,telaah_farmasi.nip2,petugas2.nama as nama_validator2,"+
+                "telaah_farmasi.status_validasi2,telaah_farmasi.catatan_validasi2,telaah_farmasi.tgl_validasi2 "+
                     "from telaah_farmasi inner join resep_obat on telaah_farmasi.no_resep=resep_obat.no_resep "+
                     "inner join reg_periksa on resep_obat.no_rawat=reg_periksa.no_rawat "+
                     "inner join pasien on pasien.no_rkm_medis=reg_periksa.no_rkm_medis "+
@@ -1311,6 +1326,46 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
             Valid.pindah(evt, BtnEdit, BtnKeluar);
         }
 }//GEN-LAST:event_BtnPrintKeyPressed
+
+    private void BtnValidasi2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnValidasi2ActionPerformed
+        if(tbObat.getSelectedRow()>-1){
+            String noResep=tbObat.getValueAt(tbObat.getSelectedRow(),0).toString();
+            String penelaah=tbObat.getValueAt(tbObat.getSelectedRow(),33).toString();
+            String statusSaatIni=tbObat.getValueAt(tbObat.getSelectedRow(),37)==null?"":tbObat.getValueAt(tbObat.getSelectedRow(),37).toString();
+            if(akses.getkode().equals("Admin Utama")){
+                JOptionPane.showMessageDialog(null,"Admin tidak dapat bertindak sebagai validator ke-2..!!");
+            }else if(akses.getkode().equals(penelaah)){
+                JOptionPane.showMessageDialog(null,"Validator ke-2 harus petugas yang BERBEDA dengan penelaah..!!");
+            }else if(statusSaatIni.equals("Belum")){
+                int pilihan=JOptionPane.showConfirmDialog(rootPane,"Apakah telaah resep ini sudah SESUAI?","Validasi Ke-2",JOptionPane.YES_NO_OPTION);
+                if(pilihan==JOptionPane.YES_OPTION){
+                    if(Sequel.queryutf("UPDATE telaah_farmasi SET nip2='"+akses.getkode()+"',status_validasi2='Sesuai',catatan_validasi2=NULL,tgl_validasi2=NOW() WHERE no_resep='"+noResep+"'")){
+                        runBackground(() ->tampil());
+                    }
+                }else{
+                    String catatan=JOptionPane.showInputDialog(rootPane,"Isikan catatan/alasan telaah belum sesuai :","Validasi Ke-2",JOptionPane.WARNING_MESSAGE);
+                    if(catatan!=null && !catatan.trim().equals("")){
+                        if(Sequel.queryutf("UPDATE telaah_farmasi SET nip2='"+akses.getkode()+"',status_validasi2='Tidak Sesuai',catatan_validasi2='"+catatan.trim()+"',tgl_validasi2=NOW() WHERE no_resep='"+noResep+"'")){
+                            JOptionPane.showMessageDialog(null,"Telaah ditolak. Penelaah (validator ke-1) dapat melihat catatan untuk perbaikan..!!");
+                            runBackground(() ->tampil());
+                        }
+                    }
+                }
+            }else{
+                JOptionPane.showMessageDialog(null,"Telaah ini sudah divalidasi ke-2..!!");
+            }
+        }else{
+            JOptionPane.showMessageDialog(rootPane,"Silahkan anda pilih data terlebih dahulu..!!");
+        }
+}//GEN-LAST:event_BtnValidasi2ActionPerformed
+
+    private void BtnValidasi2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_BtnValidasi2KeyPressed
+        if(evt.getKeyCode()==KeyEvent.VK_SPACE){
+            BtnValidasi2ActionPerformed(null);
+        }else{
+            Valid.pindah(evt, BtnPrint, BtnKeluar);
+        }
+}//GEN-LAST:event_BtnValidasi2KeyPressed
 
     private void TCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TCariKeyPressed
         if(evt.getKeyCode()==KeyEvent.VK_ENTER){
@@ -1611,6 +1666,7 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
     private widget.Button BtnKeluar;
     private widget.Button BtnPrint;
     private widget.Button BtnSimpan;
+    private widget.Button BtnValidasi2;
     private widget.CekBox ChkInput;
     private widget.Tanggal DTPCari1;
     private widget.Tanggal DTPCari2;
@@ -1711,7 +1767,8 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
                 "telaah_farmasi.resep_interaksi_obat,telaah_farmasi.resep_ket_interaksi_obat,telaah_farmasi.resep_kontra_indikasi_obat,"+
                 "telaah_farmasi.resep_ket_kontra_indikasi_obat,telaah_farmasi.obat_tepat_pasien,telaah_farmasi.obat_tepat_obat,"+
                 "telaah_farmasi.obat_tepat_dosis,telaah_farmasi.obat_tepat_cara_pemberian,telaah_farmasi.obat_tepat_waktu_pemberian,"+
-                "telaah_farmasi.nip,petugas.nama,telaah_farmasi.nip2,petugas2.nama as nama_validator2 "+
+                "telaah_farmasi.nip,petugas.nama,telaah_farmasi.nip2,petugas2.nama as nama_validator2,"+
+                "telaah_farmasi.status_validasi2,telaah_farmasi.catatan_validasi2,telaah_farmasi.tgl_validasi2 "+
                 "from telaah_farmasi inner join resep_obat on telaah_farmasi.no_resep=resep_obat.no_resep "+
                 "inner join reg_periksa on resep_obat.no_rawat=reg_periksa.no_rawat "+
                 "inner join pasien on pasien.no_rkm_medis=reg_periksa.no_rkm_medis "+
@@ -1750,7 +1807,7 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
                         rs.getString("resep_interaksi_obat"),rs.getString("resep_ket_interaksi_obat"),rs.getString("resep_kontra_indikasi_obat"),
                         rs.getString("resep_ket_kontra_indikasi_obat"),rs.getString("obat_tepat_pasien"),rs.getString("obat_tepat_obat"),rs.getString("obat_tepat_dosis"),
                         rs.getString("obat_tepat_cara_pemberian"),rs.getString("obat_tepat_waktu_pemberian"),rs.getString("nip"),rs.getString("nama"),
-                        rs.getString("nip2"),rs.getString("nama_validator2")
+                        rs.getString("nip2"),rs.getString("nama_validator2"),rs.getString("status_validasi2"),rs.getString("catatan_validasi2"),rs.getString("tgl_validasi2")
                     });
                 }
             } catch (Exception e) {
@@ -1882,7 +1939,8 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
         BtnSimpan.setEnabled(akses.gettelaah_resep());
         BtnHapus.setEnabled(akses.gettelaah_resep());
         BtnEdit.setEnabled(akses.gettelaah_resep());
-        BtnPrint.setEnabled(akses.gettelaah_resep()); 
+        BtnPrint.setEnabled(akses.gettelaah_resep());
+        BtnValidasi2.setEnabled(akses.gettelaah_resep()); 
         if(akses.getjml2()>=1){
             Nip.setEditable(false);
             btnPetugas.setEnabled(false);
@@ -1909,7 +1967,7 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
         if(Sequel.mengedittf("telaah_farmasi","no_resep=?","no_resep=?,resep_identifikasi_pasien=?,resep_ket_identifikasi_pasien=?,resep_tepat_obat=?,resep_ket_tepat_obat=?,"+
                 "resep_tepat_dosis=?,resep_ket_tepat_dosis=?,resep_tepat_cara_pemberian=?,resep_ket_tepat_cara_pemberian=?,resep_tepat_waktu_pemberian=?,resep_ket_tepat_waktu_pemberian=?,"+
                 "resep_ada_tidak_duplikasi_obat=?,resep_ket_ada_tidak_duplikasi_obat=?,resep_interaksi_obat=?,resep_ket_interaksi_obat=?,resep_kontra_indikasi_obat=?,"+
-                "resep_ket_kontra_indikasi_obat=?,obat_tepat_pasien=?,obat_tepat_obat=?,obat_tepat_dosis=?,obat_tepat_cara_pemberian=?,obat_tepat_waktu_pemberian=?,nip=?,nip2=?",25,new String[]{
+                "resep_ket_kontra_indikasi_obat=?,obat_tepat_pasien=?,obat_tepat_obat=?,obat_tepat_dosis=?,obat_tepat_cara_pemberian=?,obat_tepat_waktu_pemberian=?,nip=?,nip2=?,status_validasi2=?,catatan_validasi2=?,tgl_validasi2=?",28,new String[]{
                 NoResep.getText(),ResepTepatIdentifikasiPasien.getSelectedItem().toString(),KetResepTepatIdetifikasiPasien.getText(), 
                 ResepTepatObat.getSelectedItem().toString(),KetResepTepatObat.getText(),ResepTepatDosis.getSelectedItem().toString(), 
                 KetResepTepatDosis.getText(),ResepTepatCaraPemberian.getSelectedItem().toString(),KetResepTepatCaraPemberian.getText(), 
@@ -1917,7 +1975,7 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
                 KetResepTidakDuplikasiObat.getText(),ResepInteraksiObat.getSelectedItem().toString(),KetResepInteraksiObat.getText(), 
                 ResepKontraIndikasiObat.getSelectedItem().toString(),KetResepKontraIndikasiObat.getText(),ObatTepatPasien.getSelectedItem().toString(),
                 ObatTepatObat.getSelectedItem().toString(),ObatTepatDosis.getSelectedItem().toString(),ObatTepatCaraPemberian.getSelectedItem().toString(), 
-                ObatTepatWaktuPemberian.getSelectedItem().toString(),Nip.getText(),Nip2.getText(),tbObat.getValueAt(tbObat.getSelectedRow(),0).toString()
+                ObatTepatWaktuPemberian.getSelectedItem().toString(),Nip.getText(),"","Belum",null,null,NoResep.getText()
             })==true){
                runBackground(() ->tampil());
                emptTeks();
