@@ -2041,6 +2041,60 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
             return;
         }
         String noResep = tbObat.getValueAt(tbObat.getSelectedRow(),0).toString();
+        Map<String, Object> param = new HashMap<>(); 
+        param.put("namars",akses.getnamars());
+        param.put("alamatrs",akses.getalamatrs());
+        param.put("kotars",akses.getkabupatenrs());
+        param.put("propinsirs",akses.getpropinsirs());
+        param.put("kontakrs",akses.getkontakrs());
+        param.put("emailrs",akses.getemailrs());
+        param.put("logo",Sequel.cariGambar("select setting.logo from setting"));
+        String query = buildQueryCetakTelaahPerData(noResep.replace("'", "''"));
+        Valid.MyReportqry("rptTelaahResepPerData.jasper","report","::[ Telaah Resep Per Data ]::",query,param);
+    }
+
+    private String buildQueryCetakTelaahPerData(String noResep) {
+        return "select h.no_resep,h.tgl_perawatan,h.jam,h.no_rawat,h.no_rkm_medis,h.nm_pasien,h.tgl_lahir,h.umur,h.jk,"+
+               "h.nm_dokter,h.asal_resep,h.asal_pelayanan,h.nip,h.nama_validator1,h.nip2,h.nama_validator2,"+
+               "h.status_validasi2,h.catatan_validasi2,h.tgl_validasi2,"+
+               "d.nama_obat,d.cara_pakai,d.jumlah_obat,"+
+               "h.resep_identifikasi_pasien,h.resep_ket_identifikasi_pasien,h.resep_tepat_obat,h.resep_ket_tepat_obat,"+
+               "h.resep_tepat_dosis,h.resep_ket_tepat_dosis,h.resep_tepat_cara_pemberian,h.resep_ket_tepat_cara_pemberian,"+
+               "h.resep_tepat_waktu_pemberian,h.resep_ket_tepat_waktu_pemberian,h.resep_ada_tidak_duplikasi_obat,h.resep_ket_ada_tidak_duplikasi_obat,"+
+               "h.resep_interaksi_obat,h.resep_ket_interaksi_obat,h.resep_kontra_indikasi_obat,h.resep_ket_kontra_indikasi_obat,"+
+               "h.obat_tepat_pasien,h.obat_tepat_obat,h.obat_tepat_dosis,h.obat_tepat_cara_pemberian,h.obat_tepat_waktu_pemberian " +
+               "from (select telaah_farmasi.no_resep,resep_obat.tgl_perawatan,resep_obat.jam,resep_obat.no_rawat,reg_periksa.no_rkm_medis,"+
+               "pasien.nm_pasien,pasien.tgl_lahir,concat(reg_periksa.umurdaftar,' ',reg_periksa.sttsumur) as umur,pasien.jk,dokter.nm_dokter,"+
+               "resep_obat.status as asal_resep,if(kamar_inap.no_rawat is null,poliklinik.nm_poli,concat(bangsal.nm_bangsal,' / ',kamar.kd_kamar)) as asal_pelayanan,"+
+               "telaah_farmasi.nip,petugas.nama as nama_validator1,telaah_farmasi.nip2,petugas2.nama as nama_validator2,"+
+               "telaah_farmasi.status_validasi2,telaah_farmasi.catatan_validasi2,telaah_farmasi.tgl_validasi2,"+
+               "telaah_farmasi.resep_identifikasi_pasien,telaah_farmasi.resep_ket_identifikasi_pasien,telaah_farmasi.resep_tepat_obat,telaah_farmasi.resep_ket_tepat_obat,"+
+               "telaah_farmasi.resep_tepat_dosis,telaah_farmasi.resep_ket_tepat_dosis,telaah_farmasi.resep_tepat_cara_pemberian,telaah_farmasi.resep_ket_tepat_cara_pemberian,"+
+               "telaah_farmasi.resep_tepat_waktu_pemberian,telaah_farmasi.resep_ket_tepat_waktu_pemberian,telaah_farmasi.resep_ada_tidak_duplikasi_obat,telaah_farmasi.resep_ket_ada_tidak_duplikasi_obat,"+
+               "telaah_farmasi.resep_interaksi_obat,telaah_farmasi.resep_ket_interaksi_obat,telaah_farmasi.resep_kontra_indikasi_obat,telaah_farmasi.resep_ket_kontra_indikasi_obat,"+
+               "telaah_farmasi.obat_tepat_pasien,telaah_farmasi.obat_tepat_obat,telaah_farmasi.obat_tepat_dosis,telaah_farmasi.obat_tepat_cara_pemberian,telaah_farmasi.obat_tepat_waktu_pemberian " +
+               "from telaah_farmasi inner join resep_obat on telaah_farmasi.no_resep=resep_obat.no_resep "+
+               "inner join reg_periksa on resep_obat.no_rawat=reg_periksa.no_rawat "+
+               "inner join pasien on reg_periksa.no_rkm_medis=pasien.no_rkm_medis "+
+               "inner join dokter on resep_obat.kd_dokter=dokter.kd_dokter "+
+               "inner join petugas on telaah_farmasi.nip=petugas.nip "+
+               "left join petugas as petugas2 on telaah_farmasi.nip2=petugas2.nip "+
+               "left join kamar_inap on reg_periksa.no_rawat=kamar_inap.no_rawat and kamar_inap.stts_pulang='-' "+
+               "left join kamar on kamar_inap.kd_kamar=kamar.kd_kamar "+
+               "left join bangsal on kamar.kd_bangsal=bangsal.kd_bangsal "+
+               "left join poliklinik on reg_periksa.kd_poli=poliklinik.kd_poli "+
+               "where telaah_farmasi.no_resep='"+noResep+"') h "+
+               "left join (select resep_dokter.no_resep,databarang.nama_brng as nama_obat,resep_dokter.aturan_pakai as cara_pakai,"+
+               "concat(resep_dokter.jml,' ',databarang.kode_sat) as jumlah_obat "+
+               "from resep_dokter inner join databarang on resep_dokter.kode_brng=databarang.kode_brng "+
+               "where resep_dokter.no_resep='"+noResep+"' "+
+               "union all " +
+               "select resep_dokter_racikan_detail.no_resep,databarang.nama_brng as nama_obat,resep_dokter_racikan.aturan_pakai as cara_pakai,"+
+               "concat(resep_dokter_racikan_detail.jml,' ',databarang.kode_sat) as jumlah_obat "+
+               "from resep_dokter_racikan_detail inner join databarang on resep_dokter_racikan_detail.kode_brng=databarang.kode_brng "+
+               "inner join resep_dokter_racikan on resep_dokter_racikan.no_resep=resep_dokter_racikan_detail.no_resep and resep_dokter_racikan.no_racik=resep_dokter_racikan_detail.no_racik "+
+               "where resep_dokter_racikan_detail.no_resep='"+noResep+"') d on d.no_resep=h.no_resep "+
+               "where h.no_resep='"+noResep+"'";
     }
 
     private void tampil2() {
