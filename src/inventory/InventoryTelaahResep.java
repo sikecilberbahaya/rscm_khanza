@@ -178,6 +178,8 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
         TNoRw.setDocument(new batasInput((byte)17).getKata(TNoRw));
         Nip.setDocument(new batasInput((byte)20).getKata(Nip));
         Nip2.setDocument(new batasInput((byte)20).getKata(Nip2));
+        Nip2.setEditable(false);
+        btnPetugas2.setVisible(false);
         KetResepTepatIdetifikasiPasien.setDocument(new batasInput((byte)30).getKata(KetResepTepatIdetifikasiPasien));
         KetResepTepatObat.setDocument(new batasInput((byte)30).getKata(KetResepTepatObat));
         KetResepTepatDosis.setDocument(new batasInput((byte)30).getKata(KetResepTepatDosis));
@@ -1186,8 +1188,11 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
 
     private void BtnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnHapusActionPerformed
         if(tbObat.getSelectedRow()>-1){
+            String statusValidasi2=tbObat.getValueAt(tbObat.getSelectedRow(),37)==null?"":tbObat.getValueAt(tbObat.getSelectedRow(),37).toString();
             if(akses.getkode().equals("Admin Utama")){
                 hapus();
+            }else if(statusValidasi2.equals("Sesuai")){
+                JOptionPane.showMessageDialog(null,"Data yang sudah dinyatakan Sesuai oleh validator ke-2 hanya bisa dihapus oleh Admin..!!");
             }else{
                 if(akses.getkode().equals(tbObat.getValueAt(tbObat.getSelectedRow(),33).toString())){
                     hapus();
@@ -1973,6 +1978,11 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
             return;
         }
         String penelaah=tbObat.getValueAt(tbObat.getSelectedRow(),33).toString();
+        String statusValidasi2=tbObat.getValueAt(tbObat.getSelectedRow(),37)==null?"":tbObat.getValueAt(tbObat.getSelectedRow(),37).toString();
+        if(!akses.getkode().equals("Admin Utama") && statusValidasi2.equals("Sesuai")){
+            JOptionPane.showMessageDialog(null,"Data yang sudah dinyatakan Sesuai oleh validator ke-2 hanya bisa dihapus oleh Admin..!!");
+            return;
+        }
         if(!akses.getkode().equals("Admin Utama") && !akses.getkode().equals(penelaah)){
             JOptionPane.showMessageDialog(null,"Hanya penelaah (validator ke-1) atau Admin yang boleh menghapus..!!");
             return;
