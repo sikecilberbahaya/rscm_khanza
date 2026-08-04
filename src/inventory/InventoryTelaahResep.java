@@ -1350,16 +1350,17 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
                     return;
                 }
                 String catatanTrim=catatan.trim();
+                String catatanSql=catatanTrim.replace("'", "''");
                 int pilihan=JOptionPane.showConfirmDialog(rootPane,"Apakah telaah resep ini sudah SESUAI?","Validasi Ke-2",JOptionPane.YES_NO_OPTION);
                 if(pilihan==JOptionPane.YES_OPTION){
-                    String sqlcatatan=catatanTrim.equals("")?"NULL":"'"+catatanTrim+"'";
+                    String sqlcatatan=catatanTrim.equals("")?"NULL":"'"+catatanSql+"'";
                     if(Sequel.queryutf("UPDATE telaah_farmasi SET nip2='"+akses.getkode()+"',status_validasi2='Sesuai',catatan_validasi2="+sqlcatatan+",tgl_validasi2=NOW() WHERE no_resep='"+noResep+"'")){
                         runBackground(() ->tampil());
                     }
                 }else{
                     if(catatanTrim.equals("")){
                         JOptionPane.showMessageDialog(null,"Catatan wajib diisi jika hasil validasi Tidak Sesuai..!!");
-                    }else if(Sequel.queryutf("UPDATE telaah_farmasi SET nip2='"+akses.getkode()+"',status_validasi2='Tidak Sesuai',catatan_validasi2='"+catatanTrim+"',tgl_validasi2=NOW() WHERE no_resep='"+noResep+"'")){
+                    }else if(Sequel.queryutf("UPDATE telaah_farmasi SET nip2='"+akses.getkode()+"',status_validasi2='Tidak Sesuai',catatan_validasi2='"+catatanSql+"',tgl_validasi2=NOW() WHERE no_resep='"+noResep+"'")){
                         JOptionPane.showMessageDialog(null,"Telaah ditolak. Penelaah (validator ke-1) dapat melihat catatan untuk perbaikan..!!");
                         runBackground(() ->tampil());
                     }
