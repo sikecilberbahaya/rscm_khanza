@@ -57,51 +57,6 @@
 	<field name="obat_tepat_dosis" class="java.lang.String"/>
 	<field name="obat_tepat_cara_pemberian" class="java.lang.String"/>
 	<field name="obat_tepat_waktu_pemberian" class="java.lang.String"/>
-	<background>
-		<band splitType="Stretch"/>
-	</background>
-	<title>
-		<band height="74" splitType="Stretch">
-			<image scaleImage="FillFrame" onErrorType="Blank">
-				<reportElement x="0" y="0" width="45" height="45" uuid="d2ddf61a-5d0f-4bd8-95ca-4ef5a2f6c884"/>
-				<imageExpression class="java.io.InputStream"><![CDATA[$P{logo}]]></imageExpression>
-			</image>
-			<textField>
-				<reportElement x="0" y="0" width="555" height="16" uuid="c4557f7d-b6ad-4546-b915-c5f468974cb0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Tahoma" size="12"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{namars}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="0" y="15" width="555" height="13" uuid="0f4fa993-9ebc-49ca-833f-ad820816cc8f"/>
-				<textElement textAlignment="Center">
-					<font fontName="Tahoma" size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{alamatrs} + ", " + $P{kotars} + ", " + $P{propinsirs}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="0" y="27" width="555" height="13" uuid="24ba70de-c2d0-4f71-bebc-feb7bb9626b8"/>
-				<textElement textAlignment="Center">
-					<font fontName="Tahoma" size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{kontakrs} + " / " + $P{emailrs}]]></textFieldExpression>
-			</textField>
-			<line>
-				<reportElement x="0" y="44" width="555" height="1" uuid="5cf6baaf-dced-4d53-bce4-53170f06ad2b"/>
-				<graphicElement>
-					<pen lineWidth="2.0" lineStyle="Double"/>
-				</graphicElement>
-			</line>
-			<staticText>
-				<reportElement x="0" y="50" width="555" height="20" uuid="29fdd8aa-ec84-4f42-998f-d2f9058f5513"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Tahoma" size="11" isBold="true"/>
-				</textElement>
-				<text><![CDATA[TELAAH RESEP PER DATA]]></text>
-			</staticText>
-		</band>
-	</title>
 	<group name="grpNoResep">
 		<groupExpression><![CDATA[$F{no_resep}]]></groupExpression>
 		<groupHeader>
@@ -274,8 +229,9 @@
 					<textFieldExpression><![CDATA["Validator 2 : " + ($F{nama_validator2}==null?"-":$F{nama_validator2}) + " (" + ($F{nip2}==null?"-":$F{nip2}) + ")"]]></textFieldExpression>
 				</textField>
 				<componentElement>
-					<reportElement x="370" y="14" width="100" height="60" uuid="f2e85844-bfbd-4c7c-ad7e-b17d457f354f"/>
-					<printWhenExpression><![CDATA[$F{nama_validator2}!=null && !$F{nama_validator2}.trim().equals("") && $F{tgl_validasi2}!=null && $F{status_validasi2}!=null && !$F{status_validasi2}.trim().equals("") && !$F{status_validasi2}.trim().equalsIgnoreCase("Belum")]]></printWhenExpression>
+					<reportElement x="370" y="14" width="100" height="60" uuid="f2e85844-bfbd-4c7c-ad7e-b17d457f354f">
+						<printWhenExpression><![CDATA[$F{nama_validator2}!=null && !$F{nama_validator2}.trim().equals("") && $F{tgl_validasi2}!=null && $F{status_validasi2}!=null && !$F{status_validasi2}.trim().equals("") && !$F{status_validasi2}.trim().equalsIgnoreCase("Belum")]]></printWhenExpression>
+					</reportElement>
 					<jr:QRCode xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" errorCorrectionLevel="H">
 						<jr:codeExpression><![CDATA[
 "NoResep:" + ($F{no_resep}==null?"-":$F{no_resep}) +
@@ -288,8 +244,9 @@
 					</jr:QRCode>
 				</componentElement>
 				<textField>
-					<reportElement x="370" y="38" width="100" height="12" uuid="1cd7996b-f140-4508-9354-f26b268cf6f4"/>
-					<printWhenExpression><![CDATA[$F{status_validasi2}==null || $F{status_validasi2}.trim().equals("") || $F{status_validasi2}.trim().equalsIgnoreCase("Belum")]]></printWhenExpression>
+					<reportElement x="370" y="38" width="100" height="12" uuid="1cd7996b-f140-4508-9354-f26b268cf6f4">
+						<printWhenExpression><![CDATA[$F{status_validasi2}==null || $F{status_validasi2}.trim().equals("") || $F{status_validasi2}.trim().equalsIgnoreCase("Belum")]]></printWhenExpression>
+					</reportElement>
 					<textElement textAlignment="Center" verticalAlignment="Middle">
 						<font fontName="Tahoma" size="8" isItalic="true"/>
 					</textElement>
@@ -298,6 +255,51 @@
 			</band>
 		</groupFooter>
 	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="74" splitType="Stretch">
+			<image scaleImage="FillFrame" onErrorType="Blank">
+				<reportElement x="0" y="0" width="45" height="45" uuid="d2ddf61a-5d0f-4bd8-95ca-4ef5a2f6c884"/>
+				<imageExpression class="java.io.InputStream"><![CDATA[$P{logo}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="0" y="0" width="555" height="16" uuid="c4557f7d-b6ad-4546-b915-c5f468974cb0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{namars}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="15" width="555" height="13" uuid="0f4fa993-9ebc-49ca-833f-ad820816cc8f"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{alamatrs} + ", " + $P{kotars} + ", " + $P{propinsirs}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="27" width="555" height="13" uuid="24ba70de-c2d0-4f71-bebc-feb7bb9626b8"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{kontakrs} + " / " + $P{emailrs}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="44" width="555" height="1" uuid="5cf6baaf-dced-4d53-bce4-53170f06ad2b"/>
+				<graphicElement>
+					<pen lineWidth="2.0" lineStyle="Double"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="0" y="50" width="555" height="20" uuid="29fdd8aa-ec84-4f42-998f-d2f9058f5513"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TELAAH RESEP PER DATA]]></text>
+			</staticText>
+		</band>
+	</title>
 	<detail>
 		<band height="14" splitType="Stretch">
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
