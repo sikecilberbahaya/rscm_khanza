@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.x using JasperReports Library version 6.5.1 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="rptTelaahResepPerData" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="2a57f271-b240-40fd-acab-4b46d22a08a1">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="namars" class="java.lang.String"/>
+	<parameter name="alamatrs" class="java.lang.String"/>
+	<parameter name="kotars" class="java.lang.String"/>
+	<parameter name="propinsirs" class="java.lang.String"/>
+	<parameter name="kontakrs" class="java.lang.String"/>
+	<parameter name="emailrs" class="java.lang.String"/>
+	<parameter name="logo" class="java.io.InputStream"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="no_resep" class="java.lang.String"/>
+	<field name="tgl_perawatan" class="java.sql.Date"/>
+	<field name="jam" class="java.sql.Time"/>
+	<field name="no_rawat" class="java.lang.String"/>
+	<field name="no_rkm_medis" class="java.lang.String"/>
+	<field name="nm_pasien" class="java.lang.String"/>
+	<field name="tgl_lahir" class="java.sql.Date"/>
+	<field name="umur" class="java.lang.String"/>
+	<field name="jk" class="java.lang.String"/>
+	<field name="nm_dokter" class="java.lang.String"/>
+	<field name="asal_resep" class="java.lang.String"/>
+	<field name="asal_pelayanan" class="java.lang.String"/>
+	<field name="nip" class="java.lang.String"/>
+	<field name="nama_validator1" class="java.lang.String"/>
+	<field name="nip2" class="java.lang.String"/>
+	<field name="nama_validator2" class="java.lang.String"/>
+	<field name="status_validasi2" class="java.lang.String"/>
+	<field name="catatan_validasi2" class="java.lang.String"/>
+	<field name="tgl_validasi2" class="java.sql.Timestamp"/>
+	<field name="nama_obat" class="java.lang.String"/>
+	<field name="cara_pakai" class="java.lang.String"/>
+	<field name="jumlah_obat" class="java.lang.String"/>
+	<field name="resep_identifikasi_pasien" class="java.lang.String"/>
+	<field name="resep_ket_identifikasi_pasien" class="java.lang.String"/>
+	<field name="resep_tepat_obat" class="java.lang.String"/>
+	<field name="resep_ket_tepat_obat" class="java.lang.String"/>
+	<field name="resep_tepat_dosis" class="java.lang.String"/>
+	<field name="resep_ket_tepat_dosis" class="java.lang.String"/>
+	<field name="resep_tepat_cara_pemberian" class="java.lang.String"/>
+	<field name="resep_ket_tepat_cara_pemberian" class="java.lang.String"/>
+	<field name="resep_tepat_waktu_pemberian" class="java.lang.String"/>
+	<field name="resep_ket_tepat_waktu_pemberian" class="java.lang.String"/>
+	<field name="resep_ada_tidak_duplikasi_obat" class="java.lang.String"/>
+	<field name="resep_ket_ada_tidak_duplikasi_obat" class="java.lang.String"/>
+	<field name="resep_interaksi_obat" class="java.lang.String"/>
+	<field name="resep_ket_interaksi_obat" class="java.lang.String"/>
+	<field name="resep_kontra_indikasi_obat" class="java.lang.String"/>
+	<field name="resep_ket_kontra_indikasi_obat" class="java.lang.String"/>
+	<field name="obat_tepat_pasien" class="java.lang.String"/>
+	<field name="obat_tepat_obat" class="java.lang.String"/>
+	<field name="obat_tepat_dosis" class="java.lang.String"/>
+	<field name="obat_tepat_cara_pemberian" class="java.lang.String"/>
+	<field name="obat_tepat_waktu_pemberian" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="74" splitType="Stretch">
+			<image scaleImage="FillFrame" onErrorType="Blank">
+				<reportElement x="0" y="0" width="45" height="45" uuid="d2ddf61a-5d0f-4bd8-95ca-4ef5a2f6c884"/>
+				<imageExpression class="java.io.InputStream"><![CDATA[$P{logo}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="0" y="0" width="555" height="16" uuid="c4557f7d-b6ad-4546-b915-c5f468974cb0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{namars}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="15" width="555" height="13" uuid="0f4fa993-9ebc-49ca-833f-ad820816cc8f"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{alamatrs} + ", " + $P{kotars} + ", " + $P{propinsirs}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="27" width="555" height="13" uuid="24ba70de-c2d0-4f71-bebc-feb7bb9626b8"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{kontakrs} + " / " + $P{emailrs}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="44" width="555" height="1" uuid="5cf6baaf-dced-4d53-bce4-53170f06ad2b"/>
+				<graphicElement>
+					<pen lineWidth="2.0" lineStyle="Double"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="0" y="50" width="555" height="20" uuid="29fdd8aa-ec84-4f42-998f-d2f9058f5513"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TELAAH RESEP PER DATA]]></text>
+			</staticText>
+		</band>
+	</title>
+	<group name="grpNoResep">
+		<groupExpression><![CDATA[$F{no_resep}]]></groupExpression>
+		<groupHeader>
+			<band height="250" splitType="Stretch">
+				<staticText>
+					<reportElement x="0" y="0" width="555" height="14" uuid="4f3ad3c7-d0b0-4cef-ae66-48f3d1571e7b"/>
+					<textElement>
+						<font fontName="Tahoma" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[1) Identitas Pasien / Resep]]></text>
+				</staticText>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="18" width="280" height="12" uuid="9fdfe48d-a2a7-43d9-a532-92ef064070f3"/>
+					<textElement>
+						<font fontName="Tahoma" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA["No. Resep : " + ($F{no_resep}==null?"-":$F{no_resep})]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="31" width="280" height="12" uuid="bd33c3ef-fb5d-4778-ba73-27d312a8f8f5"/>
+					<textElement>
+						<font fontName="Tahoma" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA["No. Rawat : " + ($F{no_rawat}==null?"-":$F{no_rawat})]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="44" width="280" height="12" uuid="e59ac7a4-f8d0-4f54-a129-db9dad0e2ef9"/>
+					<textElement>
+						<font fontName="Tahoma" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA["No. RM : " + ($F{no_rkm_medis}==null?"-":$F{no_rkm_medis})]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="280" y="18" width="275" height="12" uuid="2cbeb9f8-c484-49ab-91db-a8e0ec0a6825"/>
+					<textElement>
+						<font fontName="Tahoma" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Nama Pasien : " + ($F{nm_pasien}==null?"-":$F{nm_pasien})]]></textFieldExpression>
+				</textField>
+				<textField pattern="dd-MM-yyyy" isBlankWhenNull="true">
+					<reportElement x="280" y="31" width="275" height="12" uuid="3c5c6fdb-d29d-4ad9-b0ff-88795f1f8391"/>
+					<textElement>
+						<font fontName="Tahoma" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Tgl Lahir : " + ($F{tgl_lahir}==null?"-":new java.text.SimpleDateFormat("dd-MM-yyyy").format($F{tgl_lahir}))]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="280" y="44" width="275" height="12" uuid="45fac01d-e3df-4842-9923-4a9586f563af"/>
+					<textElement>
+						<font fontName="Tahoma" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Umur / JK : " + ($F{umur}==null?"-":$F{umur}) + " / " + ($F{jk}==null?"-":$F{jk})]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="57" width="555" height="12" uuid="0538336f-8fae-407d-a14c-a791ccf5d8ea"/>
+					<textElement>
+						<font fontName="Tahoma" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Dokter Peresep : " + ($F{nm_dokter}==null?"-":$F{nm_dokter})]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="70" width="555" height="12" uuid="4a51f5b6-4f66-4e3e-b85f-0dd362f30d9b"/>
+					<textElement>
+						<font fontName="Tahoma" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Asal Resep / Pelayanan : " + ($F{asal_resep}==null?"-":$F{asal_resep}) + " / " + ($F{asal_pelayanan}==null?"-":$F{asal_pelayanan})]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="0" y="87" width="555" height="1" uuid="2e1317bf-8580-4f30-9f9e-7738ca1db766"/>
+				</line>
+				<staticText>
+					<reportElement x="0" y="92" width="555" height="14" uuid="79f6c126-9e89-4875-9bd5-03234ee7e7f9"/>
+					<textElement>
+						<font fontName="Tahoma" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[2) Data Pemberian Obat]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="0" y="110" width="250" height="14" backcolor="#F0F0DC" uuid="1f8dfc82-8b98-4213-8c2f-3d1d41c95d56"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Tahoma" size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Nama Obat]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="250" y="110" width="205" height="14" backcolor="#F0F0DC" uuid="6b0cad37-27d8-4485-9d66-38fe3efdbf0d"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Tahoma" size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Cara Pakai]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="455" y="110" width="100" height="14" backcolor="#F0F0DC" uuid="18b7f214-5de6-4b39-bef5-32b59e6679eb"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Tahoma" size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Jumlah Obat]]></text>
+				</staticText>
+				<line>
+					<reportElement x="0" y="126" width="555" height="1" uuid="88e9ec06-b2b6-4e0f-80b0-2fd88572c3f9"/>
+				</line>
+				<staticText>
+					<reportElement x="0" y="133" width="555" height="14" uuid="3d03f241-b041-4f82-a11c-1f5830474242"/>
+					<textElement>
+						<font fontName="Tahoma" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[3) Hasil Telaah Ringkas]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="0" y="149" width="555" height="64" uuid="7eecbf61-1645-4a39-9b5d-5e5f5f81484d"/>
+					<textElement>
+						<font fontName="Tahoma" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[
+"Identifikasi Pasien: " + ($F{resep_identifikasi_pasien}==null?"-":$F{resep_identifikasi_pasien}) +
+" (" + ($F{resep_ket_identifikasi_pasien}==null?"-":$F{resep_ket_identifikasi_pasien}) + ")\n" +
+"Tepat Obat: " + ($F{resep_tepat_obat}==null?"-":$F{resep_tepat_obat}) +
+" (" + ($F{resep_ket_tepat_obat}==null?"-":$F{resep_ket_tepat_obat}) + ")\n" +
+"Tepat Dosis: " + ($F{resep_tepat_dosis}==null?"-":$F{resep_tepat_dosis}) +
+" (" + ($F{resep_ket_tepat_dosis}==null?"-":$F{resep_ket_tepat_dosis}) + ")\n" +
+"Tepat Cara/Waktu: " + ($F{resep_tepat_cara_pemberian}==null?"-":$F{resep_tepat_cara_pemberian}) +
+" / " + ($F{resep_tepat_waktu_pemberian}==null?"-":$F{resep_tepat_waktu_pemberian}) + "\n" +
+"Interaksi/Kontra Indikasi: " + ($F{resep_interaksi_obat}==null?"-":$F{resep_interaksi_obat}) +
+" / " + ($F{resep_kontra_indikasi_obat}==null?"-":$F{resep_kontra_indikasi_obat}) + "\n" +
+"Telaah Obat (5 Tepat): " +
+"Pasien=" + ($F{obat_tepat_pasien}==null?"-":$F{obat_tepat_pasien}) + ", " +
+"Obat=" + ($F{obat_tepat_obat}==null?"-":$F{obat_tepat_obat}) + ", " +
+"Dosis=" + ($F{obat_tepat_dosis}==null?"-":$F{obat_tepat_dosis}) + ", " +
+"Cara=" + ($F{obat_tepat_cara_pemberian}==null?"-":$F{obat_tepat_cara_pemberian}) + ", " +
+"Waktu=" + ($F{obat_tepat_waktu_pemberian}==null?"-":$F{obat_tepat_waktu_pemberian})
+]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="0" y="219" width="555" height="1" uuid="1cb34f8a-e0cf-440d-a3ef-b5c6b62ed88c"/>
+				</line>
+				<staticText>
+					<reportElement x="0" y="224" width="555" height="14" uuid="c0db7e9f-605d-4a0e-b61e-6a2e1b26969e"/>
+					<textElement>
+						<font fontName="Tahoma" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[4) Tanda Tangan Validator (QR)]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="90" splitType="Stretch">
+				<textField>
+					<reportElement x="0" y="0" width="270" height="12" uuid="4e77e22d-ec07-4c9a-a79c-b9af7f220d3b"/>
+					<textElement textAlignment="Center">
+						<font fontName="Tahoma" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Validator 1 : " + ($F{nama_validator1}==null?"-":$F{nama_validator1}) + " (" + ($F{nip}==null?"-":$F{nip}) + ")"]]></textFieldExpression>
+				</textField>
+				<componentElement>
+					<reportElement x="85" y="14" width="100" height="60" uuid="8d453e04-c80d-4547-bcbf-59be49c8c0ba"/>
+					<jr:QRCode xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" errorCorrectionLevel="H">
+						<jr:codeExpression><![CDATA[
+"NoResep:" + ($F{no_resep}==null?"-":$F{no_resep}) +
+"|V1:" + ($F{nama_validator1}==null?"-":$F{nama_validator1}) +
+"|NIP1:" + ($F{nip}==null?"-":$F{nip}) +
+"|W1:" + ($F{tgl_perawatan}==null?"-":new java.text.SimpleDateFormat("dd-MM-yyyy").format($F{tgl_perawatan})) + " " + ($F{jam}==null?"-":$F{jam}.toString())
+]]></jr:codeExpression>
+					</jr:QRCode>
+				</componentElement>
+				<textField>
+					<reportElement x="285" y="0" width="270" height="12" uuid="ed0d9370-c5f2-4e61-b7d1-104f82512f7d"/>
+					<textElement textAlignment="Center">
+						<font fontName="Tahoma" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Validator 2 : " + ($F{nama_validator2}==null?"-":$F{nama_validator2}) + " (" + ($F{nip2}==null?"-":$F{nip2}) + ")"]]></textFieldExpression>
+				</textField>
+				<componentElement>
+					<reportElement x="370" y="14" width="100" height="60" uuid="f2e85844-bfbd-4c7c-ad7e-b17d457f354f"/>
+					<printWhenExpression><![CDATA[$F{nama_validator2}!=null && !$F{nama_validator2}.trim().equals("") && $F{tgl_validasi2}!=null]]></printWhenExpression>
+					<jr:QRCode xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" errorCorrectionLevel="H">
+						<jr:codeExpression><![CDATA[
+"NoResep:" + ($F{no_resep}==null?"-":$F{no_resep}) +
+"|V2:" + ($F{nama_validator2}==null?"-":$F{nama_validator2}) +
+"|NIP2:" + ($F{nip2}==null?"-":$F{nip2}) +
+"|St2:" + ($F{status_validasi2}==null?"-":$F{status_validasi2}) +
+"|W2:" + ($F{tgl_validasi2}==null?"-":new java.text.SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format($F{tgl_validasi2})) +
+"|Cat2:" + ($F{catatan_validasi2}==null?"-":$F{catatan_validasi2})
+]]></jr:codeExpression>
+					</jr:QRCode>
+				</componentElement>
+			</band>
+		</groupFooter>
+	</group>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="250" height="12" uuid="133ccc64-f73e-43ad-bd9e-2e8d00ce96fd"/>
+				<textElement>
+					<font fontName="Tahoma" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nama_obat}==null?"-":$F{nama_obat}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="250" y="0" width="205" height="12" uuid="7a99d560-4f62-4da1-8d07-51562262f6b9"/>
+				<textElement>
+					<font fontName="Tahoma" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cara_pakai}==null?"-":$F{cara_pakai}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="455" y="0" width="100" height="12" uuid="48deca5d-f6f6-42da-ae4d-e92847400cfd"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{jumlah_obat}==null?"-":$F{jumlah_obat}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="13" width="555" height="1" uuid="f3767f7d-a0cc-4cf8-ba0b-95ff1718176d"/>
+				<graphicElement>
+					<pen lineWidth="0.25"/>
+				</graphicElement>
+			</line>
+		</band>
+	</detail>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>
