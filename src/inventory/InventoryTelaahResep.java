@@ -52,6 +52,8 @@ import kepegawaian.DlgCariPetugas;
  * @author perpustakaan
  */
 public final class InventoryTelaahResep extends javax.swing.JDialog {
+    private static final String REPORT_DIR = "report";
+    private static final String REPORT_TELAAH_RESEP_PER_DATA = "rptTelaahResepPerData.jasper";
     private final DefaultTableModel tabMode;
     private Connection koneksi=koneksiDB.condb();
     private sekuel Sequel=new sekuel();
@@ -2040,7 +2042,16 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(rootPane,"Silahkan anda pilih data terlebih dahulu..!!");
             return;
         }
-        String noResep = tbObat.getValueAt(tbObat.getSelectedRow(),0).toString();
+        String noResep = aman(ambilNilaiTabel(tbObat.getSelectedRow(),0));
+        if(noResep.equals("-")){
+            JOptionPane.showMessageDialog(rootPane,"No. resep pada data terpilih kosong..!!");
+            return;
+        }
+        File fileLaporan = new File(REPORT_DIR,REPORT_TELAAH_RESEP_PER_DATA);
+        if(!fileLaporan.isFile()){
+            JOptionPane.showMessageDialog(rootPane,"File report "+REPORT_TELAAH_RESEP_PER_DATA+" tidak ditemukan di folder "+REPORT_DIR+"..!!");
+            return;
+        }
         Map<String, Object> param = new HashMap<>(); 
         param.put("namars",akses.getnamars());
         param.put("alamatrs",akses.getalamatrs());
@@ -2050,7 +2061,16 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
         param.put("emailrs",akses.getemailrs());
         param.put("logo",Sequel.cariGambar("select setting.logo from setting"));
         String query = buildQueryCetakTelaahPerData(noResep.replace("'", "''"));
-        Valid.MyReportqry("rptTelaahResepPerData.jasper","report","::[ Telaah Resep Per Data ]::",query,param);
+        Valid.MyReportqry(REPORT_TELAAH_RESEP_PER_DATA,REPORT_DIR,"::[ Telaah Resep Per Data ]::",query,param);
+    }
+
+    private String ambilNilaiTabel(int baris, int kolom){
+        Object nilai = tbObat.getValueAt(baris,kolom);
+        return nilai==null?"":nilai.toString().trim();
+    }
+
+    private String aman(String nilai){
+        return (nilai==null || nilai.trim().equals(""))?"-":nilai.trim();
     }
 
     private String buildQueryCetakTelaahPerData(String noResep) {
