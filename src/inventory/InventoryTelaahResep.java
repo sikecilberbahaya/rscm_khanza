@@ -2065,7 +2065,7 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
                "h.obat_tepat_pasien,h.obat_tepat_obat,h.obat_tepat_dosis,h.obat_tepat_cara_pemberian,h.obat_tepat_waktu_pemberian " +
                "from (select telaah_farmasi.no_resep,resep_obat.tgl_perawatan,resep_obat.jam,resep_obat.no_rawat,reg_periksa.no_rkm_medis,"+
                "pasien.nm_pasien,pasien.tgl_lahir,concat(reg_periksa.umurdaftar,' ',reg_periksa.sttsumur) as umur,pasien.jk,dokter.nm_dokter,"+
-               "resep_obat.status as asal_resep,if(kamar_inap.no_rawat is null,poliklinik.nm_poli,concat(bangsal.nm_bangsal,' / ',kamar.kd_kamar)) as asal_pelayanan,"+
+               "resep_obat.status as asal_resep,coalesce(if(kamar_inap.no_rawat is null,poliklinik.nm_poli,concat(bangsal.nm_bangsal,' / ',kamar.kd_kamar)),'-') as asal_pelayanan,"+
                "telaah_farmasi.nip,petugas.nama as nama_validator1,telaah_farmasi.nip2,petugas2.nama as nama_validator2,"+
                "telaah_farmasi.status_validasi2,telaah_farmasi.catatan_validasi2,telaah_farmasi.tgl_validasi2,"+
                "telaah_farmasi.resep_identifikasi_pasien,telaah_farmasi.resep_ket_identifikasi_pasien,telaah_farmasi.resep_tepat_obat,telaah_farmasi.resep_ket_tepat_obat,"+
@@ -2084,16 +2084,17 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
                "left join bangsal on kamar.kd_bangsal=bangsal.kd_bangsal "+
                "left join poliklinik on reg_periksa.kd_poli=poliklinik.kd_poli "+
                "where telaah_farmasi.no_resep='"+noResep+"') h "+
-               "left join (select resep_dokter.no_resep,databarang.nama_brng as nama_obat,resep_dokter.aturan_pakai as cara_pakai,"+
-               "concat(resep_dokter.jml,' ',databarang.kode_sat) as jumlah_obat "+
+               "left join (select x.no_resep,x.nama_obat,x.cara_pakai,x.jumlah_obat from ("+
+               "select resep_dokter.no_resep,databarang.nama_brng as nama_obat,resep_dokter.aturan_pakai as cara_pakai,"+
+               "concat(resep_dokter.jml,' ',databarang.kode_sat) as jumlah_obat,0 as urut_jenis,'' as urut_racik,databarang.kode_brng as urut_kode "+
                "from resep_dokter inner join databarang on resep_dokter.kode_brng=databarang.kode_brng "+
                "where resep_dokter.no_resep='"+noResep+"' "+
                "union all " +
-               "select resep_dokter_racikan_detail.no_resep,databarang.nama_brng as nama_obat,resep_dokter_racikan.aturan_pakai as cara_pakai,"+
-               "concat(resep_dokter_racikan_detail.jml,' ',databarang.kode_sat) as jumlah_obat "+
+               "select resep_dokter_racikan_detail.no_resep,concat('Racikan ',resep_dokter_racikan_detail.no_racik,' - ',databarang.nama_brng) as nama_obat,resep_dokter_racikan.aturan_pakai as cara_pakai,"+
+               "concat(resep_dokter_racikan_detail.jml,' ',databarang.kode_sat) as jumlah_obat,1 as urut_jenis,resep_dokter_racikan_detail.no_racik as urut_racik,databarang.kode_brng as urut_kode "+
                "from resep_dokter_racikan_detail inner join databarang on resep_dokter_racikan_detail.kode_brng=databarang.kode_brng "+
                "inner join resep_dokter_racikan on resep_dokter_racikan.no_resep=resep_dokter_racikan_detail.no_resep and resep_dokter_racikan.no_racik=resep_dokter_racikan_detail.no_racik "+
-               "where resep_dokter_racikan_detail.no_resep='"+noResep+"') d on d.no_resep=h.no_resep "+
+               "where resep_dokter_racikan_detail.no_resep='"+noResep+"') x order by x.urut_jenis,x.urut_racik,x.urut_kode,x.nama_obat) d on d.no_resep=h.no_resep "+
                "where h.no_resep='"+noResep+"'";
     }
 
