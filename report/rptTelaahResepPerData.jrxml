@@ -226,7 +226,7 @@
 					<textElement textAlignment="Center">
 						<font fontName="Tahoma" size="8"/>
 					</textElement>
-					<textFieldExpression><![CDATA["Validator 2 : " + ($F{nama_validator2}==null?"-":$F{nama_validator2}) + " (" + ($F{nip2}==null?"-":$F{nip2}) + ")"]]></textFieldExpression>
+					<textFieldExpression><![CDATA["Validator 2 : " + ((($F{nip2}==null||$F{nip2}.trim().equals(""))||($F{nama_validator2}==null||$F{nama_validator2}.trim().equals(""))||($F{status_validasi2}==null||$F{status_validasi2}.trim().equals("")||$F{status_validasi2}.trim().equalsIgnoreCase("Belum")))?"Belum divalidasi":($F{nama_validator2} + " (" + $F{nip2} + ")"))]]></textFieldExpression>
 				</textField>
 				<componentElement>
 					<reportElement x="370" y="14" width="100" height="60" uuid="f2e85844-bfbd-4c7c-ad7e-b17d457f354f">
@@ -245,7 +245,7 @@
 				</componentElement>
 				<textField>
 					<reportElement x="370" y="38" width="100" height="12" uuid="1cd7996b-f140-4508-9354-f26b268cf6f4">
-						<printWhenExpression><![CDATA[$F{status_validasi2}==null || $F{status_validasi2}.trim().equals("") || $F{status_validasi2}.trim().equalsIgnoreCase("Belum")]]></printWhenExpression>
+						<printWhenExpression><![CDATA[($F{nip2}==null || $F{nip2}.trim().equals("")) || ($F{nama_validator2}==null || $F{nama_validator2}.trim().equals("")) || ($F{status_validasi2}==null || $F{status_validasi2}.trim().equals("") || $F{status_validasi2}.trim().equalsIgnoreCase("Belum"))]]></printWhenExpression>
 					</reportElement>
 					<textElement textAlignment="Center" verticalAlignment="Middle">
 						<font fontName="Tahoma" size="8" isItalic="true"/>

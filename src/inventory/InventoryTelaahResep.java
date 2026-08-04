@@ -2047,6 +2047,11 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(rootPane,"No. resep pada data terpilih kosong..!!");
             return;
         }
+        String noResepAman = noResep.replace("'", "''");
+        if(Sequel.cariIsi("select no_resep from telaah_farmasi where no_resep='"+noResepAman+"'").equals("")){
+            JOptionPane.showMessageDialog(rootPane,"Data telaah untuk No. Resep " + noResep + " tidak ditemukan..!!");
+            return;
+        }
         File fileLaporan = new File(REPORT_DIR,REPORT_TELAAH_RESEP_PER_DATA);
         if(!fileLaporan.isFile()){
             JOptionPane.showMessageDialog(rootPane,"File report "+REPORT_TELAAH_RESEP_PER_DATA+" tidak ditemukan di folder "+REPORT_DIR+"..!!");
@@ -2060,7 +2065,7 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
         param.put("kontakrs",akses.getkontakrs());
         param.put("emailrs",akses.getemailrs());
         param.put("logo",Sequel.cariGambar("select setting.logo from setting"));
-        String query = buildQueryCetakTelaahPerData(noResep.replace("'", "''"));
+        String query = buildQueryCetakTelaahPerData(noResepAman);
         Valid.MyReportqry(REPORT_TELAAH_RESEP_PER_DATA,REPORT_DIR,"::[ Telaah Resep Per Data ]::",query,param);
     }
 
