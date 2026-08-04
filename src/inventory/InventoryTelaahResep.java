@@ -61,6 +61,8 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
     private int i=0;    
     private DlgCariPetugas petugas;
     private DlgCariPetugas petugas2;
+    private javax.swing.JPopupMenu PopupTelaah;
+    private javax.swing.JMenuItem MnCetakPerData;
     private StringBuilder htmlContent;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private volatile boolean ceksukses = false;
@@ -174,6 +176,7 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
             }
         }
         tbObat.setDefaultRenderer(Object.class, new WarnaTable());
+        initPopupCetakPerData();
 
         TNoRw.setDocument(new batasInput((byte)17).getKata(TNoRw));
         Nip.setDocument(new batasInput((byte)20).getKata(Nip));
@@ -2022,6 +2025,22 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
                runBackground(() ->tampil());
                emptTeks();
         }
+    }
+
+    private void initPopupCetakPerData() {
+        PopupTelaah = new javax.swing.JPopupMenu();
+        MnCetakPerData = new javax.swing.JMenuItem("Cetak Telaah Per Data");
+        MnCetakPerData.addActionListener(evt -> cetakTelaahPerData());
+        PopupTelaah.add(MnCetakPerData);
+        tbObat.setComponentPopupMenu(PopupTelaah);
+    }
+
+    private void cetakTelaahPerData() {
+        if (tbObat.getSelectedRow() < 0) {
+            JOptionPane.showMessageDialog(rootPane,"Silahkan anda pilih data terlebih dahulu..!!");
+            return;
+        }
+        String noResep = tbObat.getValueAt(tbObat.getSelectedRow(),0).toString();
     }
 
     private void tampil2() {
