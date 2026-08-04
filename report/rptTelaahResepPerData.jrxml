@@ -275,7 +275,7 @@
 				</textField>
 				<componentElement>
 					<reportElement x="370" y="14" width="100" height="60" uuid="f2e85844-bfbd-4c7c-ad7e-b17d457f354f"/>
-					<printWhenExpression><![CDATA[$F{nama_validator2}!=null && !$F{nama_validator2}.trim().equals("") && $F{tgl_validasi2}!=null]]></printWhenExpression>
+					<printWhenExpression><![CDATA[$F{nama_validator2}!=null && !$F{nama_validator2}.trim().equals("") && $F{tgl_validasi2}!=null && $F{status_validasi2}!=null && !$F{status_validasi2}.trim().equals("") && !$F{status_validasi2}.trim().equalsIgnoreCase("Belum")]]></printWhenExpression>
 					<jr:QRCode xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" errorCorrectionLevel="H">
 						<jr:codeExpression><![CDATA[
 "NoResep:" + ($F{no_resep}==null?"-":$F{no_resep}) +
@@ -284,9 +284,17 @@
 "|St2:" + ($F{status_validasi2}==null?"-":$F{status_validasi2}) +
 "|W2:" + ($F{tgl_validasi2}==null?"-":new java.text.SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format($F{tgl_validasi2})) +
 "|Cat2:" + ($F{catatan_validasi2}==null?"-":$F{catatan_validasi2})
-]]></jr:codeExpression>
+						]]></jr:codeExpression>
 					</jr:QRCode>
 				</componentElement>
+				<textField>
+					<reportElement x="370" y="38" width="100" height="12" uuid="1cd7996b-f140-4508-9354-f26b268cf6f4"/>
+					<printWhenExpression><![CDATA[$F{status_validasi2}==null || $F{status_validasi2}.trim().equals("") || $F{status_validasi2}.trim().equalsIgnoreCase("Belum")]]></printWhenExpression>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Tahoma" size="8" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Belum divalidasi"]]></textFieldExpression>
+				</textField>
 			</band>
 		</groupFooter>
 	</group>
