@@ -54,6 +54,7 @@ import kepegawaian.DlgCariPetugas;
 public final class InventoryTelaahResep extends javax.swing.JDialog {
     private static final String REPORT_DIR = "report";
     private static final String REPORT_TELAAH_RESEP_PER_DATA = "rptTelaahResepPerData.jasper";
+    private static final String REPORT_TELAAH_RESEP_PER_DATA_JRXML = "rptTelaahResepPerData.jrxml";
     private final DefaultTableModel tabMode;
     private Connection koneksi=koneksiDB.condb();
     private sekuel Sequel=new sekuel();
@@ -2050,6 +2051,13 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(rootPane,"File report "+REPORT_TELAAH_RESEP_PER_DATA+" tidak ditemukan di folder "+REPORT_DIR+"..!!");
             return;
         }
+        File fileDesain = new File(REPORT_DIR,REPORT_TELAAH_RESEP_PER_DATA_JRXML);
+        if(fileDesain.isFile() && fileLaporan.lastModified()<fileDesain.lastModified()){
+            JOptionPane.showMessageDialog(rootPane,
+                "File " + REPORT_TELAAH_RESEP_PER_DATA + " lebih lama dari " + REPORT_TELAAH_RESEP_PER_DATA_JRXML +
+                "\nSilahkan compile ulang di folder runtime ini:\n" + fileDesain.getAbsolutePath());
+            return;
+        }
         Map<String, Object> param = new HashMap<>(); 
         param.put("namars",akses.getnamars());
         param.put("alamatrs",akses.getalamatrs());
@@ -2103,12 +2111,14 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
                "left join poliklinik on reg_periksa.kd_poli=poliklinik.kd_poli "+
                "where telaah_farmasi.no_resep='"+noResep+"') h "+
                "left join (select x.no_resep,x.nama_obat,x.cara_pakai,x.jumlah_obat from ("+
-               "select resep_dokter.no_resep,databarang.nama_brng as nama_obat,resep_dokter.aturan_pakai as cara_pakai,"+
+               "select resep_dokter.no_resep,databarang.nama_brng as nama_obat,"+
+               "coalesce(nullif(resep_dokter.aturan_pakai,''),"+
+               "(select ap.aturan from resep_obat ro left join aturan_pakai ap on ap.no_rawat=ro.no_rawat and ap.tgl_perawatan=ro.tgl_perawatan and ap.jam=ro.jam and ap.kode_brng=resep_dokter.kode_brng where ro.no_resep=resep_dokter.no_resep limit 1),'-') as cara_pakai,"+
                "concat(resep_dokter.jml,' ',databarang.kode_sat) as jumlah_obat,0 as urut_jenis,'' as urut_racik,databarang.kode_brng as urut_kode "+
                "from resep_dokter inner join databarang on resep_dokter.kode_brng=databarang.kode_brng "+
                "where resep_dokter.no_resep='"+noResep+"' "+
                "union all " +
-               "select resep_dokter_racikan_detail.no_resep,concat('Racikan ',resep_dokter_racikan_detail.no_racik,' - ',databarang.nama_brng) as nama_obat,resep_dokter_racikan.aturan_pakai as cara_pakai,"+
+               "select resep_dokter_racikan_detail.no_resep,concat('Racikan ',resep_dokter_racikan_detail.no_racik,' - ',databarang.nama_brng) as nama_obat,coalesce(nullif(resep_dokter_racikan.aturan_pakai,''),'-') as cara_pakai,"+
                "concat(resep_dokter_racikan_detail.jml,' ',databarang.kode_sat) as jumlah_obat,1 as urut_jenis,resep_dokter_racikan_detail.no_racik as urut_racik,databarang.kode_brng as urut_kode "+
                "from resep_dokter_racikan_detail inner join databarang on resep_dokter_racikan_detail.kode_brng=databarang.kode_brng "+
                "inner join resep_dokter_racikan on resep_dokter_racikan.no_resep=resep_dokter_racikan_detail.no_resep and resep_dokter_racikan.no_racik=resep_dokter_racikan_detail.no_racik "+
