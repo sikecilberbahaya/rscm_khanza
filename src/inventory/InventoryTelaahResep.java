@@ -267,7 +267,6 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
         Nip2 = new widget.TextBox();
         NamaPetugas2 = new widget.TextBox();
         btnPetugas2 = new widget.Button();
-        jLabel43 = new widget.Label();
         jLabel8 = new widget.Label();
         TglLahir = new widget.TextBox();
         Alamat = new widget.TextBox();
@@ -684,11 +683,6 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
         });
         FormInput.add(btnPetugas);
         btnPetugas.setBounds(761, 40, 28, 23);
-
-        jLabel43.setText("Validator Ke-2 :");
-        jLabel43.setName("jLabel43"); // NOI18N
-        FormInput.add(jLabel43);
-        jLabel43.setBounds(570, 270, 96, 23);
 
         Nip2.setEditable(false);
         Nip2.setHighlighter(null);
@@ -1708,10 +1702,9 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
     private widget.Label LCount;
     private widget.editorpane LoadHTML;
     private widget.TextBox NamaPetugas;
+    private widget.TextBox NamaPetugas2;
     private widget.TextBox Nip;
     private widget.TextBox Nip2;
-    private widget.TextBox NamaPetugas2;
-    private widget.Button btnPetugas2;
     private widget.TextBox NoResep;
     private widget.ComboBox ObatTepatCaraPemberian;
     private widget.ComboBox ObatTepatDosis;
@@ -1737,6 +1730,7 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
     private javax.swing.JTabbedPane TabData;
     private widget.TextBox TglLahir;
     private widget.Button btnPetugas;
+    private widget.Button btnPetugas2;
     private widget.InternalFrame internalFrame1;
     private widget.Label jLabel14;
     private widget.Label jLabel15;
@@ -1768,7 +1762,6 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
     private widget.Label jLabel40;
     private widget.Label jLabel41;
     private widget.Label jLabel42;
-    private widget.Label jLabel43;
     private widget.Label jLabel6;
     private widget.Label jLabel7;
     private widget.Label jLabel8;
