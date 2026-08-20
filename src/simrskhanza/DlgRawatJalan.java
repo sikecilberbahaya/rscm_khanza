@@ -471,7 +471,7 @@ public final class DlgRawatJalan extends javax.swing.JDialog {
         tabModePemeriksaan=new DefaultTableModel(null,new Object[]{
             "P","No.Rawat","No.R.M.","Nama Pasien","Tgl.Rawat","Jam","Suhu(C)","Tensi","Nadi(/menit)",
             "Respirasi(/menit)","Tinggi(Cm)","Berat(Kg)","SpO2(%)","GCS(E,V,M)","Kesadaran","Subjek","Objek","Alergi",
-            "L.P.(Cm)","Plan","Asesmen","Inst/Impl","Evaluasi","NIP","Dokter/Paramedis","Profesi/Jabatan","Verifikasi"}){
+            "L.P.(Cm)","Plan","Asesmen","Inst/Impl","Evaluasi","NIP","Dokter/Paramedis","Profesi/Jabatan","Verifikasi","Divalidasi Oleh"}){
              @Override public boolean isCellEditable(int rowIndex, int colIndex){
                 boolean a = false;
                 if (colIndex==0) {
@@ -498,7 +498,7 @@ public final class DlgRawatJalan extends javax.swing.JDialog {
         tbPemeriksaan.setPreferredScrollableViewportSize(new Dimension(500,500));
         tbPemeriksaan.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        for (i = 0; i < 27; i++) {
+        for (i = 0; i < 28; i++) {
             TableColumn column = tbPemeriksaan.getColumnModel().getColumn(i);
             if(i==0){
                 column.setPreferredWidth(20);
@@ -554,6 +554,8 @@ public final class DlgRawatJalan extends javax.swing.JDialog {
                 column.setPreferredWidth(100);
             }else if(i==26){
                 column.setPreferredWidth(80);
+            }else if(i==27){
+                column.setPreferredWidth(120);
             }
         }
         tbPemeriksaan.setDefaultRenderer(Object.class, new WarnaTableSoap());
@@ -5641,6 +5643,10 @@ public final class DlgRawatJalan extends javax.swing.JDialog {
                                 tabModePemeriksaan.removeRow(i);
                                 i--;
                             }else{
+                                if(tbPemeriksaan.getValueAt(i,26).toString().equalsIgnoreCase("Sudah")){
+                                    JOptionPane.showMessageDialog(null,"SOAP yang sudah divalidasi tidak dapat dihapus.");
+                                    continue;
+                                }
                                 if(Sequel.cekTanggal48jam(tbPemeriksaan.getValueAt(i,4).toString()+" "+tbPemeriksaan.getValueAt(i,5).toString(),Sequel.ambiltanggalsekarang())==true){
                                     if(akses.getkode().equals(tbPemeriksaan.getValueAt(i,23).toString())){
                                         Sequel.queryu("delete from pemeriksaan_ralan where no_rawat='"+tbPemeriksaan.getValueAt(i,1).toString()+
@@ -6360,6 +6366,10 @@ private void BtnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
                                         SpO2.setText("");TEvaluasi.setText("");
                                 }   
                             }else{
+                                if(tbPemeriksaan.getValueAt(tbPemeriksaan.getSelectedRow(),26).toString().equalsIgnoreCase("Sudah")){
+                                    JOptionPane.showMessageDialog(null,"SOAP ini sudah divalidasi dokter dan tidak dapat diubah.");
+                                    return;
+                                }
                                 if(akses.getkode().equals(tbPemeriksaan.getValueAt(tbPemeriksaan.getSelectedRow(),23).toString())){
                                     if(Sequel.cekTanggal48jam(tbPemeriksaan.getValueAt(tbPemeriksaan.getSelectedRow(),4)+" "+tbPemeriksaan.getValueAt(tbPemeriksaan.getSelectedRow(),5),Sequel.ambiltanggalsekarang())==true){
                                         if(TanggalRegistrasi.getText().equals("")){
@@ -11843,10 +11853,12 @@ tampilkanStatusValidasi();
                     "pemeriksaan_ralan.berat,pemeriksaan_ralan.spo2,pemeriksaan_ralan.gcs,pemeriksaan_ralan.kesadaran,pemeriksaan_ralan.keluhan, " +
                     "pemeriksaan_ralan.pemeriksaan,pemeriksaan_ralan.alergi,pemeriksaan_ralan.lingkar_perut,pemeriksaan_ralan.rtl,"+
                     "pemeriksaan_ralan.penilaian,pemeriksaan_ralan.instruksi,pemeriksaan_ralan.evaluasi,pemeriksaan_ralan.nip,pegawai.nama,pegawai.jbtn, "+
-                    "pemeriksaan_ralan.verifikasi "+
+                    "pemeriksaan_ralan.verifikasi, "+
+                    "COALESCE(verifikator.nama,pemeriksaan_ralan.nip_verifikator) "+
                     "from pasien inner join reg_periksa on reg_periksa.no_rkm_medis=pasien.no_rkm_medis "+
                     "inner join pemeriksaan_ralan on pemeriksaan_ralan.no_rawat=reg_periksa.no_rawat "+
-                    "inner join pegawai on pemeriksaan_ralan.nip=pegawai.nik where  "+
+                    "inner join pegawai on pemeriksaan_ralan.nip=pegawai.nik "+
+                    "left join pegawai verifikator on pemeriksaan_ralan.nip_verifikator=verifikator.nik where  "+
                     "pemeriksaan_ralan.tgl_perawatan between ? and ? and reg_periksa.no_rkm_medis like ? "+
                     (TCari.getText().trim().equals("")?"":"and (pemeriksaan_ralan.no_rawat like ? or reg_periksa.no_rkm_medis like ? or pasien.nm_pasien like ? or "+
                     "pemeriksaan_ralan.alergi like ? or pemeriksaan_ralan.keluhan like ? or pemeriksaan_ralan.penilaian like ? or "+
@@ -11874,7 +11886,7 @@ tampilkanStatusValidasi();
                         rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),
                         rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),
                         rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
-                        rs.getString(24),rs.getString(25),rs.getString(26)
+                        rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27)
                     });
                 }
             } catch (Exception e) {
@@ -14340,6 +14352,7 @@ tampilkanStatusValidasi();
                     String statusVerif = (!Sequel.cariIsi("SELECT kd_dokter FROM dokter WHERE kd_dokter=?", KdPeg.getText()).equals("")||akses.getkode().equals("Admin Utama")) ? "Sudah" : "Belum";
                     String tglVerif = statusVerif.equals("Sudah") ? new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()) : null;
                     String nipVerif = statusVerif.equals("Sudah") ? akses.getkode() : null;
+                    String namaVerif = statusVerif.equals("Sudah") ? cariNamaVerifikator(nipVerif) : "";
                     if(KdPeg.getText().trim().equals("")||TPegawai.getText().trim().equals("")){
                         Valid.textKosong(KdPeg,"Dokter/Paramedis masih kosong...!!");
                     }else{
@@ -14353,7 +14366,7 @@ tampilkanStatusValidasi();
                                         false,TNoRw.getText(),TNoRM.getText(),TPasien.getText(),Valid.SetTgl(DTPTgl.getSelectedItem()+""),cmbJam.getSelectedItem()+":"+cmbMnt.getSelectedItem()+":"+cmbDtk.getSelectedItem(),
                                         TSuhu.getText(),TTensi.getText(),TNadi.getText(),TRespirasi.getText(),TTinggi.getText(),TBerat.getText(),SpO2.getText(),TGCS.getText(),cmbKesadaran.getSelectedItem().toString(),
                                         TKeluhan.getText(),TPemeriksaan.getText(),TAlergi.getText(),LingkarPerut.getText(),TindakLanjut.getText(),TPenilaian.getText(),TInstruksi.getText(),TEvaluasi.getText(),
-                                        KdPeg.getText(),TPegawai.getText(),Jabatan.getText(),statusVerif
+                                        KdPeg.getText(),TPegawai.getText(),Jabatan.getText(),statusVerif,namaVerif
                                     });
                                     TSuhu.setText("");TTensi.setText("");TNadi.setText("");TRespirasi.setText("");
                                     TTinggi.setText("");TBerat.setText("");TGCS.setText("");TKeluhan.setText("");
@@ -14373,7 +14386,7 @@ tampilkanStatusValidasi();
                                             false,TNoRw.getText(),TNoRM.getText(),TPasien.getText(),Valid.SetTgl(DTPTgl.getSelectedItem()+""),cmbJam.getSelectedItem()+":"+cmbMnt.getSelectedItem()+":"+cmbDtk.getSelectedItem(),
                                             TSuhu.getText(),TTensi.getText(),TNadi.getText(),TRespirasi.getText(),TTinggi.getText(),TBerat.getText(),SpO2.getText(),TGCS.getText(),cmbKesadaran.getSelectedItem().toString(),
                                             TKeluhan.getText(),TPemeriksaan.getText(),TAlergi.getText(),LingkarPerut.getText(),TindakLanjut.getText(),TPenilaian.getText(),TInstruksi.getText(),TEvaluasi.getText(),
-                                            KdPeg.getText(),TPegawai.getText(),Jabatan.getText(),statusVerif
+                                            KdPeg.getText(),TPegawai.getText(),Jabatan.getText(),statusVerif,namaVerif
                                         });
                                         TSuhu.setText("");TTensi.setText("");TNadi.setText("");TRespirasi.setText("");
                                         TTinggi.setText("");TBerat.setText("");TGCS.setText("");TKeluhan.setText("");
@@ -14539,8 +14552,10 @@ tampilkanStatusValidasi();
                     "verifikasi='Sudah', tgl_verifikasi=NOW(), nip_verifikator='" + akses.getkode() + "' " +
                     "WHERE no_rawat='" + noRawat + "' AND tgl_perawatan='" + tgl + "' AND jam_rawat='" + jam + "'";
             if (Sequel.queryutf(sql)) {
+                String namaDokter = cariNamaVerifikator(akses.getkode());
                 tbPemeriksaan.setValueAt("Sudah", row, 26);
-                lblVerifikasiStatus.setText("SUDAH DIVALIDASI OLEH DOKTER");
+                tbPemeriksaan.setValueAt(namaDokter, row, 27);
+                lblVerifikasiStatus.setText("SUDAH DIVALIDASI OLEH: " + namaDokter);
                 lblVerifikasiStatus.setForeground(new java.awt.Color(0, 128, 0));
                 Sequel.queryutf("INSERT INTO audit_validasi_soap (no_rawat,tgl_perawatan,jam_rawat,nip_pembuat,nip_verifikator,tgl_verifikasi,status,keterangan) VALUES('" +
                         noRawat + "','" + tgl + "','" + jam + "','" + nipPembuat + "','" + akses.getkode() + "',NOW(),'VALIDASI DOKTER','')");
@@ -14559,7 +14574,7 @@ tampilkanStatusValidasi();
         }
         String st = tbPemeriksaan.getValueAt(row, 26).toString();
         if (st.equalsIgnoreCase("Sudah")) {
-            lblVerifikasiStatus.setText("SUDAH DIVALIDASI");
+            lblVerifikasiStatus.setText("SUDAH DIVALIDASI OLEH: " + tbPemeriksaan.getValueAt(row, 27).toString());
             lblVerifikasiStatus.setForeground(new java.awt.Color(0, 128, 0));
         } else {
             lblVerifikasiStatus.setText("BELUM DIVALIDASI (Perlu Validasi Dokter)");
@@ -14582,5 +14597,13 @@ tampilkanStatusValidasi();
         } catch (Exception e) {
             System.out.println("Notif : " + e);
         }
+    }
+
+    private String cariNamaVerifikator(String nip) {
+        if (nip == null || nip.trim().equals("")) {
+            return "";
+        }
+        String nama = Sequel.cariIsi("SELECT nama FROM pegawai WHERE nik=?", nip);
+        return nama.equals("") ? nip : nama;
     }
 }
