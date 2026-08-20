@@ -14,3 +14,9 @@ nbproject/private/
 # OS
 Thumbs.db
 .DS_Store
+
+# Build output NetBeans (folder hasil kompilasi -none)
+/-none/
+
+# Catatan investigasi
+/investigations/
