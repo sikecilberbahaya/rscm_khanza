@@ -20,3 +20,8 @@ Thumbs.db
 
 # Catatan investigasi
 /investigations/
+
+# Anastesi (ditangguhkan, belum dipakai)
+/report/rptLaporanAnastesi.jasper
+/report/rptLaporanAnastesi.jrxml
+/src/rekammedis/RMLaporanAnastesi.java
