@@ -1347,7 +1347,10 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
                 JOptionPane.showMessageDialog(null,"Admin tidak dapat bertindak sebagai validator ke-2..!!");
             }else if(akses.getkode().equals(penelaah)){
                 JOptionPane.showMessageDialog(null,"Validator ke-2 harus petugas yang BERBEDA dengan penelaah..!!");
+            }else if(!bolehJadiValidator2()){
+                JOptionPane.showMessageDialog(null,"Hanya Apoteker atau Asisten Apoteker yang boleh menjadi validator ke-2..!!");
             }else if(statusSaatIni.equals("Belum")){
+                String noResepSql=noResep.replace("'", "''");
                 String catatan=JOptionPane.showInputDialog(rootPane,
                         "Isikan catatan validasi ke-2 (opsional jika sesuai):",
                         "Catatan Validasi Ke-2",JOptionPane.QUESTION_MESSAGE);
@@ -1359,15 +1362,28 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
                 int pilihan=JOptionPane.showConfirmDialog(rootPane,"Apakah telaah resep ini sudah SESUAI?","Validasi Ke-2",JOptionPane.YES_NO_OPTION);
                 if(pilihan==JOptionPane.YES_OPTION){
                     String sqlcatatan=catatanTrim.equals("")?"NULL":"'"+catatanSql+"'";
-                    if(Sequel.queryutf("UPDATE telaah_farmasi SET nip2='"+akses.getkode()+"',status_validasi2='Sesuai',catatan_validasi2="+sqlcatatan+",tgl_validasi2=NOW() WHERE no_resep='"+noResep+"'")){
+                    if(Sequel.queryutf("UPDATE telaah_farmasi SET nip2='"+akses.getkode()+"',status_validasi2='Sesuai',catatan_validasi2="+sqlcatatan+",tgl_validasi2=NOW() WHERE no_resep='"+noResepSql+"' AND status_validasi2='Belum'")){
                         runBackground(() ->tampil());
+                    }else{
+                        JOptionPane.showMessageDialog(null,"Gagal menyimpan validasi..!!");
                     }
-                }else{
-                    if(catatanTrim.equals("")){
+                }else if(pilihan==JOptionPane.NO_OPTION){
+                    while(catatanTrim.equals("")){
                         JOptionPane.showMessageDialog(null,"Catatan wajib diisi jika hasil validasi Tidak Sesuai..!!");
-                    }else if(Sequel.queryutf("UPDATE telaah_farmasi SET nip2='"+akses.getkode()+"',status_validasi2='Tidak Sesuai',catatan_validasi2='"+catatanSql+"',tgl_validasi2=NOW() WHERE no_resep='"+noResep+"'")){
+                        String catatanUlang=JOptionPane.showInputDialog(rootPane,
+                                "Isikan catatan validasi ke-2 (wajib jika tidak sesuai):",
+                                "Catatan Validasi Ke-2",JOptionPane.QUESTION_MESSAGE);
+                        if(catatanUlang==null){
+                            return;
+                        }
+                        catatanTrim=catatanUlang.trim();
+                        catatanSql=catatanTrim.replace("'", "''");
+                    }
+                    if(Sequel.queryutf("UPDATE telaah_farmasi SET nip2='"+akses.getkode()+"',status_validasi2='Tidak Sesuai',catatan_validasi2='"+catatanSql+"',tgl_validasi2=NOW() WHERE no_resep='"+noResepSql+"' AND status_validasi2='Belum'")){
                         JOptionPane.showMessageDialog(null,"Telaah ditolak. Penelaah (validator ke-1) dapat melihat catatan untuk perbaikan..!!");
                         runBackground(() ->tampil());
+                    }else{
+                        JOptionPane.showMessageDialog(null,"Gagal menyimpan validasi..!!");
                     }
                 }
             }else{
@@ -1385,6 +1401,11 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
             Valid.pindah(evt, BtnPrint, BtnKeluar);
         }
 }//GEN-LAST:event_BtnValidasi2KeyPressed
+
+    private boolean bolehJadiValidator2() {
+        String jbtn = Sequel.cariIsi("SELECT jabatan.nm_jbtn FROM petugas INNER JOIN jabatan ON petugas.kd_jbtn=jabatan.kd_jbtn WHERE petugas.nip=?", akses.getkode());
+        return jbtn.equalsIgnoreCase("Apoteker") || jbtn.equalsIgnoreCase("Asisten Apoteker");
+    }
 
     private void TCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TCariKeyPressed
         if(evt.getKeyCode()==KeyEvent.VK_ENTER){
@@ -2003,6 +2024,11 @@ public final class InventoryTelaahResep extends javax.swing.JDialog {
         String penelaah=tbObat.getValueAt(tbObat.getSelectedRow(),33).toString();
         if(!akses.getkode().equals("Admin Utama") && !akses.getkode().equals(penelaah)){
             JOptionPane.showMessageDialog(null,"Hanya penelaah (validator ke-1) atau Admin yang boleh mengubah..!!");
+            return;
+        }
+        String statusValidasi2=tbObat.getValueAt(tbObat.getSelectedRow(),37)==null?"":tbObat.getValueAt(tbObat.getSelectedRow(),37).toString();
+        if(!akses.getkode().equals("Admin Utama") && statusValidasi2.equals("Sesuai")){
+            JOptionPane.showMessageDialog(null,"Telaah yang sudah dinyatakan Sesuai oleh validator ke-2 tidak dapat diubah..!!");
             return;
         }
         if(Sequel.mengedittf("telaah_farmasi","no_resep=?","no_resep=?,resep_identifikasi_pasien=?,resep_ket_identifikasi_pasien=?,resep_tepat_obat=?,resep_ket_tepat_obat=?,"+
